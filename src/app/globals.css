@@ -1,0 +1,160 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+html,
+body {
+  height: 100%;
+}
+body {
+  background-color: #0b0b12;
+  color: rgba(255, 255, 255, 0.9);
+  -webkit-font-smoothing: antialiased;
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  background-image: radial-gradient(1200px 600px at 10% 10%, rgba(124, 92, 255, 0.16), transparent 60%),
+    radial-gradient(900px 500px at 90% 20%, rgba(233, 196, 106, 0.1), transparent 55%),
+    radial-gradient(800px 600px at 50% 100%, rgba(167, 139, 250, 0.12), transparent 60%);
+  background-attachment: fixed;
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-xl shadow-card;
+  }
+  .glass {
+    @apply border border-white/10 bg-white/[0.06] backdrop-blur-xl;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .btn-premium {
+    @apply btn bg-brand text-white shadow-glow hover:bg-brand-deep;
+  }
+  .btn-ghost {
+    @apply btn border border-white/15 bg-white/5 text-white/80 hover:bg-white/10;
+  }
+  .btn-gold {
+    @apply btn bg-gradient-to-r from-gold to-yellow-300 text-ink shadow-glow hover:brightness-105;
+  }
+  .input {
+    @apply w-full rounded-xl border border-white/10 bg-black/30 px-3.5 py-2.5 text-sm text-white placeholder:text-muted focus:border-brand/70 focus:outline-none focus:ring-2 focus:ring-brand/30;
+  }
+  .label {
+    @apply mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted;
+  }
+  .chip {
+    @apply inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/80;
+  }
+  .badge-special {
+    @apply inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-gold to-yellow-300 px-2.5 py-0.5 text-[11px] font-bold text-ink;
+  }
+}
+
+/* slim scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+}
+
+/* ---- Motion added in Phase 1.5: polish + perceived-speed ---- */
+@keyframes pulseBrand {
+  0%,
+  100% {
+    box-shadow: 0 10px 40px -12px rgba(124, 92, 255, 0.45);
+  }
+  50% {
+    box-shadow: 0 10px 50px -6px rgba(124, 92, 255, 0.85);
+  }
+}
+.animate-pulse-brand {
+  animation: pulseBrand 1.3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.12) 37%,
+    rgba(255, 255, 255, 0.04) 63%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+.gradient-text {
+  background: linear-gradient(90deg, #a78bfa, #e9c46a);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Respect users who prefer reduced motion (accessibility + battery) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ---- Polish: refined, consistent interactions across the whole app ---- */
+::selection {
+  background: rgba(124, 92, 255, 0.35);
+  color: #fff;
+}
+
+.card {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.card:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+/* Lift + brand glow on hover (applies where framer-motion isn't driving transform) */
+.card-hover {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-3px);
+  border-color: rgba(124, 92, 255, 0.35);
+  box-shadow: 0 16px 44px -18px rgba(124, 92, 255, 0.55);
+}
+
+.btn {
+  transition: transform 0.12s ease, filter 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+.btn:focus-visible {
+  outline: 2px solid rgba(167, 139, 250, 0.7);
+  outline-offset: 2px;
+}
+
+.input::placeholder {
+  color: rgba(139, 139, 167, 0.7);
+}
+
+.chip {
+  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+/* Soft hairline divider */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+}
