@@ -5,3 +5,7 @@ drizzle
 *.db-journal
 .env.local
 .env
+
+# build archives (re-creatable via zip)
+banter-src.zip
+banter-src.tar.gz

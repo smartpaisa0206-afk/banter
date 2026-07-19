@@ -34,7 +34,8 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
     e.preventDefault();
     setErr('');
     setLoading(true);
-    const res = await fetch(`/api/auth/${mode}`, {
+    const endpoint = mode === 'login' ? '/api/auth/login' : '/api/auth/register';
+    const res = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -191,14 +192,12 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
               : 'Send code'}
       </button>
 
-      {mode === 'login' && (
-        <a
-          href="/api/auth/google"
-          className="btn-ghost flex w-full items-center justify-center gap-2"
-        >
-          <GoogleIcon /> Continue with Google
-        </a>
-      )}
+      <a
+        href="/api/auth/google"
+        className="btn-ghost flex w-full items-center justify-center gap-2"
+      >
+        <GoogleIcon /> Continue with Google
+      </a>
 
       <p className="text-center text-xs text-muted">
         {mode === 'login' ? (

@@ -38,8 +38,46 @@ Banter must be in a git repo (it already is). Create a repo on GitHub and push.
   Generate the two secrets with: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`.
 - Deploy. Vercel gives you a `https://….vercel.app` URL.
 
-## 4. Create the tables + admin
-Run the migration once, pointed at Turso (do this from your machine):
+> **Tables are created automatically** — `postbuild` runs `npm run db:migrate`
+> during the Vercel build, so the Turso tables exist on first deploy. You only
+> need the manual `db:migrate` / `setup` commands below if you'd rather run
+> them yourself (e.g. to create the admin account).
+
+## 4. (Optional) Turn on real features
+Add these env vars in Vercel → Project → Settings → Environment Variables:
+
+**AI quality** (recommended — without it users get templates only)
+```
+LLM_PROVIDER=groq
+GROQ_API_KEY=gsk_...
+GROQ_MODEL=llama-3.1-70b-versatile     # stronger Hindi than 8b
+```
+
+**Email magic-code / OTP login** (users get a real 6-digit code by email)
+```
+RESEND_API_KEY=re_...                   # free at resend.com
+EMAIL_FROM=Banter <onboarding@resend.dev>
+```
+Without this, the code is shown on screen (fine for testing, not for public users).
+
+**Google sign-in** (needs `APP_BASE_URL` = your Vercel URL)
+```
+APP_BASE_URL=https://your-app.vercel.app
+GOOGLE_CLIENT_ID=....apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=GOCSPX-...
+```
+Then add the redirect URI `https://your-app.vercel.app/api/auth/google/callback`
+in Google Cloud Console.
+
+**Payments (Stripe)** — wiring lives in `src/lib/pricing.ts`; add keys when ready:
+```
+STRIPE_SECRET_KEY=sk_...
+STRIPE_BASIC_PRICE=price_...
+STRIPE_PREMIUM_PRICE=price_...
+```
+
+## 5. Create the admin account (one-time)
+Run from your machine, pointed at Turso:
 ```
 DATABASE_URL=libsql://xxxx.turso.io DATABASE_AUTH_TOKEN=**** npm run db:migrate
 ADMIN_EMAIL=admin@banter.app ADMIN_PASSWORD=admin1234 DATABASE_URL=libsql://xxxx.turso.io DATABASE_AUTH_TOKEN=**** npm run setup
@@ -55,6 +93,21 @@ must be this public HTTPS URL.
 ## Other hosts
 Railway / Render work the same way: same env vars, same Turso DB, build =
 `npm run build`, start = `npm run start`. HTTPS is provided automatically.
+
+## Verify your deploy
+After the first deploy, sanity-check it (replace the URL):
+```bash
+# Homepage should return HTML with your hero copy
+curl -s https://your-app.vercel.app/ | grep -o "Never go" | head -1
+
+# API health: register, then generate (free tier works without an LLM key)
+curl -s -X POST https://your-app.vercel.app/api/auth/register \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"smoke@test.com","password":"password123"}'
+curl -s -X POST https://your-app.vercel.app/api/generate \
+  -H 'Content-Type: application/json' -b cookies.txt \
+  -d '{"relationship":"partner","intent":"flirt","tone":"warm","language":"en","context":"great date","stream":false}'
+```
 
 ## Notes
 - `secure` cookies are enabled automatically in production (see
