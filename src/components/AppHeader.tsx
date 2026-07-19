@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Logo } from './Logo';
 import { LanguagePicker } from './LanguagePicker';
-import { LogOut, PenLine, History, Bookmark, Crown, MessageSquare } from 'lucide-react';
+import { LogOut, PenLine, History, Bookmark, Crown, MessageSquare, Shield } from 'lucide-react';
 
 export function AppHeader() {
   const router = useRouter();
@@ -67,6 +67,14 @@ export function AppHeader() {
           <Link href="/dashboard/upgrade" className="inline-flex items-center gap-1.5 text-sm text-white/70 hover:text-white">
             <Crown size={16} /> Upgrade
           </Link>
+          {role === 'admin' && (
+            <Link
+              href="/admin"
+              className="hidden items-center gap-1.5 text-sm text-white/70 hover:text-white sm:inline-flex"
+            >
+              <Shield size={16} /> Admin
+            </Link>
+          )}
           <LanguagePicker />
           {premium && <span className="badge-special">PREMIUM</span>}
           {llmReady !== null && (

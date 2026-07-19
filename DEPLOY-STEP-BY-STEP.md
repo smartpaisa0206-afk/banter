@@ -408,5 +408,21 @@ real Stripe Checkout using the already-localized prices in `src/lib/pricing.ts`.
 
 ---
 
+## PART 11 — View user feedback (you, the admin)
+
+Users send feedback from the dashboard (**Feedback** link in the header →
+`/dashboard/feedback`). To READ it:
+
+1. Log in as your **admin** account (`admin@banter.app` / your password).
+2. You'll see an **Admin** link in the header (only visible to the admin role).
+   Click it → `https://<project>.vercel.app/admin`.
+3. The **Feedback** section lists every message: the text, star rating (1–5),
+   the sender's email (if they gave one), and the date/time. Newest first.
+
+Behind the scenes it's a protected API (`/api/admin/feedbacks`, admin-only —
+non-admins get 403), so only you can see it.
+
+---
+
 That's the whole path. After PART 7 the web app is live; after PART 8 the
 keyboard works. Tell me when you hit a step and I'll unblock it.

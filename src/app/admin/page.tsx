@@ -1,13 +1,19 @@
+import { redirect } from 'next/navigation';
+import { getCurrentUser } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { desc } from 'drizzle-orm';
 import { getSetting } from '@/lib/settings';
 import { AdminUsersTable } from '@/components/AdminUsersTable';
+import { AdminFeedbackTable } from '@/components/AdminFeedbackTable';
 import { SettingsForm } from '@/components/SettingsForm';
 
 export const dynamic = 'force-dynamic';
 
 export default async function Admin() {
+  const me = await getCurrentUser();
+  if (!me || me.role !== 'admin') redirect('/dashboard');
+
   const rows = await db.select().from(users).orderBy(desc(users.createdAt));
   const usersData = rows.map((u) => ({
     id: u.id,
@@ -26,6 +32,10 @@ export default async function Admin() {
       <section>
         <h1 className="mb-3 text-2xl font-semibold">Users</h1>
         <AdminUsersTable users={usersData} />
+      </section>
+      <section>
+        <h1 className="mb-3 text-2xl font-semibold">Feedback</h1>
+        <AdminFeedbackTable />
       </section>
       <section>
         <h1 className="mb-3 text-2xl font-semibold">Settings</h1>
