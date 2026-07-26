@@ -6,6 +6,7 @@ export function Footer() {
       <p>
         {BRAND_NAME} · Say the right thing to the right person. · Made for real conversations, not games.
       </p>
-    </footer>
+    <p className="mt-2 font-semibold text-white/70">Designed & built by HONEY</p></footer>
   );
 }
+
