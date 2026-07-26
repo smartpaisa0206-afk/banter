@@ -5,65 +5,62 @@ import { Logo } from '@/components/Logo';
 import { LanguagePicker } from '@/components/LanguagePicker';
 import { Footer } from '@/components/Footer';
 import type { Plan } from '@/lib/pricing';
-import { ArrowRight, Sparkles, Zap, ShieldCheck, MousePointerClick, PenLine, Send, Mail, MessageCircle, Briefcase, Heart, Check, Star } from 'lucide-react';
+import {
+  ArrowRight,
+  Sparkles,
+  Heart,
+  Briefcase,
+  Mail,
+  MessageCircle,
+  Keyboard,
+  ShieldCheck,
+  Zap,
+  Check,
+  Grid3X3,
+} from 'lucide-react';
 
-const features = [
-  {
-    icon: <Sparkles size={20} className="text-brand-soft" />,
-    title: 'Right words, right person',
-    body: 'Pick who, what, and how — get message variants that sound like you, not a bot.',
-  },
-  {
-    icon: <Zap size={20} className="text-gold" />,
-    title: 'Live, as you type',
-    body: 'Get real-time suggestion chips while you write. Hurry mode for one-tap lines.',
-  },
-  {
-    icon: <ShieldCheck size={20} className="text-emerald-400" />,
-    title: 'Private & secure',
-    body: 'Encrypted at rest, secure sessions, rate-limited. Your words stay yours.',
-  },
-];
+const personal = ['Flirt', 'Friend reply', 'Apology', 'Ask out', 'Invite', 'Check-in'];
+const office = ['Mail', 'Follow-up', 'Notice', 'Agenda', 'Report', 'Marketing'];
 
-const steps = [
-  { icon: <MousePointerClick size={18} />, title: 'Pick', body: 'Relationship, intent, and tone in two taps.' },
-  { icon: <PenLine size={18} />, title: 'Type', body: 'Add a line of context — or let live hints help.' },
-  { icon: <Send size={18} />, title: 'Send', body: 'Copy a ready-to-send message and hit send.' },
-];
-
-const works = [
-  { icon: <Mail size={18} />, title: 'Emails', body: 'Subject + body, ready to send.' },
-  { icon: <MessageCircle size={18} />, title: 'Social & captions', body: 'Hooks that stop the scroll.' },
-  { icon: <Briefcase size={18} />, title: 'Marketing', body: 'Ad copy, taglines, launches.' },
-];
-
-const container = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
-};
+const container = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
 const item = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 240, damping: 22 } },
+  hidden: { opacity: 0, y: 18 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 220, damping: 24 } },
 };
+
+function FloatingCard({ className, label, text }: { className?: string; label: string; text: string }) {
+  return (
+    <motion.div
+      animate={{ y: [0, -10, 0] }}
+      transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+      className={`rounded-3xl border border-white/10 bg-white/[0.07] p-4 shadow-card backdrop-blur-2xl ${className || ''}`}
+    >
+      <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#9fd0ff]">{label}</p>
+      <p className="text-sm leading-relaxed text-white/85">{text}</p>
+    </motion.div>
+  );
+}
 
 export function Landing({ plans, country, currency }: { plans: Plan[]; country: string; currency: string }) {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col overflow-hidden">
       <motion.header
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="sticky top-0 z-30 border-b border-white/5 bg-ink/70 backdrop-blur-xl"
+        className="sticky top-0 z-30 border-b border-white/5 bg-ink/65 backdrop-blur-2xl"
       >
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-3">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-5 py-3">
           <Logo />
           <div className="flex items-center gap-2 sm:gap-3">
             <LanguagePicker />
-            <Link href="/login" className="btn-ghost hidden sm:inline-flex">
+            <Link href="/dashboard" className="hidden items-center gap-2 rounded-full border border-white/12 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-white/85 hover:bg-white/10 sm:inline-flex">
+              <Grid3X3 size={15} /> Workspace
+            </Link>
+            <Link href="/login" className="btn-ghost hidden rounded-full sm:inline-flex">
               Log in
             </Link>
-            <Link href="/signup" className="btn-premium">
-              Get Banter free
+            <Link href="/signup" className="btn-plus rounded-full">
+              Start free
             </Link>
           </div>
         </div>
@@ -75,178 +72,143 @@ export function Landing({ plans, country, currency }: { plans: Plan[]; country: 
           variants={container}
           initial="hidden"
           animate="show"
-          className="mx-auto grid max-w-6xl items-center gap-10 px-5 pb-16 pt-14 lg:grid-cols-2 lg:pt-20"
+          className="relative mx-auto grid min-h-[760px] max-w-7xl items-center gap-10 px-5 py-16 lg:grid-cols-[0.9fr_1.1fr] lg:py-24"
         >
+          <div className="absolute left-1/2 top-16 -z-10 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-brand/20 blur-[120px]" />
+          <div className="absolute right-0 top-28 -z-10 h-[360px] w-[360px] rounded-full bg-[#4aa8ff]/20 blur-[100px]" />
+
           <div>
-            <motion.span variants={item} className="chip mb-5 inline-flex">
-              <Sparkles size={12} /> Real-life words, not a game
-            </motion.span>
-            <motion.h1
-              variants={item}
-              className="text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl"
-            >
-              Never go <span className="gradient-text">blank</span> on what to say again.
-            </motion.h1>
-            <motion.p variants={item} className="mt-5 max-w-md text-lg text-muted">
-              Banter gives you the right words for the right person and moment — flirty, apologetic,
-              bold, or warm. Best quality, free to start.
+            <motion.p variants={item} className="mb-6 font-mono text-sm text-[#9fd0ff]">
+              {'< personal + office ai writing />'}
             </motion.p>
-            <motion.div variants={item} className="mt-8 flex flex-wrap items-center gap-3">
-              <Link href="/signup" className="btn-premium px-6 py-3 text-base">
-                Create free account <ArrowRight size={16} />
+            <motion.h1 variants={item} className="max-w-3xl text-6xl font-black leading-[0.92] tracking-[-0.06em] sm:text-7xl lg:text-8xl">
+              Say it better.
+              <span className="block gradient-text">Anywhere.</span>
+            </motion.h1>
+            <motion.p variants={item} className="mt-8 max-w-xl text-lg leading-relaxed text-white/68 sm:text-xl">
+              Banter writes the words you need for personal chats, office mails, social captions,
+              notices, and every awkward moment between.
+            </motion.p>
+            <motion.div variants={item} className="mt-9 flex flex-wrap gap-3">
+              <Link href="/signup" className="btn-plus rounded-full px-6 py-3 text-base">
+                Start free <ArrowRight size={17} />
               </Link>
-              <Link href="/login" className="btn-ghost px-6 py-3 text-base">
-                I already have one
+              <Link href="/dashboard" className="btn-ghost rounded-full px-6 py-3 text-base">
+                Open workspace
               </Link>
             </motion.div>
-            <motion.p variants={item} className="mt-4 text-xs text-muted">
-              No card needed · Private by design · Works in 18+ languages
-            </motion.p>
+            <motion.div variants={item} className="mt-8 flex flex-wrap gap-3 text-xs text-muted">
+              <span className="chip"><ShieldCheck size={13} /> Private by design</span>
+              <span className="chip"><Zap size={13} /> Live suggestions</span>
+              <span className="chip"><Keyboard size={13} /> Keyboard coming soon</span>
+            </motion.div>
           </div>
 
-          {/* Product mockup */}
-          <motion.div variants={item} className="relative">
-            <div className="absolute -inset-4 -z-10 rounded-[2rem] bg-gradient-to-br from-brand/30 via-transparent to-gold/20 blur-2xl" />
-            <div className="card p-5">
-              <div className="mb-4 flex flex-wrap gap-2">
-                <span className="chip">Partner</span>
-                <span className="chip">Flirt</span>
-                <span className="chip">Warm</span>
-              </div>
-              <div className="rounded-2xl border border-brand/30 bg-brand/5 p-4">
-                <p className="text-sm leading-relaxed">
-                  Had the best time with you tonight 😊 Can&apos;t stop thinking about that smile.
-                  Want to do it again soon?
-                </p>
-              </div>
-              <div className="mt-3 flex items-center justify-between">
-                <span className="text-xs text-muted">Ready to send</span>
-                <span className="btn-ghost px-3 py-1.5 text-xs">Copy</span>
+          <motion.div variants={item} className="relative min-h-[520px]">
+            <div className="absolute left-0 top-10 hidden text-[170px] font-black leading-none text-white/[0.025] lg:block">010</div>
+            <div className="absolute right-4 top-0 hidden text-[120px] font-black leading-none text-white/[0.035] lg:block">AI</div>
+
+            <div className="absolute left-1/2 top-1/2 w-full max-w-[560px] -translate-x-1/2 -translate-y-1/2 rounded-[2.5rem] border border-white/10 bg-white/[0.055] p-4 shadow-[0_40px_120px_-50px_rgba(74,168,255,0.9)] backdrop-blur-2xl">
+              <div className="rounded-[2rem] border border-white/10 bg-black/35 p-4">
+                <div className="mb-4 grid grid-cols-2 gap-2 rounded-3xl border border-white/10 bg-white/[0.04] p-2">
+                  <span className="mode-pill mode-pill-active"><Heart size={15} /> Personal</span>
+                  <span className="mode-pill"><Briefcase size={15} /> Office</span>
+                </div>
+                <div className="space-y-3">
+                  <div className="rounded-2xl border border-[#4aa8ff]/25 bg-[#4aa8ff]/10 p-4">
+                    <p className="text-xs text-[#9fd0ff]">Banter suggestion</p>
+                    <p className="mt-2 text-sm leading-relaxed">I had a great time talking to you today. Want to continue this over coffee?</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                    <p className="text-xs text-muted">Office version</p>
+                    <p className="mt-2 text-sm leading-relaxed text-white/80">Subject: Quick follow-up on our discussion...</p>
+                  </div>
+                </div>
               </div>
             </div>
+
+            <FloatingCard className="absolute left-0 top-10 w-56" label="personal" text="Flirt, apologize, check in, invite, and reply with confidence." />
+            <FloatingCard className="absolute bottom-12 right-0 w-60" label="office" text="Write mails, notices, agendas, reports, and marketing copy in seconds." />
           </motion.div>
         </motion.section>
 
-        {/* TRUST STRIP */}
-        <section className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-5 pb-14 text-sm text-muted">
-          <span className="inline-flex items-center gap-2"><Star size={14} className="text-gold" /> 18+ languages</span>
-          <span className="inline-flex items-center gap-2"><Check size={14} className="text-emerald-400" /> Encrypted at rest</span>
-          <span className="inline-flex items-center gap-2"><Mail size={14} className="text-brand-soft" /> Email, social &amp; marketing</span>
-          <span className="inline-flex items-center gap-2"><Zap size={14} className="text-gold" /> Live suggestions</span>
-        </section>
-
-        {/* TWO MODES */}
-        <section className="mx-auto max-w-5xl px-5 pb-16">
-          <h2 className="text-center text-2xl font-semibold">One app, two modes</h2>
-          <p className="mx-auto mt-2 max-w-xl text-center text-muted">
-            Switch in one tap. Work stays sharp and professional; Personal unlocks dating, friends and
-            everything in between.
-          </p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            <div className="card card-hover p-6">
-              <div className="mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-gold to-yellow-300 text-ink">
-                <Briefcase size={22} />
-              </div>
-              <h3 className="text-lg font-semibold">Work mode</h3>
-              <p className="mt-1 text-sm text-muted">
-                Emails, follow-ups, LinkedIn, ad copy. Clear, confident, professional.
-              </p>
+        {/* MODE SPLIT */}
+        <section className="mx-auto max-w-7xl px-5 py-16">
+          <div className="mb-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+            <div>
+              <p className="font-mono text-sm text-[#9fd0ff]">{'< choose your mode />'}</p>
+              <h2 className="mt-3 text-5xl font-black tracking-[-0.05em] sm:text-6xl">One workspace. Two worlds.</h2>
             </div>
-            <div className="card card-hover p-6">
-              <div className="mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-brand to-brand-deep text-white">
-                <Heart size={22} />
+            <p className="max-w-md text-sm leading-relaxed text-muted">
+              Switch context before you write. Banter reorganizes options for personal conversations or office work.
+            </p>
+          </div>
+          <div className="grid gap-5 lg:grid-cols-2">
+            <div className="rounded-[2rem] border border-pink-300/15 bg-white/[0.045] p-7 backdrop-blur-xl">
+              <Heart className="mb-8 text-pink-300" size={34} />
+              <h3 className="text-4xl font-bold tracking-tight">Personal</h3>
+              <p className="mt-3 text-muted">For friends, crushes, partners, family, and everyday replies.</p>
+              <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {personal.map((x) => <span key={x} className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm">{x}</span>)}
               </div>
-              <h3 className="text-lg font-semibold">Personal mode</h3>
-              <p className="mt-1 text-sm text-muted">
-                Flirty replies, friend texts, apologies. Warm, bold, unmistakably you.
-              </p>
+            </div>
+            <div className="rounded-[2rem] border border-[#4aa8ff]/30 bg-[#102238]/80 p-7 shadow-[0_35px_90px_-50px_rgba(74,168,255,0.9)] backdrop-blur-xl">
+              <Briefcase className="mb-8 text-[#9fd0ff]" size={34} />
+              <h3 className="text-4xl font-bold tracking-tight">Office</h3>
+              <p className="mt-3 text-white/68">For professional mails, business documents, captions, and growth copy.</p>
+              <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {office.map((x) => <span key={x} className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm">{x}</span>)}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* FEATURES */}
-        <section className="mx-auto grid max-w-5xl gap-4 px-5 pb-16 sm:grid-cols-3">
-          {features.map((f, i) => (
-            <motion.div
-              key={f.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.45, delay: i * 0.08 }}
-              whileHover={{ y: -4 }}
-              className="card card-hover p-5"
-            >
-              <div className="mb-3">{f.icon}</div>
-              <h3 className="font-semibold">{f.title}</h3>
-              <p className="mt-1 text-sm text-muted">{f.body}</p>
-            </motion.div>
-          ))}
-        </section>
-
-        {/* HOW IT WORKS */}
-        <section className="mx-auto max-w-3xl px-5 pb-16 text-center">
-          <h2 className="text-2xl font-semibold">How it works</h2>
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            {steps.map((s) => (
-              <div key={s.title} className="card p-5 text-center">
-                <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-brand/15 text-brand-soft">
-                  {s.icon}
-                </div>
-                <h3 className="font-semibold">{s.title}</h3>
-                <p className="mt-1 text-sm text-muted">{s.body}</p>
+        {/* KEYBOARD */}
+        <section className="mx-auto max-w-7xl px-5 py-16">
+          <div className="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/[0.045] p-8 backdrop-blur-xl sm:p-12">
+            <div className="absolute right-0 top-0 h-72 w-72 rounded-full bg-[#4aa8ff]/20 blur-3xl" />
+            <div className="relative grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+              <div>
+                <p className="font-mono text-sm text-[#9fd0ff]">{'< phase 2 />'}</p>
+                <h2 className="mt-3 text-5xl font-black tracking-[-0.05em]">Keyboard mode is next.</h2>
+                <p className="mt-5 text-muted">Use Banter inside WhatsApp, Instagram, Gmail, LinkedIn, and anywhere you type.</p>
               </div>
-            ))}
-          </div>
-        </section>
-
-        {/* WORKS */}
-        <section className="mx-auto max-w-5xl px-5 pb-16">
-          <div className="card overflow-hidden p-0">
-            <div className="grid gap-px bg-white/5 sm:grid-cols-3">
-              {works.map((w) => (
-                <div key={w.title} className="card-hover bg-ink/40 p-6">
-                  <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-lg bg-brand/15 text-brand-soft">
-                    {w.icon}
+              <div className="grid gap-3 sm:grid-cols-3">
+                {['WhatsApp replies', 'Gmail drafts', 'LinkedIn posts'].map((x) => (
+                  <div key={x} className="rounded-3xl border border-white/10 bg-black/20 p-5">
+                    <Keyboard className="mb-4 text-[#9fd0ff]" />
+                    <p className="font-semibold">{x}</p>
                   </div>
-                  <h3 className="font-semibold">{w.title}</h3>
-                  <p className="mt-1 text-sm text-muted">{w.body}</p>
-                </div>
-              ))}
-            </div>
-            <div className="flex flex-col items-center gap-2 bg-ink/40 px-6 py-5 text-center sm:flex-row sm:justify-between sm:text-left">
-              <p className="text-sm text-muted">Banter writes your work too — emails, posts, and marketing that sound like you.</p>
-              <Link href="/dashboard/upgrade" className="btn-gold px-5 py-2.5 text-sm">
-                See Works plans
-              </Link>
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
         {/* PRICING */}
-        <section className="mx-auto max-w-5xl px-5 pb-16">
-          <div className="mb-6 text-center">
-            <h2 className="text-2xl font-semibold">Simple, fair pricing</h2>
-            <p className="mt-1 text-sm text-muted">
-              Prices shown for <span className="text-white/90">{country}</span> in {currency} — localized by your region &amp; device at checkout.
+        <section className="mx-auto max-w-7xl px-5 py-16">
+          <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+            <div>
+              <p className="font-mono text-sm text-[#9fd0ff]">{'< pricing />'}</p>
+              <h2 className="mt-3 text-5xl font-black tracking-[-0.05em]">Free, Go, or Plus.</h2>
+            </div>
+            <p className="max-w-md text-sm text-muted">
+              Prices shown for <span className="text-white/90">{country}</span> in {currency}. Upgrade when you need Office mode and unlimited writing.
             </p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-5 lg:grid-cols-3">
             {plans.map((t) => (
-              <div
-                key={t.key}
-                className={`card card-hover flex flex-col p-5 ${t.key === 'premium' ? 'border-gold/40 shadow-glow' : ''}`}
-              >
+              <div key={t.key} className={`rounded-3xl border p-6 ${t.key === 'premium' ? 'border-[#4aa8ff]/60 bg-[#173456]' : 'border-white/10 bg-white/[0.045]'}`}>
                 <div className="flex items-center justify-between">
-                  <h3 className="font-semibold">{t.name}</h3>
-                  {t.key === 'premium' && <span className="badge-special">POPULAR</span>}
+                  <h3 className="text-2xl font-bold">{t.name}</h3>
+                  {t.key === 'premium' && <span className="badge-plus">Popular</span>}
                 </div>
-                <p className="mt-2 text-2xl font-bold gradient-text">{t.price}</p>
-                <p className="mt-1 flex-1 text-sm text-muted">{t.feats[0]}</p>
-                <Link
-                  href="/dashboard/upgrade"
-                  className={`mt-4 ${t.key === 'premium' ? 'btn-gold' : 'btn-ghost'} py-2.5 text-center text-sm`}
-                >
-                  {t.key === 'free' ? 'Start free' : t.key === 'premium' ? 'Go Premium' : 'Go Basic'}
+                <p className="mt-7 text-4xl font-black tracking-tight">{t.price}</p>
+                <ul className="mt-6 space-y-3 text-sm text-white/78">
+                  {t.feats.map((f) => <li key={f} className="flex gap-2"><Check size={15} className="mt-0.5 text-emerald-300" />{f}</li>)}
+                </ul>
+                <Link href="/dashboard/upgrade" className={`${t.key === 'premium' ? 'btn-plus' : 'btn-ghost'} mt-8 w-full rounded-full`}>
+                  {t.key === 'free' ? 'Start free' : t.key === 'premium' ? 'Upgrade to Plus' : 'Upgrade to Go'}
                 </Link>
               </div>
             ))}
@@ -254,15 +216,13 @@ export function Landing({ plans, country, currency }: { plans: Plan[]; country: 
         </section>
 
         {/* FINAL CTA */}
-        <section className="mx-auto max-w-4xl px-5 pb-20">
-          <div className="card relative overflow-hidden p-8 text-center">
-            <div className="absolute -inset-4 -z-10 bg-gradient-to-br from-brand/20 to-gold/10 blur-2xl" />
-            <h2 className="text-2xl font-semibold sm:text-3xl">Say the right thing, every time.</h2>
-            <p className="mx-auto mt-2 max-w-md text-sm text-muted">
-              Join free. No card, no awkward moments — just better words.
-            </p>
-            <Link href="/signup" className="btn-premium mt-6 px-6 py-3 text-base">
-              Create free account <ArrowRight size={16} />
+        <section className="mx-auto max-w-7xl px-5 pb-24 pt-12">
+          <div className="rounded-[2.5rem] border border-white/10 bg-gradient-to-br from-[#173456] to-white/[0.04] p-10 text-center shadow-[0_40px_120px_-60px_rgba(74,168,255,0.9)]">
+            <Mail className="mx-auto mb-5 text-[#9fd0ff]" size={34} />
+            <h2 className="text-5xl font-black tracking-[-0.05em]">Stop overthinking the send button.</h2>
+            <p className="mx-auto mt-4 max-w-xl text-muted">Open Banter, choose Personal or Office, and get the right words in seconds.</p>
+            <Link href="/signup" className="btn-plus mt-8 rounded-full px-7 py-3 text-base">
+              Create free account <ArrowRight size={17} />
             </Link>
           </div>
         </section>

@@ -7,10 +7,10 @@ import { CopyButton } from './CopyButton';
 import { ChipSelect } from './ChipSelect';
 import { RELATIONSHIPS, relAccessible } from '@/lib/engine/relationships';
 import { TONES, toneAccessible } from '@/lib/engine/tones';
-import { RELATIONSHIP_INTENTS, WORKS_INTENTS, WORKS_GROUPS, outputFormat, intentById } from '@/lib/engine/intents';
+import { RELATIONSHIP_INTENTS, WORKS_INTENTS, outputFormat, intentById } from '@/lib/engine/intents';
 import { canUseWorks } from '@/lib/plans';
 import type { GenerateOutput } from '@/lib/engine';
-import { Sparkles, Zap, Crown, AlertTriangle, Save, RefreshCw, Wifi, WifiOff, Briefcase, Heart } from 'lucide-react';
+import { Sparkles, Zap, Crown, AlertTriangle, Save, RefreshCw, Wifi, WifiOff, Heart, Briefcase, Lock } from 'lucide-react';
 
 function SaveButton({ text }: { text: string }) {
   const [saved, setSaved] = useState(false);
@@ -48,6 +48,7 @@ export function Composer() {
   const { outputLang } = useLang();
   const [role, setRole] = useState<string | null>(null);
   const [remaining, setRemaining] = useState<number | null>(null);
+  const [mode, setMode] = useState<'personal' | 'office'>('personal');
   const [relationship, setRelationship] = useState('partner');
   const [intent, setIntent] = useState('flirt');
   const [tone, setTone] = useState('warm');
@@ -64,25 +65,6 @@ export function Composer() {
   const [limitHit, setLimitHit] = useState(false);
   const [acked, setAcked] = useState(false);
   const [ackCheck, setAckCheck] = useState(false);
-
-  // Mode switch: Work (default) shows only professional options; Personal
-  // unlocks dating / friends / everything. Persisted so it sticks.
-  const [mode, setMode] = useState<'work' | 'personal'>('work');
-  useEffect(() => {
-    try {
-      const m = localStorage.getItem('banter_mode');
-      if (m === 'work' || m === 'personal') setMode(m);
-    } catch {
-      /* ignore */
-    }
-  }, []);
-  useEffect(() => {
-    try {
-      localStorage.setItem('banter_mode', mode);
-    } catch {
-      /* ignore */
-    }
-  }, [mode]);
 
   const abortRef = useRef<AbortController | null>(null);
   const suggestAbort = useRef<AbortController | null>(null);
@@ -123,49 +105,32 @@ export function Composer() {
     }
   }, []);
 
-  // Work mode restricts to professional options; Personal shows everything.
-  const WORK_RELS = ['boss', 'client', 'colleague', 'teacher', 'parent', 'stranger'];
-  const WORK_TONES = ['formal', 'confident', 'assertive', 'empathetic', 'casual', 'warm'];
-  const rels = useMemo(
-    () =>
-      RELATIONSHIPS.filter(
-        (r) => relAccessible(r.id, role || 'free') && (mode === 'personal' || WORK_RELS.includes(r.id)),
-      ),
-    [role, mode],
-  );
-  const tones = useMemo(
-    () =>
-      TONES.filter(
-        (tn) => toneAccessible(tn.id, role || 'free') && (mode === 'personal' || WORK_TONES.includes(tn.id)),
-      ),
-    [role, mode],
-  );
-  const works = useMemo(() => (canUseWorks(role || 'free') ? WORKS_INTENTS : []), [role]);
+  const rels = useMemo(() => RELATIONSHIPS.filter((r) => relAccessible(r.id, role || 'free')), [role]);
+  const tones = useMemo(() => TONES.filter((tn) => toneAccessible(tn.id, role || 'free')), [role]);
+  const worksUnlocked = canUseWorks(role || 'free');
+  const works = useMemo(() => (worksUnlocked ? WORKS_INTENTS : []), [worksUnlocked]);
   const intentGroups = useMemo(() => {
-    if (mode === 'work') {
+    if (mode === 'office') {
       const groups: { label: string; options: { id: string; label: string }[] }[] = [];
-      if (works.length) {
-        for (const g of WORKS_GROUPS) {
-          const opts = works.filter((w) => w.group === g).map((w) => ({ id: w.id, label: w.label }));
-          if (opts.length) groups.push({ label: g, options: opts });
-        }
-      }
-      return groups;
-    }
-    const groups = [{ label: 'Relationship', options: RELATIONSHIP_INTENTS.map((i) => ({ id: i.id, label: i.label })) }];
-    if (works.length) {
-      for (const g of WORKS_GROUPS) {
+      for (const g of ['Emails', 'Office', 'Social', 'Marketing']) {
         const opts = works.filter((w) => w.group === g).map((w) => ({ id: w.id, label: w.label }));
         if (opts.length) groups.push({ label: g, options: opts });
       }
+      return groups;
     }
+
+    const groups = [{ label: 'Personal chats', options: RELATIONSHIP_INTENTS.map((i) => ({ id: i.id, label: i.label })) }];
+    const personalTools = works.filter((w) => w.group === 'Personal').map((w) => ({ id: w.id, label: w.label }));
+    if (personalTools.length) groups.push({ label: 'Personal writing', options: personalTools });
     return groups;
-  }, [works, mode]);
+  }, [mode, works]);
 
   // The selected intent decides how the result is laid out (chat / email /
   // social / notice / document) — this is what makes "pick mail → different
   // format" actually visible in the UI.
   const fmt = useMemo(() => outputFormat(intentById(intent)), [intent]);
+  const officeLocked = mode === 'office' && !worksUnlocked;
+
   const contextPh = useMemo(() => {
     switch (fmt) {
       case 'email':
@@ -182,21 +147,29 @@ export function Composer() {
   }, [fmt, t]);
 
   useEffect(() => {
-    if (!rels.find((r) => r.id === relationship))
-      setRelationship(rels[0]?.id || (mode === 'work' ? 'boss' : 'partner'));
-  }, [rels, relationship, mode]);
+    if (!rels.find((r) => r.id === relationship)) setRelationship(rels[0]?.id || 'partner');
+  }, [rels, relationship]);
   useEffect(() => {
-    if (!tones.find((tn) => tn.id === tone)) setTone(tones[0]?.id || (mode === 'work' ? 'formal' : 'warm'));
-  }, [tones, tone, mode]);
+    if (!tones.find((tn) => tn.id === tone)) setTone(tones[0]?.id || 'warm');
+  }, [tones, tone]);
   useEffect(() => {
-    const all = [...RELATIONSHIP_INTENTS, ...works];
-    if (!all.find((i) => i.id === intent))
-      setIntent(mode === 'work' ? works[0]?.id || 'email_professional' : RELATIONSHIP_INTENTS[0].id);
-  }, [works, intent, mode]);
+    if (mode === 'office') {
+      const office = works.filter((w) => ['Emails', 'Office', 'Social', 'Marketing'].includes(w.group || ''));
+      if (office.length && !office.find((i) => i.id === intent)) setIntent(office[0].id);
+      return;
+    }
+
+    const personal = [...RELATIONSHIP_INTENTS, ...works.filter((w) => w.group === 'Personal')];
+    if (!personal.find((i) => i.id === intent)) setIntent(RELATIONSHIP_INTENTS[0].id);
+  }, [mode, works, intent]);
 
   // Live as-you-type suggestions: abortable + cached so we never pile up
   // competing LLM calls behind the user's keystrokes.
   useEffect(() => {
+    if (officeLocked) {
+      setSuggest([]);
+      return;
+    }
     const text = context.trim();
     if (text.length < 4) {
       setSuggest([]);
@@ -233,7 +206,7 @@ export function Composer() {
       }
     }, 800);
     return () => clearTimeout(handle);
-  }, [context, relationship, intent, tone, outputLang]);
+  }, [context, relationship, intent, tone, outputLang, officeLocked]);
 
   function applySuggestion(s: string) {
     setContext((prev) => (prev.trim() ? prev + ' ' + s : s));
@@ -242,6 +215,10 @@ export function Composer() {
   async function generateStream() {
     setError('');
     setLimitHit(false);
+    if (officeLocked) {
+      setError('Office mode is available on Basic and Premium. Upgrade to use mails, notices, office docs, and marketing tools.');
+      return;
+    }
     setLive(null);
     setMeta(null);
     setStreaming(true);
@@ -334,7 +311,7 @@ export function Composer() {
         <div>
           <h1 className="text-2xl font-semibold">{t('composer_title')}</h1>
           <p className="mt-0.5 text-sm text-muted">
-            Pick who, what &amp; how — get words that sound like you.
+            Switch between Personal and Office mode, then get words that sound like you.
           </p>
         </div>
         <AnimatePresence mode="popLayout">
@@ -352,36 +329,6 @@ export function Composer() {
         </AnimatePresence>
       </motion.div>
 
-      {/* Mode switch — Work (default) vs Personal. Big, obvious, color-coded
-          so the brain gets it in one glance. */}
-      <div className="grid grid-cols-2 gap-2 rounded-2xl bg-white/5 p-1">
-        <button
-          type="button"
-          onClick={() => setMode('work')}
-          className={`flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
-            mode === 'work'
-              ? 'bg-gradient-to-r from-gold to-yellow-300 text-ink shadow-glow'
-              : 'text-white/70 hover:text-white'
-          }`}
-        >
-          <Briefcase size={16} /> Work
-        </button>
-        <button
-          type="button"
-          onClick={() => setMode('personal')}
-          className={`flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
-            mode === 'personal'
-              ? 'bg-gradient-to-r from-brand to-brand-deep text-white shadow-glow'
-              : 'text-white/70 hover:text-white'
-          }`}
-        >
-          <Heart size={16} /> Personal
-        </button>
-      </div>
-      <p className="-mt-2 text-xs text-muted">
-        Work = emails &amp; pro messages · Personal = dating, friends &amp; everything
-      </p>
-
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -389,8 +336,44 @@ export function Composer() {
         className="card space-y-4 p-5"
       >
         <div>
+          <label className="label">Mode</label>
+          <div className="grid grid-cols-2 gap-2 rounded-3xl border border-white/10 bg-black/20 p-2">
+            <button
+              type="button"
+              onClick={() => setMode('personal')}
+              className={`mode-pill ${mode === 'personal' ? 'mode-pill-active' : 'hover:bg-white/10'}`}
+            >
+              <Heart size={16} className="text-pink-300" /> Personal
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode('office')}
+              className={`mode-pill ${mode === 'office' ? 'mode-pill-active' : 'hover:bg-white/10'}`}
+            >
+              <Briefcase size={16} className="text-gold" /> Office
+            </button>
+          </div>
+          <p className="mt-2 text-xs text-muted">
+            {mode === 'personal'
+              ? 'For partner, friend, family, flirting, apologies, invites, and everyday chats.'
+              : 'For mails, follow-ups, notices, office documents, social posts, and marketing copy.'}
+          </p>
+        </div>
+
+        {officeLocked && (
+          <div className="flex items-start justify-between gap-3 rounded-2xl border border-gold/25 bg-gold/5 px-4 py-3 text-sm text-gold/90">
+            <span className="flex items-start gap-2">
+              <Lock size={16} className="mt-0.5 shrink-0" /> Office mode is a Basic/Premium feature.
+            </span>
+            <Link href="/dashboard/upgrade" className="btn-gold shrink-0 px-3 py-1.5 text-xs">
+              Upgrade
+            </Link>
+          </div>
+        )}
+
+        <div>
           <ChipSelect
-            groups={[{ label: t('label_relationship'), options: rels.map((r) => ({ id: r.id, label: r.label })) }]}
+            groups={[{ label: mode === 'office' ? 'Audience' : t('label_relationship'), options: rels.map((r) => ({ id: r.id, label: r.label })) }]}
             value={relationship}
             onChange={setRelationship}
           />
@@ -465,12 +448,16 @@ export function Composer() {
 
         <button
           onClick={generateStream}
-          disabled={streaming}
+          disabled={streaming || officeLocked}
           className={`btn-premium w-full py-3 ${pulse ? 'animate-pulse-brand' : ''}`}
         >
           {streaming ? (
             <>
               <RefreshCw size={16} className="animate-spin" /> {t('generating')}
+            </>
+          ) : officeLocked ? (
+            <>
+              <Lock size={16} /> Unlock Office mode
             </>
           ) : (
             <>

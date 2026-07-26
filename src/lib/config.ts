@@ -8,7 +8,3 @@ export const SESSION_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 // Caps for "limited" history / saved on the Basic tier
 export const HISTORY_LIMIT = 25;
 export const SAVED_LIMIT = 25;
-
-// Free-trial + referral economics (override via env if you like)
-export const TRIAL_DAYS = Number(process.env.TRIAL_DAYS ?? 3);
-export const REFERRAL_BONUS_DAYS = Number(process.env.REFERRAL_BONUS_DAYS ?? 3);

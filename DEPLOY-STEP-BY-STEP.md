@@ -208,7 +208,7 @@ Environment Variables**). Add each row below. For **Environments** select
 | `NEXT_PUBLIC_BRAND_TAGLINE` | `Say the right thing to the right person.` | type it |
 | `LLM_PROVIDER` | `groq` | type it (skip if no AI) |
 | `GROQ_API_KEY` | `gsk_...` | your new key from 0.3 |
-| `GROQ_MODEL` | `llama-3.3-70b-versatile` | type it (the 3.1-70b model was **retired** by Groq and returns 400) |
+| `GROQ_MODEL` | `llama-3.1-70b-versatile` | type it |
 
 ### 5.4 Generate the two secret keys
 In your terminal, run:
@@ -426,71 +426,3 @@ non-admins get 403), so only you can see it.
 
 That's the whole path. After PART 7 the web app is live; after PART 8 the
 keyboard works. Tell me when you hit a step and I'll unblock it.
-
----
-
-## PART 12 — Referral loop, 3-day trial & beta rollout
-
-**What users get (the "earned" feeling):**
-- Every signup starts a **free 3-day Premium trial** — full quality, Works,
-  history, keyboard. It unlocks the instant they join, so it feels *earned*,
-  not given away.
-- If they sign up through a friend's invite link (`/signup?ref=CODE`),
-  **both** people get **+3 extra days**. The referrer's trial extends too, so
-  the loop compounds and testers stay hooked.
-- The dashboard + upgrade page show a **"You earned Premium — N days left"**
-  banner and an **invite widget** with a one-tap copy link + live "friends
-  joined" count. Scarcity copy ("beta slots limited") nudges sharing.
-
-**Env vars (set in Vercel, NOT the repo):**
-- `TRIAL_DAYS=3` — base trial length for every new account.
-- `REFERRAL_BONUS_DAYS=3` — extra days both sides get per successful invite.
-  (Both default to 3; change to tune the beta economics.)
-
-**Test the loop:**
-1. Sign up user A → `/api/me` shows `trialing:true`, `trialDaysLeft:3`,
-   `referralLink`. Copy it.
-2. Open that link in a private window, sign up user B → B gets `trialDaysLeft:6`.
-3. Re-check A → `trialDaysLeft:6`, `referredCount:1`. Both now have Premium.
-
-**Instagram creatives (ready to post):**
-- `marketing/insta-dating.png` (1080×1080) — "GM" → flirty reply.
-- `marketing/insta-office.png` (1080×1080) — blank → one-click email.
-- `marketing/insta-story.png` (1080×1920) — "earn 3 free days" story + steps.
-  Editable SVGs sit next to the PNGs if you want to tweak copy/colors.
-
----
-
-## PART 13 — Before you go live (security checklist)
-- **ROTATE YOUR GROQ KEY.** A key was pasted in chat earlier
-  (`gsk_…VWHD…`). Treat it as compromised: open https://console.groq.com →
-  API keys → delete it and create a fresh one, then set `GROQ_API_KEY` in
-  Vercel. Never commit keys to the repo.
-- Set strong `SESSION_SECRET` + `APP_ENCRYPTION_KEY` (64 random chars each).
-- Confirm the app is served over HTTPS (Vercel default) so the `Secure`
-  session cookie is sent correctly.
-- Optional: free trademark sanity check — ipindia.gov.in (classes 9 & 42) and
-  tmsearch.uspto.gov. "Banter" is a generic word (low risk), but worth a look.
-
----
-
-## PART 14 — Modes, email verification & pricing (this build)
-
-**Two modes (switch in the composer, top of dashboard):**
-- **Work** (default) — only professional options: boss/client/colleague/teacher/
-  parent/stranger, work tones, and Works (emails, social, marketing).
-- **Personal** — unlocks dating/flirty, friends, and everything.
-  Mode is saved in the browser (localStorage) so it sticks.
-
-**Email verification (stops fake/gmail signups):**
-- New accounts start **unverified**; generation is blocked (HTTP 403) until the
-  email is verified with a 6-digit code.
-- On signup a code is sent. **In production set `RESEND_API_KEY`** so the code is
-  emailed (proving inbox ownership). Without it (dev), the code is returned in
-  the API response / VerifyNotice so you can test. Existing accounts were
-  backfilled as verified, so current testers aren't affected.
-
-**Pricing no longer auto-grants Premium:** clicking a paid plan shows a
-"payments open soon — your free trial is already Premium" note. The 3-day
-referral trial remains the way to get Premium. Wire Stripe later for real
-checkout (see PART 13 / `src/app/api/billing/demo`).

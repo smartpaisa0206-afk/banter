@@ -15,18 +15,6 @@ export async function migrate() {
       created_at INTEGER NOT NULL
     );
   `);
-
-  // Referral columns — safe to re-run (ignored if already present).
-  await db.run(sql`ALTER TABLE users ADD COLUMN referral_code TEXT;`).catch(() => {});
-  await db.run(sql`ALTER TABLE users ADD COLUMN referred_by TEXT;`).catch(() => {});
-  // Backfill a referral code for any existing users (so beta testers can refer).
-  await db
-    .run(sql`UPDATE users SET referral_code = lower(hex(randomblob(4))) WHERE referral_code IS NULL;`)
-    .catch(() => {});
-  // Email verification column — new accounts start unverified (0); existing
-  // accounts are trusted and backfilled to verified (1).
-  await db.run(sql`ALTER TABLE users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 0;`).catch(() => {});
-  await db.run(sql`UPDATE users SET email_verified = 1 WHERE email_verified = 0;`).catch(() => {});
   await db.run(sql`
     CREATE TABLE IF NOT EXISTS sessions (
       id TEXT PRIMARY KEY,

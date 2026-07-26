@@ -14,21 +14,21 @@ export interface Plan {
 // Base prices are defined in INR. Other regions are converted with a static
 // rate table so we never depend on a live FX API for the UI.
 const BASE = {
-  free: { name: 'Free', priceMonthly: 0, feats: ['5 generations / day', 'Core relationships & tones', 'Live suggestions + Hurry mode'] },
+  free: { name: 'Free', priceMonthly: 0, feats: ['Personal mode', '5 generations / day', 'Core tones + live suggestions'] },
   basic: {
-    name: 'Basic',
+    name: 'Go',
     priceMonthly: 99,
-    feats: ['50 generations / day', 'Works: emails, social, marketing', 'Limited History & Saved'],
+    feats: ['Personal + Office mode', '50 generations / day', 'Emails, social, marketing', 'Limited history & saved'],
   },
   premium: {
-    name: 'Premium',
+    name: 'Plus',
     priceMonthly: 299,
     feats: [
       'Unlimited generations',
-      'All relationships, tones & languages',
-      'Full History & Saved',
-      'Native keyboard (Phase 2)',
-      'Feel special — exclusive tones',
+      'Everything in Go',
+      'Full history & saved',
+      'All tones and languages',
+      'Keyboard access when Phase 2 launches',
     ],
   },
 } as const;
@@ -60,8 +60,8 @@ function ctaFor(key: Plan['key'], role?: string): string | null {
   if (role === key) return 'Current';
   if (key === 'free') return null;
   if (role === 'admin' || role === 'premium') return null;
-  if (role === 'basic') return key === 'premium' ? 'Go Premium' : null;
-  return key === 'premium' ? 'Go Premium' : 'Upgrade';
+  if (role === 'basic') return key === 'premium' ? 'Upgrade to Plus' : null;
+  return key === 'premium' ? 'Upgrade to Plus' : 'Upgrade to Go';
 }
 
 export interface PricingResult {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { users, otpCodes } from '@/lib/db/schema';
+import { otpCodes } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { upsertUserByEmail, createSession, setSessionCookie } from '@/lib/auth';
 import { SESSION_MAX_AGE } from '@/lib/config';
@@ -27,8 +27,6 @@ export async function POST(req: NextRequest) {
   await db.update(otpCodes).set({ verified: true }).where(eq(otpCodes.email, email));
 
   const user = await upsertUserByEmail(email);
-  // Magic-code login proves inbox ownership, so mark the email verified.
-  await db.update(users).set({ emailVerified: 1 }).where(eq(users.id, user.id)).catch(() => {});
   const ip = req.headers.get('x-forwarded-for') || undefined;
   const token = await createSession(user.id, ip);
 

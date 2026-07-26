@@ -39,6 +39,9 @@ body {
   .btn-gold {
     @apply btn bg-gradient-to-r from-gold to-yellow-300 text-ink shadow-glow hover:brightness-105;
   }
+  .btn-plus {
+    @apply btn bg-[#4aa8ff] text-white shadow-[0_18px_55px_-18px_rgba(74,168,255,0.85)] hover:bg-[#64b7ff];
+  }
   .input {
     @apply w-full rounded-xl border border-white/10 bg-black/30 px-3.5 py-2.5 text-sm text-white placeholder:text-muted focus:border-brand/70 focus:outline-none focus:ring-2 focus:ring-brand/30;
   }
@@ -49,7 +52,31 @@ body {
     @apply inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/80;
   }
   .badge-special {
-    @apply inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-gold to-yellow-300 px-2.5 py-0.5 text-[11px] font-bold text-ink;
+    @apply inline-flex items-center gap-1 rounded-full bg-[#4aa8ff]/20 px-2.5 py-0.5 text-[11px] font-bold text-[#9fd0ff] ring-1 ring-[#4aa8ff]/35;
+  }
+  .badge-plus {
+    @apply inline-flex items-center gap-1 rounded-full bg-[#4aa8ff]/20 px-2.5 py-0.5 text-[11px] font-bold uppercase text-[#9fd0ff] ring-1 ring-[#4aa8ff]/35;
+  }
+  .mode-pill {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-semibold text-white/75 transition;
+  }
+  .mode-pill-active {
+    @apply border-brand/50 bg-brand/20 text-white shadow-glow;
+  }
+  .neo-surface {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025));
+    box-shadow: 12px 12px 30px rgba(0, 0, 0, 0.32), -10px -10px 28px rgba(255, 255, 255, 0.035);
+  }
+  .aurora-card {
+    @apply relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.045] backdrop-blur-2xl shadow-card;
+  }
+  .aurora-card::before {
+    content: '';
+    position: absolute;
+    inset: -40%;
+    background: radial-gradient(circle at 20% 20%, rgba(124, 92, 255, 0.2), transparent 35%),
+      radial-gradient(circle at 80% 10%, rgba(233, 196, 106, 0.14), transparent 32%);
+    pointer-events: none;
   }
 }
 

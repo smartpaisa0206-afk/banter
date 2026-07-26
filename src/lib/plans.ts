@@ -40,25 +40,3 @@ export function isPremium(role: string | undefined | null): boolean {
   const r = roleOf(role);
   return r === 'premium' || r === 'admin';
 }
-
-// --- Free trial -----------------------------------------------------------
-// A user on an active trial gets full Premium perks until trialEndsAt.
-// We surface this as an "earned" pass so beta testers feel ownership.
-export interface TrialUser {
-  role?: string | null;
-  trialEndsAt?: number | null;
-}
-
-export function isTrialing(user?: TrialUser | null): boolean {
-  return !!user && typeof user.trialEndsAt === 'number' && user.trialEndsAt > Date.now();
-}
-
-export function effectiveRole(user?: TrialUser | null): Role {
-  if (isTrialing(user)) return 'premium';
-  return roleOf(user?.role);
-}
-
-export function trialDaysLeft(user?: TrialUser | null): number {
-  if (!user?.trialEndsAt) return 0;
-  return Math.max(0, Math.ceil((user.trialEndsAt - Date.now()) / 86_400_000));
-}
