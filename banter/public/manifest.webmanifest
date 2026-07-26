@@ -1,0 +1,25 @@
+{
+  "name": "Banter — Say the right thing",
+  "short_name": "Banter",
+  "description": "Relationship-aware message assistant. Get the right words for the right person and moment.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0b12",
+  "theme_color": "#0b0b12",
+  "categories": ["communication", "productivity", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "GET",
+    "params": { "text": "text" }
+  }
+}

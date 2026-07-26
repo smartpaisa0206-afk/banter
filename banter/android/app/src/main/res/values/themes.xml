@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.BanterKeyboard" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand</item>
+        <item name="android:windowBackground">@color/ink</item>
+        <item name="android:colorBackground">@color/ink</item>
+    </style>
+</resources>
