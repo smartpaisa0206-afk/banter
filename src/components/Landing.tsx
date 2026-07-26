@@ -5,7 +5,7 @@ import { Logo } from '@/components/Logo';
 import { LanguagePicker } from '@/components/LanguagePicker';
 import { Footer } from '@/components/Footer';
 import type { Plan } from '@/lib/pricing';
-import { ArrowRight, Sparkles, Zap, ShieldCheck, MousePointerClick, PenLine, Send, Mail, MessageCircle, Briefcase, Check, Star } from 'lucide-react';
+import { ArrowRight, Sparkles, Zap, ShieldCheck, MousePointerClick, PenLine, Send, Mail, MessageCircle, Briefcase, Heart, Check, Star } from 'lucide-react';
 
 const features = [
   {
@@ -133,6 +133,35 @@ export function Landing({ plans, country, currency }: { plans: Plan[]; country: 
           <span className="inline-flex items-center gap-2"><Check size={14} className="text-emerald-400" /> Encrypted at rest</span>
           <span className="inline-flex items-center gap-2"><Mail size={14} className="text-brand-soft" /> Email, social &amp; marketing</span>
           <span className="inline-flex items-center gap-2"><Zap size={14} className="text-gold" /> Live suggestions</span>
+        </section>
+
+        {/* TWO MODES */}
+        <section className="mx-auto max-w-5xl px-5 pb-16">
+          <h2 className="text-center text-2xl font-semibold">One app, two modes</h2>
+          <p className="mx-auto mt-2 max-w-xl text-center text-muted">
+            Switch in one tap. Work stays sharp and professional; Personal unlocks dating, friends and
+            everything in between.
+          </p>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            <div className="card card-hover p-6">
+              <div className="mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-gold to-yellow-300 text-ink">
+                <Briefcase size={22} />
+              </div>
+              <h3 className="text-lg font-semibold">Work mode</h3>
+              <p className="mt-1 text-sm text-muted">
+                Emails, follow-ups, LinkedIn, ad copy. Clear, confident, professional.
+              </p>
+            </div>
+            <div className="card card-hover p-6">
+              <div className="mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-brand to-brand-deep text-white">
+                <Heart size={22} />
+              </div>
+              <h3 className="text-lg font-semibold">Personal mode</h3>
+              <p className="mt-1 text-sm text-muted">
+                Flirty replies, friend texts, apologies. Warm, bold, unmistakably you.
+              </p>
+            </div>
+          </div>
         </section>
 
         {/* FEATURES */}

@@ -7,7 +7,10 @@ export const users = sqliteTable('users', {
   salt: text('salt').notNull(),
   role: text('role').notNull().default('free'), // free | basic | premium | admin
   status: text('status').notNull().default('active'), // active | banned
-  trialEndsAt: integer('trial_ends_at'), // keyboard trial (phase 2)
+  trialEndsAt: integer('trial_ends_at'), // free-trial expiry (premium until this time)
+  referralCode: text('referral_code'), // this user's invite code
+  referredBy: text('referred_by'), // invite code that brought this user
+  emailVerified: integer('email_verified').notNull().default(0), // 0 = must verify, 1 = verified
   createdAt: integer('created_at').notNull(),
 });
 

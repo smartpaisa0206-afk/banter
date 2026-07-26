@@ -4,13 +4,15 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Logo } from './Logo';
 import { LanguagePicker } from './LanguagePicker';
-import { LogOut, PenLine, History, Bookmark, Crown, MessageSquare, Shield } from 'lucide-react';
+import { LogOut, PenLine, History, Bookmark, Crown, MessageSquare, Shield, Gift } from 'lucide-react';
 
 export function AppHeader() {
   const router = useRouter();
   const [role, setRole] = useState<string | null>(null);
   const [remaining, setRemaining] = useState<number | null>(null);
   const [llmReady, setLlmReady] = useState<boolean | null>(null);
+  const [trialing, setTrialing] = useState<boolean>(false);
+  const [trialDaysLeft, setTrialDaysLeft] = useState<number>(0);
 
   useEffect(() => {
     fetch('/api/me')
@@ -20,6 +22,8 @@ export function AppHeader() {
           setRole(d.user.role);
           setRemaining(d.remaining);
           setLlmReady(d.llmReady);
+          setTrialing(!!d.trialing);
+          setTrialDaysLeft(d.trialDaysLeft ?? 0);
         }
       })
       .catch(() => {});
@@ -64,6 +68,12 @@ export function AppHeader() {
           >
             <MessageSquare size={16} /> Feedback
           </Link>
+          <Link
+            href="/dashboard#refer"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-gold to-yellow-300 px-3 py-2 text-sm font-semibold text-ink shadow-glow hover:brightness-105"
+          >
+            <Gift size={16} /> Refer
+          </Link>
           <Link href="/dashboard/upgrade" className="inline-flex items-center gap-1.5 text-sm text-white/70 hover:text-white">
             <Crown size={16} /> Upgrade
           </Link>
@@ -76,7 +86,16 @@ export function AppHeader() {
             </Link>
           )}
           <LanguagePicker />
-          {premium && <span className="badge-special">PREMIUM</span>}
+          {trialing && premium ? (
+            <span
+              className="badge-special animate-pulse-brand"
+              title={`Premium trial — ${trialDaysLeft} day(s) left`}
+            >
+              ⚡ PREMIUM · {trialDaysLeft}d
+            </span>
+          ) : premium ? (
+            <span className="badge-special">PREMIUM</span>
+          ) : null}
           {llmReady !== null && (
             <span
               title={llmReady ? 'AI live' : 'Template mode (no AI key)'}

@@ -1,0 +1,56 @@
+<svg width="1080" height="1080" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b0b12"/>
+      <stop offset="100%" stop-color="#15101f"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e9c46a"/>
+      <stop offset="100%" stop-color="#7c5cff"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="32%" r="62%">
+      <stop offset="0%" stop-color="#7c5cff" stop-opacity="0.38"/>
+      <stop offset="100%" stop-color="#7c5cff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1080" height="1080" fill="url(#bg)"/>
+  <rect width="1080" height="1080" fill="url(#glow)"/>
+
+  <!-- logo -->
+  <g transform="translate(80,70)">
+    <rect width="56" height="56" rx="16" fill="url(#gold)"/>
+    <path d="M14 16 h28 a3 3 0 0 1 3 3 v6 a3 3 0 0 1 -3 3 h-7 l-4 3.4 v-3.4 h-1 a3 3 0 0 1 -3 -3 v-6 a3 3 0 0 1 3 -3 z" fill="#0b0b12"/>
+    <circle cx="22" cy="25" r="1.6" fill="#e9c46a"/>
+    <circle cx="27.5" cy="25" r="1.6" fill="#fff"/>
+    <circle cx="33" cy="25" r="1.6" fill="#fff"/>
+    <text x="72" y="39" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700" fill="#fff">Banter</text>
+  </g>
+
+  <text x="80" y="250" font-family="Inter, Arial, sans-serif" font-size="72" font-weight="800" fill="#ffffff">From “GM” to</text>
+  <text x="80" y="338" font-family="Inter, Arial, sans-serif" font-size="72" font-weight="800" fill="url(#gold)">something better.</text>
+
+  <!-- before -->
+  <rect x="80" y="430" width="360" height="150" rx="28" fill="#1c1c2a" stroke="#3a3a52" stroke-width="2"/>
+  <text x="120" y="525" font-family="Inter, Arial, sans-serif" font-size="52" font-weight="700" fill="#8b8ba7">GM</text>
+  <text x="80" y="628" font-family="Inter, Arial, sans-serif" font-size="20" fill="#8b8ba7">what you usually send</text>
+
+  <!-- arrow -->
+  <g transform="translate(480,498)" stroke="#7c5cff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M0 16 H118"/>
+    <path d="M106 0 L134 16 L106 32"/>
+  </g>
+
+  <!-- after -->
+  <rect x="620" y="400" width="400" height="240" rx="28" fill="url(#gold)"/>
+  <text x="658" y="476" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700" fill="#0b0b12">Still thinking about</text>
+  <text x="658" y="516" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700" fill="#0b0b12">last night… what are</text>
+  <text x="658" y="556" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700" fill="#0b0b12">you up to, cutie?</text>
+  <path d="M690 596 c-8 -13 -30 -10 -30 8 c0 13 20 24 30 32 c10 -8 30 -19 30 -32 c0 -18 -22 -21 -30 -8 z" fill="#7c5cff"/>
+  <text x="620" y="678" font-family="Inter, Arial, sans-serif" font-size="20" fill="#cdbff5">what Banter writes for you</text>
+
+  <!-- CTA -->
+  <rect x="80" y="850" width="920" height="150" rx="24" fill="#15101f" stroke="#7c5cff" stroke-opacity="0.45" stroke-width="2"/>
+  <text x="116" y="912" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="800" fill="#ffffff">Beta live — earn 3 days of Premium free.</text>
+  <text x="116" y="958" font-family="Inter, Arial, sans-serif" font-size="24" fill="#a78bfa">No card. Invite a friend = +3 days for both. Link in bio.</text>
+</svg>

@@ -10,7 +10,7 @@ import { TONES, toneAccessible } from '@/lib/engine/tones';
 import { RELATIONSHIP_INTENTS, WORKS_INTENTS, WORKS_GROUPS, outputFormat, intentById } from '@/lib/engine/intents';
 import { canUseWorks } from '@/lib/plans';
 import type { GenerateOutput } from '@/lib/engine';
-import { Sparkles, Zap, Crown, AlertTriangle, Save, RefreshCw, Wifi, WifiOff } from 'lucide-react';
+import { Sparkles, Zap, Crown, AlertTriangle, Save, RefreshCw, Wifi, WifiOff, Briefcase, Heart } from 'lucide-react';
 
 function SaveButton({ text }: { text: string }) {
   const [saved, setSaved] = useState(false);
@@ -65,6 +65,25 @@ export function Composer() {
   const [acked, setAcked] = useState(false);
   const [ackCheck, setAckCheck] = useState(false);
 
+  // Mode switch: Work (default) shows only professional options; Personal
+  // unlocks dating / friends / everything. Persisted so it sticks.
+  const [mode, setMode] = useState<'work' | 'personal'>('work');
+  useEffect(() => {
+    try {
+      const m = localStorage.getItem('banter_mode');
+      if (m === 'work' || m === 'personal') setMode(m);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+  useEffect(() => {
+    try {
+      localStorage.setItem('banter_mode', mode);
+    } catch {
+      /* ignore */
+    }
+  }, [mode]);
+
   const abortRef = useRef<AbortController | null>(null);
   const suggestAbort = useRef<AbortController | null>(null);
   const suggestCache = useRef<Map<string, string[]>>(new Map());
@@ -104,10 +123,35 @@ export function Composer() {
     }
   }, []);
 
-  const rels = useMemo(() => RELATIONSHIPS.filter((r) => relAccessible(r.id, role || 'free')), [role]);
-  const tones = useMemo(() => TONES.filter((tn) => toneAccessible(tn.id, role || 'free')), [role]);
+  // Work mode restricts to professional options; Personal shows everything.
+  const WORK_RELS = ['boss', 'client', 'colleague', 'teacher', 'parent', 'stranger'];
+  const WORK_TONES = ['formal', 'confident', 'assertive', 'empathetic', 'casual', 'warm'];
+  const rels = useMemo(
+    () =>
+      RELATIONSHIPS.filter(
+        (r) => relAccessible(r.id, role || 'free') && (mode === 'personal' || WORK_RELS.includes(r.id)),
+      ),
+    [role, mode],
+  );
+  const tones = useMemo(
+    () =>
+      TONES.filter(
+        (tn) => toneAccessible(tn.id, role || 'free') && (mode === 'personal' || WORK_TONES.includes(tn.id)),
+      ),
+    [role, mode],
+  );
   const works = useMemo(() => (canUseWorks(role || 'free') ? WORKS_INTENTS : []), [role]);
   const intentGroups = useMemo(() => {
+    if (mode === 'work') {
+      const groups: { label: string; options: { id: string; label: string }[] }[] = [];
+      if (works.length) {
+        for (const g of WORKS_GROUPS) {
+          const opts = works.filter((w) => w.group === g).map((w) => ({ id: w.id, label: w.label }));
+          if (opts.length) groups.push({ label: g, options: opts });
+        }
+      }
+      return groups;
+    }
     const groups = [{ label: 'Relationship', options: RELATIONSHIP_INTENTS.map((i) => ({ id: i.id, label: i.label })) }];
     if (works.length) {
       for (const g of WORKS_GROUPS) {
@@ -116,7 +160,7 @@ export function Composer() {
       }
     }
     return groups;
-  }, [works]);
+  }, [works, mode]);
 
   // The selected intent decides how the result is laid out (chat / email /
   // social / notice / document) — this is what makes "pick mail → different
@@ -138,15 +182,17 @@ export function Composer() {
   }, [fmt, t]);
 
   useEffect(() => {
-    if (!rels.find((r) => r.id === relationship)) setRelationship(rels[0]?.id || 'partner');
-  }, [rels, relationship]);
+    if (!rels.find((r) => r.id === relationship))
+      setRelationship(rels[0]?.id || (mode === 'work' ? 'boss' : 'partner'));
+  }, [rels, relationship, mode]);
   useEffect(() => {
-    if (!tones.find((tn) => tn.id === tone)) setTone(tones[0]?.id || 'warm');
-  }, [tones, tone]);
+    if (!tones.find((tn) => tn.id === tone)) setTone(tones[0]?.id || (mode === 'work' ? 'formal' : 'warm'));
+  }, [tones, tone, mode]);
   useEffect(() => {
     const all = [...RELATIONSHIP_INTENTS, ...works];
-    if (!all.find((i) => i.id === intent)) setIntent(RELATIONSHIP_INTENTS[0].id);
-  }, [works, intent]);
+    if (!all.find((i) => i.id === intent))
+      setIntent(mode === 'work' ? works[0]?.id || 'email_professional' : RELATIONSHIP_INTENTS[0].id);
+  }, [works, intent, mode]);
 
   // Live as-you-type suggestions: abortable + cached so we never pile up
   // competing LLM calls behind the user's keystrokes.
@@ -305,6 +351,36 @@ export function Composer() {
           )}
         </AnimatePresence>
       </motion.div>
+
+      {/* Mode switch — Work (default) vs Personal. Big, obvious, color-coded
+          so the brain gets it in one glance. */}
+      <div className="grid grid-cols-2 gap-2 rounded-2xl bg-white/5 p-1">
+        <button
+          type="button"
+          onClick={() => setMode('work')}
+          className={`flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
+            mode === 'work'
+              ? 'bg-gradient-to-r from-gold to-yellow-300 text-ink shadow-glow'
+              : 'text-white/70 hover:text-white'
+          }`}
+        >
+          <Briefcase size={16} /> Work
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode('personal')}
+          className={`flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
+            mode === 'personal'
+              ? 'bg-gradient-to-r from-brand to-brand-deep text-white shadow-glow'
+              : 'text-white/70 hover:text-white'
+          }`}
+        >
+          <Heart size={16} /> Personal
+        </button>
+      </div>
+      <p className="-mt-2 text-xs text-muted">
+        Work = emails &amp; pro messages · Personal = dating, friends &amp; everything
+      </p>
 
       <motion.div
         initial={{ opacity: 0, y: 10 }}

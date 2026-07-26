@@ -4,7 +4,7 @@ import { userFromMobileToken } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { generations } from '@/lib/db/schema';
 import { generate, relAccessible, toneAccessible, intentAccessible, intentById } from '@/lib/engine';
-import { canUseWorks } from '@/lib/plans';
+import { canUseWorks, effectiveRole } from '@/lib/plans';
 import { withinLimit, remainingFor } from '@/lib/usage';
 import { encryptText } from '@/lib/security';
 import { z } from 'zod';
@@ -31,23 +31,27 @@ export async function POST(req: NextRequest) {
   const token = bearer || body?.token;
   const user = await userFromMobileToken(token);
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (user.emailVerified !== 1) {
+    return NextResponse.json({ error: 'Verify your email to continue.', verify: true }, { status: 403 });
+  }
 
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
   const { relationship, intent, tone, language, context, length, hurry } = parsed.data;
+  const role = effectiveRole(user);
 
-  if (!relAccessible(relationship, user.role))
+  if (!relAccessible(relationship, role))
     return NextResponse.json({ error: 'Upgrade to use this relationship.' }, { status: 403 });
-  if (!toneAccessible(tone, user.role))
+  if (!toneAccessible(tone, role))
     return NextResponse.json({ error: 'Upgrade to use this tone.' }, { status: 403 });
   const intentCfg = intentById(intent);
-  if (!intentCfg || !intentAccessible(intent, user.role))
+  if (!intentCfg || !intentAccessible(intent, role))
     return NextResponse.json({ error: 'Upgrade to use this intent.' }, { status: 403 });
-  if (intentCfg.category === 'works' && !canUseWorks(user.role))
+  if (intentCfg.category === 'works' && !canUseWorks(role))
     return NextResponse.json({ error: 'Upgrade to use Works.' }, { status: 403 });
 
-  if (!(await withinLimit(user.role, user.id))) {
-    const rem = await remainingFor(user.role, user.id);
+  if (!(await withinLimit(role, user.id))) {
+    const rem = await remainingFor(role, user.id);
     return NextResponse.json(
       { error: 'Daily limit reached.', remaining: Number.isFinite(rem) ? rem : null, limitHit: true },
       { status: 429 },
@@ -71,6 +75,6 @@ export async function POST(req: NextRequest) {
       createdAt: Date.now(),
     })
     .catch(() => {});
-  const rem = await remainingFor(user.role, user.id);
+  const rem = await remainingFor(role, user.id);
   return NextResponse.json({ ...output, remaining: Number.isFinite(rem) ? rem : null });
 }

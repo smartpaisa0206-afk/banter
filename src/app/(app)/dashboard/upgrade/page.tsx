@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import { getCurrentUser } from '@/lib/auth';
 import { PlanCards } from '@/components/PlanCards';
+import { TrialReferral } from '@/components/TrialReferral';
 import { resolvePricing, detectCountry, detectDevice } from '@/lib/pricing';
 
 export const dynamic = 'force-dynamic';
@@ -32,6 +33,7 @@ export default async function Upgrade() {
           {device === 'mobile' ? ' & phone' : ''} at checkout.
         </p>
       </div>
+      <TrialReferral />
       <PlanCards plans={plans} />
     </div>
   );

@@ -1,22 +1,18 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Crown, Check } from 'lucide-react';
 import type { Plan } from '@/lib/pricing';
 
 export function PlanCards({ plans }: { plans: Plan[] }) {
-  const router = useRouter();
-  const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
 
-  async function upgrade() {
-    setBusy(true);
-    const res = await fetch('/api/billing/demo', { method: 'POST' });
-    setBusy(false);
-    if (res.ok) {
-      setDone(true);
-      router.refresh();
-    }
+  // Selecting a paid plan no longer silently grants Premium. Checkout is not
+  // wired yet, so we tell the user honestly: the free trial is already Premium.
+  function choose(key: string) {
+    if (key === 'free') return;
+    setNote(
+      'Payments open soon — your 3-day free trial is already Premium, so you have full access now. We’ll email you the moment checkout goes live.',
+    );
   }
 
   return (
@@ -50,21 +46,16 @@ export function PlanCards({ plans }: { plans: Plan[] }) {
               </button>
             ) : (
               <button
-                disabled={busy}
-                onClick={upgrade}
+                onClick={() => choose(tier.key)}
                 className={tier.key === 'premium' ? 'btn-gold w-full' : 'btn-premium w-full'}
               >
-                {busy ? '…' : tier.cta}
+                {tier.cta}
               </button>
             )}
           </div>
         </div>
       ))}
-      {done && (
-        <p className="text-sm text-gold md:col-span-3">
-          Demo upgrade applied (Premium). Wire Stripe later for real billing.
-        </p>
-      )}
+      {note && <p className="text-sm text-gold md:col-span-3">{note}</p>}
     </div>
   );
 }
