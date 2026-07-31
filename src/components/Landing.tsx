@@ -30,14 +30,10 @@ const item = {
 
 function FloatingCard({ className, label, text }: { className?: string; label: string; text: string }) {
   return (
-    <motion.div
-      animate={{ y: [0, -10, 0] }}
-      transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-      className={`rounded-3xl border border-white/10 bg-white/[0.07] p-4 shadow-card backdrop-blur-2xl ${className || ''}`}
-    >
+    <div className={`rounded-3xl border border-white/10 bg-white/[0.07] p-4 shadow-card backdrop-blur-2xl ${className || ''}`}>
       <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#9fd0ff]">{label}</p>
       <p className="text-sm leading-relaxed text-white/85">{text}</p>
-    </motion.div>
+    </div>
   );
 }
 
@@ -131,6 +127,22 @@ export function Landing({ plans, country, currency }: { plans: Plan[]; country: 
           </motion.div>
         </motion.section>
 
+        {/* DECISION PSYCHOLOGY */}
+        <section className="mx-auto max-w-7xl px-5 pb-8">
+          <div className="grid gap-4 md:grid-cols-3">
+            {[
+              ['Stop second-guessing', 'Get a strong first draft so your brain stops looping on what to say.'],
+              ['Sound like yourself', 'Choose tone and context; Banter keeps it natural, not robotic.'],
+              ['Send before the moment dies', 'Fast suggestions help you reply while the conversation still feels alive.'],
+            ].map(([title, body]) => (
+              <div key={title} className="rounded-3xl border border-white/10 bg-white/[0.045] p-5 backdrop-blur-xl">
+                <p className="text-lg font-bold text-white">{title}</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{body}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* MODE SPLIT */}
         <section className="mx-auto max-w-7xl px-5 py-16">
           <div className="mb-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
@@ -200,8 +212,8 @@ export function Landing({ plans, country, currency }: { plans: Plan[]; country: 
               <div key={t.key} className={`rounded-3xl border p-6 ${t.key === 'plus' ? 'border-[#4aa8ff]/60 bg-[#173456]' : 'border-white/10 bg-white/[0.045]'}`}>
                 <div className="flex items-center justify-between">
                   <h3 className="text-2xl font-bold">{t.name}</h3>
-                  {t.key === 'plus' && <span className="badge-plus">Popular</span>}
-                  {t.key === 'business' && <span className="badge-plus">Business</span>}
+                  {t.key === 'plus' && <span className="badge-plus">Most popular</span>}
+                  {t.key === 'pro' && <span className="badge-plus">Power</span>}
                 </div>
                 <p className="mt-7 text-4xl font-black tracking-tight">{t.price}</p>
                 <ul className="mt-6 space-y-3 text-sm text-white/78">

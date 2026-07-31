@@ -50,11 +50,11 @@ export function AppHeader() {
     router.refresh();
   }
 
-  const plus = role === 'premium' || role === 'admin';
-  const item = 'flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3 text-sm text-white/82 hover:bg-white/10 hover:text-white';
+  const plus = role === 'premium' || role === 'admin' || role === 'basic';
+  const navItem = 'inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-4 py-2.5 text-sm text-white/82 transition hover:bg-white/10 hover:text-white';
 
   return (
-    <header className="sticky top-0 z-30 border-b border-white/10 bg-ink/80 backdrop-blur-2xl">
+    <header className="sticky top-0 z-30 border-b border-white/10 bg-ink/82 backdrop-blur-2xl">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
         <Link href="/dashboard" className="flex items-center gap-2">
           <Logo />
@@ -80,46 +80,40 @@ export function AppHeader() {
       </div>
 
       {open && (
-        <div className="border-t border-white/10 bg-ink/95 px-4 py-4 shadow-[0_30px_90px_-55px_rgba(74,168,255,0.75)] backdrop-blur-2xl">
-          <div className="mx-auto grid max-w-6xl gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-            <div className="rounded-3xl border border-white/10 bg-white/[0.045] p-4">
-              <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white/90">
-                <UserCircle size={18} /> {email || 'Your profile'}
-              </div>
-              <div className="grid grid-cols-2 gap-2 rounded-3xl border border-white/10 bg-black/20 p-2">
-                <button
-                  type="button"
-                  onClick={() => setMode('personal')}
-                  className={`mode-pill ${mode === 'personal' ? 'mode-pill-active' : ''}`}
-                >
-                  <Heart size={15} className="text-pink-300" /> Personal
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setMode('professional')}
-                  className={`mode-pill ${mode === 'professional' ? 'mode-pill-active' : ''}`}
-                >
-                  <Briefcase size={15} className="text-[#9fd0ff]" /> Professional
-                </button>
-              </div>
-              <p className="mt-3 text-xs text-muted">
-                Menu mode is a quick preference. Use the mode switch inside Compose to generate personal or professional copy.
-              </p>
+        <div className="border-t border-white/10 bg-ink/95 px-4 py-3 shadow-[0_24px_70px_-50px_rgba(74,168,255,0.75)] backdrop-blur-2xl">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2">
+            <span className="mr-1 hidden max-w-[170px] truncate text-sm font-semibold text-white/80 md:inline" title={email || 'Profile'}>
+              {email || 'Profile'}
+            </span>
+
+            <div className="flex rounded-full border border-white/10 bg-black/25 p-1">
+              <button
+                type="button"
+                onClick={() => setMode('personal')}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold transition ${mode === 'personal' ? 'bg-brand text-white shadow-glow' : 'text-white/65 hover:bg-white/10'}`}
+              >
+                <Heart size={14} className="text-pink-300" /> Personal
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode('professional')}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold transition ${mode === 'professional' ? 'bg-[#4aa8ff] text-white shadow-[0_12px_35px_-16px_rgba(74,168,255,0.9)]' : 'text-white/65 hover:bg-white/10'}`}
+              >
+                <Briefcase size={14} /> Professional
+              </button>
             </div>
 
-            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-              <Link onClick={() => setOpen(false)} href="/dashboard" className={item}><Grid3X3 size={16} /> Dashboard</Link>
-              <Link onClick={() => setOpen(false)} href="/dashboard" className={item}><PenLine size={16} /> Compose</Link>
-              <Link onClick={() => setOpen(false)} href="/dashboard/history" className={item}><History size={16} /> History</Link>
-              <Link onClick={() => setOpen(false)} href="/dashboard/saved" className={item}><Bookmark size={16} /> Saved</Link>
-              <Link onClick={() => setOpen(false)} href="/dashboard/feedback" className={item}><MessageSquare size={16} /> Feedback</Link>
-              <Link onClick={() => setOpen(false)} href="/dashboard/upgrade" className={item}><Sparkles size={16} /> Pricing / Upgrade</Link>
-              <Link onClick={() => setOpen(false)} href="/dashboard/settings" className={item}><Settings size={16} /> Settings</Link>
-              <Link onClick={() => setOpen(false)} href="/dashboard/settings" className={item}><UserCircle size={16} /> Profile</Link>
-              {role === 'admin' && <Link onClick={() => setOpen(false)} href="/admin" className={item}><Shield size={16} /> Admin</Link>}
-              <div className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-2"><LanguagePicker /></div>
-              <button onClick={logout} className={`${item} justify-start text-left`}><LogOut size={16} /> Log out</button>
-            </div>
+            <Link onClick={() => setOpen(false)} href="/dashboard" className={navItem}><Grid3X3 size={16} /> Dashboard</Link>
+            <Link onClick={() => setOpen(false)} href="/dashboard" className={navItem}><PenLine size={16} /> Compose</Link>
+            <Link onClick={() => setOpen(false)} href="/dashboard/history" className={navItem}><History size={16} /> History</Link>
+            <Link onClick={() => setOpen(false)} href="/dashboard/saved" className={navItem}><Bookmark size={16} /> Saved</Link>
+            <Link onClick={() => setOpen(false)} href="/dashboard/feedback" className={navItem}><MessageSquare size={16} /> Feedback</Link>
+            <Link onClick={() => setOpen(false)} href="/dashboard/upgrade" className={navItem}><Sparkles size={16} /> Pricing</Link>
+            <Link onClick={() => setOpen(false)} href="/dashboard/settings" className={navItem}><Settings size={16} /> Settings</Link>
+            <Link onClick={() => setOpen(false)} href="/dashboard/settings" className={navItem}><UserCircle size={16} /> Profile</Link>
+            {role === 'admin' && <Link onClick={() => setOpen(false)} href="/admin" className={navItem}><Shield size={16} /> Admin</Link>}
+            <div className="rounded-full border border-white/10 bg-white/[0.045] px-2 py-1"><LanguagePicker /></div>
+            <button onClick={logout} className={`${navItem} justify-start text-left`}><LogOut size={16} /> Log out</button>
           </div>
         </div>
       )}

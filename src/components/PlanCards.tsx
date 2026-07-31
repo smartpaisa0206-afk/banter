@@ -21,17 +21,17 @@ export function PlanCards({ plans }: { plans: Plan[] }) {
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-5 lg:grid-cols-3">
         {plans.map((tier) => {
           const featured = tier.key === 'plus';
-          const business = tier.key === 'business';
+          const pro = tier.key === 'pro';
           return (
             <div
               key={tier.key}
               className={`relative flex min-h-[390px] flex-col overflow-hidden rounded-3xl border p-6 shadow-card transition hover:-translate-y-1 ${
                 featured
                   ? 'border-[#4aa8ff]/70 bg-[#173456] shadow-[0_30px_80px_-35px_rgba(74,168,255,0.9)]'
-                  : business
+                  : pro
                     ? 'border-white/20 bg-gradient-to-br from-white/[0.08] to-white/[0.03] backdrop-blur-xl'
                     : 'border-white/12 bg-white/[0.055] backdrop-blur-xl'
               }`}
@@ -39,24 +39,18 @@ export function PlanCards({ plans }: { plans: Plan[] }) {
               {featured && <div className="absolute inset-x-0 top-0 h-1 bg-[#4aa8ff]" />}
               <div className="flex items-start justify-between gap-3">
                 <h3 className="text-2xl font-bold tracking-tight">{tier.name}</h3>
-                {featured && <span className="badge-plus">Popular</span>}
-                {business && <span className="badge-plus">Business</span>}
+                {featured && <span className="badge-plus">Most popular</span>}
+                {pro && <span className="badge-plus">Power</span>}
               </div>
 
               <div className="mt-7">
                 <p className="text-4xl font-black tracking-tight">{tier.price}</p>
                 <p className="mt-4 text-sm font-semibold text-white/90">
                   {tier.key === 'free'
-                    ? 'Test the habit before you upgrade'
-                    : tier.key === 'starter'
-                      ? 'For daily personal replies'
-                      : tier.key === 'go'
-                        ? 'Unlock professional writing mode'
-                        : tier.key === 'plus'
-                          ? 'Best value for serious users'
-                          : tier.key === 'pro'
-                            ? 'For maximum productivity'
-                            : 'For creators, teams, and business use'}
+                    ? 'Start without pressure'
+                    : tier.key === 'plus'
+                      ? 'Best for everyday personal + professional writing'
+                      : 'For creators, freelancers, and power users'}
                 </p>
               </div>
 
@@ -85,9 +79,9 @@ export function PlanCards({ plans }: { plans: Plan[] }) {
                 ))}
               </ul>
 
-              {(featured || business) && (
+              {(featured || pro) && (
                 <div className="mt-6 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-xs text-white/80">
-                  <Sparkles size={14} className="mr-1 inline text-[#9fd0ff]" /> Designed to reduce hesitation and help you send faster.
+                  <Sparkles size={14} className="mr-1 inline text-[#9fd0ff]" /> Built to remove hesitation and help you send faster.
                 </div>
               )}
             </div>
