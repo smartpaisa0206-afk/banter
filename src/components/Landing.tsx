@@ -47,13 +47,20 @@ export function Landing({ plans, country, currency }: { plans: Plan[]; country: 
       >
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-5 py-3">
           <Logo />
+          <nav className="hidden items-center gap-5 text-sm text-white/70 lg:flex">
+            <Link href="/introduction" className="hover:text-white">Introduction</Link>
+            <Link href="/examples" className="hover:text-white">Examples</Link>
+            <Link href="/methods" className="hover:text-white">How to use</Link>
+            <Link href="/articles" className="hover:text-white">Articles</Link>
+            <Link href="/support" className="hover:text-white">Support</Link>
+          </nav>
           <div className="flex items-center gap-2 sm:gap-3">
             <LanguagePicker />
+            <Link href="/support" className="btn-ghost hidden rounded-full sm:inline-flex">
+              Support
+            </Link>
             <Link href="/dashboard" className="hidden items-center gap-2 rounded-full border border-white/12 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-white/85 hover:bg-white/10 sm:inline-flex">
               <Grid3X3 size={15} /> Workspace
-            </Link>
-            <Link href="/login" className="btn-ghost hidden rounded-full sm:inline-flex">
-              Log in
             </Link>
             <Link href="/signup" className="btn-plus rounded-full">
               Start free
@@ -74,9 +81,10 @@ export function Landing({ plans, country, currency }: { plans: Plan[]; country: 
           <div className="absolute right-0 top-28 -z-10 h-[360px] w-[360px] rounded-full bg-[#4aa8ff]/20 blur-[100px]" />
 
           <div>
-            <motion.p variants={item} className="mb-6 font-mono text-sm uppercase tracking-[0.28em] text-[#9fd0ff]">
-              Personal + Professional AI writing
-            </motion.p>
+            <motion.div variants={item} className="mb-6 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2">
+              <img src="/hny-labs-logo.png" alt="HNY Labs" className="h-7 w-auto rounded bg-white px-2 py-0.5" />
+              <span className="font-mono text-xs uppercase tracking-[0.22em] text-[#9fd0ff]">Personal + Professional AI writing</span>
+            </motion.div>
             <motion.h1 variants={item} className="max-w-3xl text-6xl font-black leading-[0.92] tracking-[-0.06em] sm:text-7xl lg:text-8xl">
               Say it better.
               <span className="block gradient-text">Send faster.</span>
@@ -140,6 +148,32 @@ export function Landing({ plans, country, currency }: { plans: Plan[]; country: 
                 <p className="mt-2 text-sm leading-relaxed text-muted">{body}</p>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* INTRO / HOW IT WORKS */}
+        <section className="mx-auto max-w-7xl px-5 py-16">
+          <div className="grid gap-5 lg:grid-cols-3">
+            <div className="rounded-[2rem] border border-white/10 bg-white/[0.045] p-7 backdrop-blur-xl lg:col-span-1">
+              <p className="font-mono text-sm uppercase tracking-[0.24em] text-[#9fd0ff]">Introduction</p>
+              <h2 className="mt-3 text-4xl font-black tracking-[-0.05em]">Built for the moment before you send.</h2>
+              <p className="mt-4 text-sm leading-relaxed text-muted">
+                Banter helps you move from blank screen to confident message. It gives you a starting point, not a fake personality.
+              </p>
+              <Link href="/introduction" className="btn-ghost mt-6 rounded-full">Read intro</Link>
+            </div>
+            <div className="rounded-[2rem] border border-white/10 bg-white/[0.045] p-7 backdrop-blur-xl">
+              <p className="font-mono text-sm uppercase tracking-[0.24em] text-[#9fd0ff]">Examples</p>
+              <h3 className="mt-3 text-2xl font-bold">See real samples</h3>
+              <p className="mt-3 text-sm leading-relaxed text-muted">Compare weak replies with better replies for flirting, apologies, follow-ups, captions, and emails.</p>
+              <Link href="/examples" className="btn-ghost mt-6 rounded-full">View examples</Link>
+            </div>
+            <div className="rounded-[2rem] border border-white/10 bg-white/[0.045] p-7 backdrop-blur-xl">
+              <p className="font-mono text-sm uppercase tracking-[0.24em] text-[#9fd0ff]">Method</p>
+              <h3 className="mt-3 text-2xl font-bold">Pick. Context. Copy.</h3>
+              <p className="mt-3 text-sm leading-relaxed text-muted">Choose Personal or Professional, add context, pick a tone, generate, then edit before you send.</p>
+              <Link href="/methods" className="btn-plus mt-6 rounded-full">How to use it</Link>
+            </div>
           </div>
         </section>
 
