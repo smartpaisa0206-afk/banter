@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-debug-31:\\layout_keyboard_view.xml.flat",
+        "source": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-main-33:\\layout\\keyboard_view.xml"
+    },
+    {
+        "merged": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-debug-31:\\xml_method.xml.flat",
+        "source": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-main-33:\\xml\\method.xml"
+    },
+    {
+        "merged": "com.banter.keyboard.app-debug-31:/layout_keyboard_view.xml.flat",
+        "source": "com.banter.keyboard.app-main-33:/layout/keyboard_view.xml"
+    },
+    {
+        "merged": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-debug-31:\\xml_qwerty.xml.flat",
+        "source": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-main-33:\\xml\\qwerty.xml"
+    },
+    {
+        "merged": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-debug-31:\\layout_activity_settings.xml.flat",
+        "source": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-main-33:\\layout\\activity_settings.xml"
+    },
+    {
+        "merged": "com.banter.keyboard.app-debug-31:/drawable_keyboard_key_bg.xml.flat",
+        "source": "com.banter.keyboard.app-main-33:/drawable/keyboard_key_bg.xml"
+    }
+]

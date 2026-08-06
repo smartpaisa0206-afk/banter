@@ -2,6 +2,7 @@ package com.banter.keyboard
 
 import android.content.Context
 import android.graphics.Color
+import android.text.TextUtils
 import android.util.AttributeSet
 import android.view.Gravity
 import android.widget.HorizontalScrollView
@@ -19,29 +20,38 @@ class BanterCandidateView @JvmOverloads constructor(
 
     private val container = LinearLayout(context).apply {
         orientation = HORIZONTAL
-        setPadding(12, 8, 12, 8)
+        gravity = Gravity.CENTER_VERTICAL
+        setPadding(dp(8), dp(8), dp(8), dp(8))
     }
 
     var onPick: ((String) -> Unit)? = null
 
     init {
         orientation = HORIZONTAL
-        val scroll = HorizontalScrollView(context).apply { isHorizontalScrollBarEnabled = false }
+        val scroll = HorizontalScrollView(context).apply {
+            isHorizontalScrollBarEnabled = false
+            overScrollMode = OVER_SCROLL_NEVER
+        }
         scroll.addView(container)
-        addView(scroll)
+        addView(scroll, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
     }
 
     fun setCandidates(items: List<String>) {
         container.removeAllViews()
         for (text in items) {
+            val isStatus = isStatusChip(text)
             val chip = TextView(context).apply {
                 this.text = text
-                this.gravity = Gravity.CENTER_VERTICAL
-                setTextColor(Color.WHITE)
-                setPadding(24, 14, 24, 14)
-                val pad = (6 * resources.displayMetrics.density).toInt()
-                setMargin(pad)
-                background = makeChipBg()
+                gravity = Gravity.CENTER_VERTICAL
+                setTextColor(if (isStatus) 0xFF9FD0FF.toInt() else Color.WHITE)
+                textSize = if (isStatus) 13f else 14f
+                maxLines = 2
+                ellipsize = TextUtils.TruncateAt.END
+                setPadding(dp(16), dp(9), dp(16), dp(9))
+                minHeight = dp(38)
+                maxWidth = if (isStatus) dp(360) else dp(300)
+                setMargin(dp(5))
+                background = makeChipBg(isStatus, text == "Undo")
                 setOnClickListener { onPick?.invoke(text) }
             }
             container.addView(chip)
@@ -49,6 +59,18 @@ class BanterCandidateView @JvmOverloads constructor(
     }
 
     fun clear() = container.removeAllViews()
+
+    private fun isStatusChip(text: String): Boolean {
+        return text == "Thinking…" ||
+            text == "Undo" ||
+            text == "Done ✓" ||
+            text.startsWith("Open Banter") ||
+            text.startsWith("No suggestions") ||
+            text.startsWith("Type something") ||
+            text.startsWith("Nothing to undo") ||
+            text.startsWith("Restored original") ||
+            text.startsWith("Banter is disabled")
+    }
 
     private fun TextView.setMargin(px: Int) {
         val lp = LinearLayout.LayoutParams(
@@ -59,11 +81,21 @@ class BanterCandidateView @JvmOverloads constructor(
         layoutParams = lp
     }
 
-    private fun makeChipBg(): android.graphics.drawable.GradientDrawable {
+    private fun makeChipBg(isStatus: Boolean, isUndo: Boolean): android.graphics.drawable.GradientDrawable {
         return android.graphics.drawable.GradientDrawable().apply {
-            setColor(0xFF1C1C2A.toInt())
-            cornerRadius = 18 * resources.displayMetrics.density
-            setStroke(1, 0xFF3A3A55.toInt())
+            cornerRadius = dp(18).toFloat()
+            if (isUndo) {
+                setColor(0xFF243B63.toInt())
+                setStroke(dp(1), 0xFF4AA8FF.toInt())
+            } else if (isStatus) {
+                setColor(0xFF141B2B.toInt())
+                setStroke(dp(1), 0xFF274E78.toInt())
+            } else {
+                setColor(0xFF1C1C2A.toInt())
+                setStroke(dp(1), 0xFF3A3A55.toInt())
+            }
         }
     }
+
+    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 }

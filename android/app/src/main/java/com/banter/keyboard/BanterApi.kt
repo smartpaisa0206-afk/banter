@@ -9,8 +9,10 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 /**
- * Tiny HTTP client for the Banter mobile backend (/api/mobile/*).
- * Uses plain HttpURLConnection so there are no extra dependencies to manage.
+ * Tiny HTTP client for Banter mobile backend.
+ * Endpoints used:
+ * - POST /api/mobile/login
+ * - POST /api/mobile/generate
  */
 object BanterApi {
 
@@ -21,23 +23,29 @@ object BanterApi {
         device: String = "android-keyboard",
     ): String? = withContext(Dispatchers.IO) {
         try {
-            val url = URL("$baseUrl/api/mobile/login")
-            val conn = url.openConnection() as HttpURLConnection
-            conn.requestMethod = "POST"
-            conn.setRequestProperty("Content-Type", "application/json")
-            conn.doOutput = true
+            val conn = (URL("$baseUrl/api/mobile/login").openConnection() as HttpURLConnection).apply {
+                requestMethod = "POST"
+                setRequestProperty("Content-Type", "application/json")
+                connectTimeout = 15000
+                readTimeout = 20000
+                doOutput = true
+            }
+
             val body = JSONObject().apply {
                 put("email", email)
                 put("password", password)
                 put("device", device)
             }.toString()
-            conn.outputStream.write(body.toByteArray())
+
+            conn.outputStream.use { it.write(body.toByteArray()) }
             val code = conn.responseCode
+
             if (code in 200..299) {
-                val txt = conn.inputStream.bufferedReader().readText()
+                val txt = conn.inputStream.bufferedReader().use { it.readText() }
                 JSONObject(txt).optString("token").takeIf { it.isNotEmpty() }
             } else {
-                Log.w("BanterApi", "login http $code")
+                val err = conn.errorStream?.bufferedReader()?.use { it.readText() }
+                Log.w("BanterApi", "login http $code $err")
                 null
             }
         } catch (e: Exception) {
@@ -57,12 +65,15 @@ object BanterApi {
         hurry: Boolean,
     ): List<String>? = withContext(Dispatchers.IO) {
         try {
-            val url = URL("$baseUrl/api/mobile/generate")
-            val conn = url.openConnection() as HttpURLConnection
-            conn.requestMethod = "POST"
-            conn.setRequestProperty("Content-Type", "application/json")
-            conn.setRequestProperty("Authorization", "Bearer $token")
-            conn.doOutput = true
+            val conn = (URL("$baseUrl/api/mobile/generate").openConnection() as HttpURLConnection).apply {
+                requestMethod = "POST"
+                setRequestProperty("Content-Type", "application/json")
+                setRequestProperty("Authorization", "Bearer $token")
+                connectTimeout = 15000
+                readTimeout = 30000
+                doOutput = true
+            }
+
             val body = JSONObject().apply {
                 put("relationship", relationship)
                 put("intent", intent)
@@ -71,19 +82,25 @@ object BanterApi {
                 put("context", context)
                 put("hurry", hurry)
             }.toString()
-            conn.outputStream.write(body.toByteArray())
+
+            conn.outputStream.use { it.write(body.toByteArray()) }
             val code = conn.responseCode
+
             if (code in 200..299) {
-                val txt = conn.inputStream.bufferedReader().readText()
+                val txt = conn.inputStream.bufferedReader().use { it.readText() }
                 val json = JSONObject(txt)
                 val arr: JSONArray? = json.optJSONArray("variants")
                 val list = mutableListOf<String>()
                 if (arr != null) {
-                    for (i in 0 until arr.length()) list.add(arr.getString(i))
+                    for (i in 0 until arr.length()) {
+                        val value = arr.optString(i)
+                        if (value.isNotBlank()) list.add(value)
+                    }
                 }
                 list
             } else {
-                Log.w("BanterApi", "generate http $code")
+                val err = conn.errorStream?.bufferedReader()?.use { it.readText() }
+                Log.w("BanterApi", "generate http $code $err")
                 null
             }
         } catch (e: Exception) {

@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.banter.keyboard
 
 import android.os.Bundle
@@ -6,17 +8,17 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.preference.PreferenceManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * Onboarding screen: where the Banter server lives + the user's login.
- * On save we exchange credentials for a device token (stored in prefs) so the
- * keyboard can call /api/mobile/generate without re-authenticating.
+ * Settings screen for Banter Keyboard.
+ * User enters server + login once; keyboard stores a mobile token and uses it later.
+ * Password is used only for login and is NOT stored long-term.
  */
 class SettingsActivity : AppCompatActivity() {
 
@@ -30,6 +32,11 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var hurry: CheckBox
     private lateinit var save: Button
     private lateinit var status: TextView
+
+    private lateinit var personalBtn: Button
+    private lateinit var professionalBtn: Button
+    private lateinit var genzBtn: Button
+    private lateinit var roastBtn: Button
 
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
@@ -48,38 +55,92 @@ class SettingsActivity : AppCompatActivity() {
         save = findViewById(R.id.btn_save)
         status = findViewById(R.id.tv_status)
 
-        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        personalBtn = findViewById(R.id.btn_personal)
+        professionalBtn = findViewById(R.id.btn_professional)
+        genzBtn = findViewById(R.id.btn_genz)
+        roastBtn = findViewById(R.id.btn_roast)
+
+        val prefs = getSharedPreferences(Prefs.NAME, MODE_PRIVATE)
         baseUrl.setText(prefs.getString(Prefs.KEY_BASE_URL, Prefs.DEF_BASE_URL))
         email.setText(prefs.getString(Prefs.KEY_EMAIL, ""))
-        password.setText(prefs.getString(Prefs.KEY_PASSWORD, ""))
+        password.setText("")
         relationship.setText(prefs.getString(Prefs.KEY_RELATIONSHIP, Prefs.DEF_RELATIONSHIP))
         intentEt.setText(prefs.getString(Prefs.KEY_INTENT, Prefs.DEF_INTENT))
         tone.setText(prefs.getString(Prefs.KEY_TONE, Prefs.DEF_TONE))
         language.setText(prefs.getString(Prefs.KEY_LANGUAGE, Prefs.DEF_LANGUAGE))
         hurry.isChecked = prefs.getBoolean(Prefs.KEY_HURRY, false)
 
+        personalBtn.setOnClickListener {
+            relationship.setText("partner")
+            intentEt.setText("flirt")
+            tone.setText("warm")
+            status.text = "Personal mode selected. Tap Save & Connect."
+        }
+
+        professionalBtn.setOnClickListener {
+            relationship.setText("client")
+            intentEt.setText("email_professional")
+            tone.setText("formal")
+            status.text = "Professional mode selected. Tap Save & Connect."
+        }
+
+        genzBtn.setOnClickListener {
+            relationship.setText("friend")
+            intentEt.setText("genz_reply")
+            tone.setText("genz")
+            status.text = "Gen-Z reply mode selected. Tap Save & Connect."
+        }
+
+        roastBtn.setOnClickListener {
+            relationship.setText("friend")
+            intentEt.setText("roast_comeback")
+            tone.setText("savage")
+            status.text = "Playful roast mode selected. Keep it friendly. Tap Save & Connect."
+        }
+
         save.setOnClickListener {
             val url = baseUrl.text.toString().trim().trimEnd('/')
+            val emailValue = email.text.toString().trim()
+            val passwordValue = password.text.toString()
+
+            if (url.isBlank()) {
+                status.text = "Add server URL first. Example: https://banter-mu.vercel.app"
+                return@setOnClickListener
+            }
+            if (emailValue.isBlank() || passwordValue.isBlank()) {
+                status.text = "Add Banter email and password first. Password is used once and not stored."
+                return@setOnClickListener
+            }
+
             prefs.edit().apply {
                 putString(Prefs.KEY_BASE_URL, url)
-                putString(Prefs.KEY_EMAIL, email.text.toString())
-                putString(Prefs.KEY_PASSWORD, password.text.toString())
-                putString(Prefs.KEY_RELATIONSHIP, relationship.text.toString())
-                putString(Prefs.KEY_INTENT, intentEt.text.toString())
-                putString(Prefs.KEY_TONE, tone.text.toString())
-                putString(Prefs.KEY_LANGUAGE, language.text.toString())
+                putString(Prefs.KEY_EMAIL, emailValue)
+                remove(Prefs.KEY_PASSWORD)
+                putString(Prefs.KEY_RELATIONSHIP, relationship.text.toString().trim())
+                putString(Prefs.KEY_INTENT, intentEt.text.toString().trim())
+                putString(Prefs.KEY_TONE, tone.text.toString().trim())
+                putString(Prefs.KEY_LANGUAGE, language.text.toString().trim().ifBlank { Prefs.DEF_LANGUAGE })
                 putBoolean(Prefs.KEY_HURRY, hurry.isChecked)
+                remove(Prefs.KEY_TOKEN) // force fresh token if server/login changed
                 apply()
             }
+
             status.text = "Saved. Connecting…"
+            save.isEnabled = false
+
             scope.launch {
-                val token = BanterApi.login(url, email.text.toString(), password.text.toString())
+                val token = BanterApi.login(url, emailValue, passwordValue)
                 withContext(Dispatchers.Main) {
+                    save.isEnabled = true
                     if (token != null) {
-                        prefs.edit().putString(Prefs.KEY_TOKEN, token).apply()
-                        status.text = "Connected ✓ token saved."
+                        prefs.edit()
+                            .putString(Prefs.KEY_TOKEN, token)
+                            .remove(Prefs.KEY_PASSWORD)
+                            .apply()
+                        password.setText("")
+                        status.text = "Connected ✓ Password not stored. Now enable Banter Keyboard in Android settings."
                     } else {
-                        status.text = "Login failed. Check server URL + credentials."
+                        status.text = "Login failed. Check server URL, account email, and password."
                     }
                 }
             }

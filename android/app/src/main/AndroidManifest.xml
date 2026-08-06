@@ -1,10 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Required because the keyboard calls your Banter API. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:label="@string/app_name"
-        android:theme="@style/Theme.BanterKeyboard">
+        android:theme="@style/Theme.BanterKeyboard"
+        android:usesCleartextTraffic="false">
 
-        <!-- The keyboard service -->
+        <!-- The Android system keyboard service. -->
         <service
             android:name=".BanterKeyboard"
             android:label="@string/ime_name"
@@ -18,7 +22,7 @@
                 android:resource="@xml/method" />
         </service>
 
-        <!-- Settings / login screen (also the launcher icon) -->
+        <!-- Settings / login screen. This is also the launcher screen. -->
         <activity
             android:name=".SettingsActivity"
             android:exported="true"

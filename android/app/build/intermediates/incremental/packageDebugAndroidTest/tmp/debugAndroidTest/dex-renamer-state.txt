@@ -1,0 +1,4 @@
+#Tue Aug 04 06:26:53 PDT 2026
+base.0=D\:\\banter\\android\\app\\build\\intermediates\\dex\\debugAndroidTest\\mergeProjectDexDebugAndroidTest\\0\\classes.dex
+path.0=0/classes.dex
+renamed.0=classes.dex
