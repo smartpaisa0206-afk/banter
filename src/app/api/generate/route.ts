@@ -7,6 +7,7 @@ import { generate, streamGenerate, relAccessible, toneAccessible, intentAccessib
 import { canUseWorks } from '@/lib/plans';
 import { withinLimit, remainingFor } from '@/lib/usage';
 import { encryptText } from '@/lib/security';
+import { logSecurityEvent } from '@/lib/securityEvents';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
@@ -45,6 +46,7 @@ export async function POST(req: NextRequest) {
 
   if (!(await withinLimit(user.role, user.id))) {
     const rem = await remainingFor(user.role, user.id);
+    await logSecurityEvent({ req, userId: user.id, eventType: 'generation_limit_hit', source: 'web', success: false, severity: 'warn', metadata: { relationship, intent, tone } });
     return NextResponse.json(
       { error: 'Daily limit reached.', remaining: Number.isFinite(rem) ? rem : null, limitHit: true },
       { status: 429 },
@@ -70,6 +72,7 @@ export async function POST(req: NextRequest) {
         createdAt: Date.now(),
       })
       .catch(() => {});
+    await logSecurityEvent({ req, userId: user.id, eventType: 'generate_success', source: 'web', success: true, metadata: { relationship, intent, tone, language, hurry: !!hurry } });
     const rem = await remainingFor(user.role, user.id);
     return NextResponse.json({ ...output, remaining: Number.isFinite(rem) ? rem : null });
   }
@@ -111,6 +114,7 @@ export async function POST(req: NextRequest) {
             createdAt: Date.now(),
           })
           .catch(() => {});
+        await logSecurityEvent({ req, userId: user.id, eventType: 'generate_success', source: 'web', success: true, metadata: { relationship, intent, tone, language, stream: true, hurry: !!hurry } });
         const rem = await remainingFor(user.role, user.id);
         send('remaining', { remaining: Number.isFinite(rem) ? rem : null });
       } catch (err) {

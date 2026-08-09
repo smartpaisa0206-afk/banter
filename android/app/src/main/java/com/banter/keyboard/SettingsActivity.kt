@@ -86,15 +86,15 @@ class SettingsActivity : AppCompatActivity() {
 
         genzBtn.setOnClickListener {
             relationship.setText("friend")
-            intentEt.setText("genz_reply")
-            tone.setText("genz")
+            intentEt.setText("icebreaker")
+            tone.setText("warm")
             status.text = "Gen-Z reply mode selected. Tap Save & Connect."
         }
 
         roastBtn.setOnClickListener {
             relationship.setText("friend")
-            intentEt.setText("roast_comeback")
-            tone.setText("savage")
+            intentEt.setText("icebreaker")
+            tone.setText("confident")
             status.text = "Playful roast mode selected. Keep it friendly. Tap Save & Connect."
         }
 

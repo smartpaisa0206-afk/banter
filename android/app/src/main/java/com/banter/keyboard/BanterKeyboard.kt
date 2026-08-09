@@ -33,8 +33,6 @@ class BanterKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListen
     private lateinit var candidateView: BanterCandidateView
     private lateinit var personalMode: TextView
     private lateinit var professionalMode: TextView
-    private lateinit var genzMode: TextView
-    private lateinit var roastMode: TextView
 
     private var lastContextText: String = ""
     private var lastReplacementText: String = ""
@@ -49,8 +47,6 @@ class BanterKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListen
         candidateView = view.findViewById(R.id.candidates)
         personalMode = view.findViewById(R.id.mode_personal)
         professionalMode = view.findViewById(R.id.mode_professional)
-        genzMode = view.findViewById(R.id.mode_genz)
-        roastMode = view.findViewById(R.id.mode_roast)
 
         kv.keyboard = Keyboard(this, R.xml.qwerty)
         kv.setOnKeyboardActionListener(this)
@@ -58,8 +54,6 @@ class BanterKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListen
 
         personalMode.setOnClickListener { applyMode(Prefs.MODE_PERSONAL, showMessage = true) }
         professionalMode.setOnClickListener { applyMode(Prefs.MODE_PROFESSIONAL, showMessage = true) }
-        genzMode.setOnClickListener { applyMode(Prefs.MODE_GENZ, showMessage = true) }
-        roastMode.setOnClickListener { applyMode(Prefs.MODE_ROAST, showMessage = true) }
 
         val prefs = getSharedPreferences(Prefs.NAME, MODE_PRIVATE)
         applyMode(prefs.getString(Prefs.KEY_MODE, Prefs.DEF_MODE) ?: Prefs.DEF_MODE, showMessage = false)
@@ -111,14 +105,16 @@ class BanterKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListen
                 .putString(Prefs.KEY_RELATIONSHIP, "client")
                 .putString(Prefs.KEY_INTENT, "email_professional")
                 .putString(Prefs.KEY_TONE, "formal")
+            // Use existing always-supported backend intents for MVP, then guide style through context.
+            // This keeps Gen-Z/Roast working even if the live server has not deployed new intent IDs yet.
             Prefs.MODE_GENZ -> editor
                 .putString(Prefs.KEY_RELATIONSHIP, "friend")
-                .putString(Prefs.KEY_INTENT, "genz_reply")
-                .putString(Prefs.KEY_TONE, "genz")
+                .putString(Prefs.KEY_INTENT, "icebreaker")
+                .putString(Prefs.KEY_TONE, "warm")
             Prefs.MODE_ROAST -> editor
                 .putString(Prefs.KEY_RELATIONSHIP, "friend")
-                .putString(Prefs.KEY_INTENT, "roast_comeback")
-                .putString(Prefs.KEY_TONE, "savage")
+                .putString(Prefs.KEY_INTENT, "icebreaker")
+                .putString(Prefs.KEY_TONE, "confident")
             else -> editor
                 .putString(Prefs.KEY_RELATIONSHIP, "partner")
                 .putString(Prefs.KEY_INTENT, "flirt")
@@ -132,10 +128,8 @@ class BanterKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListen
     }
 
     private fun updateModeUi(active: String) {
-        styleMode(personalMode, active == Prefs.MODE_PERSONAL, 0xFF7C5CFF.toInt())
+        styleMode(personalMode, active != Prefs.MODE_PROFESSIONAL, 0xFF7C5CFF.toInt())
         styleMode(professionalMode, active == Prefs.MODE_PROFESSIONAL, 0xFF4AA8FF.toInt())
-        styleMode(genzMode, active == Prefs.MODE_GENZ, 0xFFA78BFA.toInt())
-        styleMode(roastMode, active == Prefs.MODE_ROAST, 0xFFE9C46A.toInt())
     }
 
     private fun styleMode(view: TextView, active: Boolean, color: Int) {
@@ -165,13 +159,15 @@ class BanterKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListen
         val prefs = getSharedPreferences(Prefs.NAME, MODE_PRIVATE)
         val baseUrl = (prefs.getString(Prefs.KEY_BASE_URL, Prefs.DEF_BASE_URL) ?: Prefs.DEF_BASE_URL).trim().trimEnd('/')
         val token = prefs.getString(Prefs.KEY_TOKEN, "") ?: ""
+        val mode = prefs.getString(Prefs.KEY_MODE, Prefs.DEF_MODE) ?: Prefs.DEF_MODE
         val relationship = prefs.getString(Prefs.KEY_RELATIONSHIP, Prefs.DEF_RELATIONSHIP) ?: Prefs.DEF_RELATIONSHIP
         val intent = prefs.getString(Prefs.KEY_INTENT, Prefs.DEF_INTENT) ?: Prefs.DEF_INTENT
         val tone = prefs.getString(Prefs.KEY_TONE, Prefs.DEF_TONE) ?: Prefs.DEF_TONE
         val language = prefs.getString(Prefs.KEY_LANGUAGE, Prefs.DEF_LANGUAGE) ?: Prefs.DEF_LANGUAGE
         val hurry = prefs.getBoolean(Prefs.KEY_HURRY, false)
 
-        val ctx = currentInputConnection?.getTextBeforeCursor(200, 0)?.toString()?.trim() ?: ""
+        val rawCtx = currentInputConnection?.getTextBeforeCursor(200, 0)?.toString()?.trim() ?: ""
+        val ctx = styleContext(mode, rawCtx)
         if (ctx.isBlank()) {
             candidateView.setCandidates(listOf("Type something first, then tap Banter ✨"))
             return
@@ -181,7 +177,7 @@ class BanterKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListen
             return
         }
 
-        lastContextText = ctx
+        lastContextText = rawCtx
         candidateView.setCandidates(listOf("Thinking…"))
 
         scope.launch {
@@ -239,6 +235,15 @@ class BanterKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListen
             text.startsWith("Nothing to undo") ||
             text.startsWith("Restored original") ||
             text.startsWith("Banter is disabled")
+    }
+
+    private fun styleContext(mode: String, text: String): String {
+        return when (mode) {
+            Prefs.MODE_GENZ -> "Write a short casual Gen-Z style reply. Keep it natural, not cringe, and match the vibe. Situation: $text"
+            Prefs.MODE_ROAST -> "Write a playful roast or comeback for a friend. Keep it funny and safe, no hate, no slurs, no threats, no cruelty. Situation: $text"
+            Prefs.MODE_PROFESSIONAL -> "Write this in a clear professional tone. Situation: $text"
+            else -> text
+        }
     }
 
     private fun isSensitiveField(info: EditorInfo?): Boolean {

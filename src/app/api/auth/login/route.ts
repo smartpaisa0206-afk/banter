@@ -5,6 +5,7 @@ import { eq } from 'drizzle-orm';
 import { verifyPassword, createSession } from '@/lib/auth';
 import { isLockedOut, registerFailedAttempt, clearAttempts } from '@/lib/security';
 import { SESSION_COOKIE, SESSION_MAX_AGE } from '@/lib/config';
+import { logSecurityEvent } from '@/lib/securityEvents';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
@@ -18,6 +19,7 @@ const schema = z.object({
 export async function POST(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for') || 'local';
   if (isLockedOut(ip)) {
+    await logSecurityEvent({ req, eventType: 'login_locked', source: 'web', success: false, severity: 'warn' });
     return NextResponse.json({ error: 'Too many attempts. Try again later.' }, { status: 429 });
   }
 
@@ -31,13 +33,16 @@ export async function POST(req: NextRequest) {
   const u = await db.select().from(users).where(eq(users.email, email)).limit(1);
   if (!u.length || !verifyPassword(parsed.data.password, u[0].passwordHash, u[0].salt)) {
     registerFailedAttempt(ip);
+    await logSecurityEvent({ req, eventType: 'login_failed', source: 'web', success: false, severity: 'warn', metadata: { email } });
     return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 });
   }
   if (u[0].status === 'banned') {
+    await logSecurityEvent({ req, userId: u[0].id, eventType: 'login_failed', source: 'web', success: false, severity: 'critical', metadata: { reason: 'banned' } });
     return NextResponse.json({ error: 'This account has been disabled.' }, { status: 403 });
   }
 
   clearAttempts(ip);
+  await logSecurityEvent({ req, userId: u[0].id, eventType: 'login_success', source: 'web', success: true });
   const token = await createSession(u[0].id, ip);
   const res = NextResponse.json({ ok: true });
   res.cookies.set(SESSION_COOKIE, token, {

@@ -7,6 +7,7 @@ import { generate, relAccessible, toneAccessible, intentAccessible, intentById }
 import { canUseWorks } from '@/lib/plans';
 import { withinLimit, remainingFor } from '@/lib/usage';
 import { encryptText } from '@/lib/security';
+import { logSecurityEvent } from '@/lib/securityEvents';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
@@ -30,7 +31,10 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
   const token = bearer || body?.token;
   const user = await userFromMobileToken(token);
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!user) {
+    await logSecurityEvent({ req, eventType: 'mobile_generate_failed', source: 'android_keyboard', success: false, severity: 'warn', metadata: { reason: 'unauthorized' } });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
@@ -48,6 +52,7 @@ export async function POST(req: NextRequest) {
 
   if (!(await withinLimit(user.role, user.id))) {
     const rem = await remainingFor(user.role, user.id);
+    await logSecurityEvent({ req, userId: user.id, eventType: 'generation_limit_hit', source: 'android_keyboard', success: false, severity: 'warn', metadata: { relationship, intent, tone } });
     return NextResponse.json(
       { error: 'Daily limit reached.', remaining: Number.isFinite(rem) ? rem : null, limitHit: true },
       { status: 429 },
@@ -71,6 +76,7 @@ export async function POST(req: NextRequest) {
       createdAt: Date.now(),
     })
     .catch(() => {});
+  await logSecurityEvent({ req, userId: user.id, eventType: 'mobile_generate_success', source: 'android_keyboard', success: true, metadata: { relationship, intent, tone, language, hurry: !!hurry } });
   const rem = await remainingFor(user.role, user.id);
   return NextResponse.json({ ...output, remaining: Number.isFinite(rem) ? rem : null });
 }

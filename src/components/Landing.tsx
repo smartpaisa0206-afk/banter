@@ -19,7 +19,7 @@ import {
   Grid3X3,
 } from 'lucide-react';
 
-const personal = ['Flirt', 'Friend reply', 'Apology', 'Ask out', 'Invite', 'Check-in'];
+const personal = ['Flirt', 'Gen-Z reply', 'Roast', 'DM reply', 'Apology', 'Check-in'];
 const office = ['Mail', 'Follow-up', 'Notice', 'Agenda', 'Report', 'Marketing'];
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
@@ -130,7 +130,7 @@ export function Landing({ plans, country, currency }: { plans: Plan[]; country: 
               </div>
             </div>
 
-            <FloatingCard className="absolute left-0 top-10 w-56" label="personal" text="Flirt, apologize, check in, invite, and reply with confidence." />
+            <FloatingCard className="absolute left-0 top-10 w-56" label="personal" text="Flirt, reply, roast playfully, apologize, and keep chats alive." />
             <FloatingCard className="absolute bottom-12 right-0 w-60" label="professional" text="Write mails, notices, agendas, reports, and marketing copy in seconds." />
           </motion.div>
         </motion.section>

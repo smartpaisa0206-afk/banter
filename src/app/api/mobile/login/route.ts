@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { verifyPassword, createMobileToken } from '@/lib/auth';
+import { logSecurityEvent } from '@/lib/securityEvents';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
@@ -23,9 +24,11 @@ export async function POST(req: NextRequest) {
   const { email, password, device } = parsed.data;
   const u = await db.query.users.findFirst({ where: eq(users.email, email.toLowerCase()) });
   if (!u || !verifyPassword(password, u.passwordHash, u.salt) || u.status === 'banned') {
+    await logSecurityEvent({ req, userId: u?.id || null, eventType: 'mobile_login_failed', source: 'android_keyboard', success: false, severity: u?.status === 'banned' ? 'critical' : 'warn', metadata: { email, device, reason: u?.status === 'banned' ? 'banned' : 'invalid_credentials' } });
     return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 });
   }
   const token = await createMobileToken(u.id, device);
+  await logSecurityEvent({ req, userId: u.id, eventType: 'mobile_login_success', source: 'android_keyboard', success: true, metadata: { device } });
   return NextResponse.json({
     token,
     user: { id: u.id, email: u.email, role: u.role },

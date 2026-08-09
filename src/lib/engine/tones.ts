@@ -10,6 +10,8 @@ export const TONES: ToneConfig[] = [
   { id: 'confident', label: 'Confident', tier: 'all', description: 'Sure of yourself, calm.' },
   { id: 'formal', label: 'Formal', tier: 'all', description: 'Polite and proper.' },
   { id: 'playful', label: 'Playful', tier: 'basic', description: 'Light, fun, teasing.' },
+  { id: 'genz', label: 'Gen-Z', tier: 'all', description: 'Short, modern, casual, meme-aware.' },
+  { id: 'savage', label: 'Savage', tier: 'basic', description: 'Witty, sharp, playful roasts without cruelty.' },
   { id: 'assertive', label: 'Assertive', tier: 'basic', description: 'Clear boundaries, no apology.' },
   { id: 'empathetic', label: 'Empathetic', tier: 'basic', description: 'Deeply understanding.' },
   { id: 'casual', label: 'Casual', tier: 'basic', description: 'Chill, everyday.' },

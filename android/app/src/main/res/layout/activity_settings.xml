@@ -135,7 +135,7 @@
             android:id="@+id/et_intent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="intent: flirt, genz_reply, roast_comeback, email_professional"
+            android:hint="intent: flirt, icebreaker, apologize, email_professional"
             android:textColor="#ffffff"
             android:textColorHint="#8b8ba7"
             android:layout_marginTop="8dp" />
@@ -144,7 +144,7 @@
             android:id="@+id/et_tone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="tone: warm, genz, savage, formal, confident"
+            android:hint="tone: warm, confident, formal"
             android:textColor="#ffffff"
             android:textColorHint="#8b8ba7"
             android:layout_marginTop="8dp" />

@@ -60,7 +60,8 @@ export function sessionTokenFromCookies(): string | undefined {
 export async function userFromMobileToken(token?: string) {
   if (!token) return null;
   const mt = await db.query.mobileTokens.findFirst({ where: eq(mobileTokens.token, token) });
-  if (!mt || mt.expiresAt < Date.now()) return null;
+  if (!mt || mt.revokedAt || mt.expiresAt < Date.now()) return null;
+  await db.update(mobileTokens).set({ lastUsedAt: Date.now() }).where(eq(mobileTokens.id, mt.id)).catch(() => {});
   const u = await db.query.users.findFirst({ where: eq(users.id, mt.userId) });
   if (!u || u.status === 'banned') return null;
   return u;

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
     android:keyWidth="10%p"
-    android:horizontalGap="2px"
-    android:verticalGap="2px">
+    android:keyHeight="48dp"
+    android:horizontalGap="3dp"
+    android:verticalGap="4dp">
 
     <Row>
         <Key android:codes="113" android:keyLabel="q" />
@@ -42,11 +43,11 @@
     </Row>
 
     <Row android:rowEdgeFlags="bottom">
-        <Key android:codes="-101" android:keyLabel="Undo" android:keyWidth="15%p" />
-        <Key android:codes="44" android:keyLabel="," android:keyWidth="8%p" />
-        <Key android:codes="32" android:keyLabel="SPACE" android:keyWidth="32%p" />
-        <Key android:codes="46" android:keyLabel="." android:keyWidth="8%p" />
-        <Key android:codes="-100" android:keyLabel="Banter ✨" android:keyWidth="22%p" />
-        <Key android:codes="-4" android:keyLabel="DONE" android:keyWidth="15%p" />
+        <Key android:codes="-101" android:keyLabel="Undo" android:keyWidth="15%p" android:keyHeight="50dp" />
+        <Key android:codes="44" android:keyLabel="," android:keyWidth="8%p" android:keyHeight="50dp" />
+        <Key android:codes="32" android:keyLabel="SPACE" android:keyWidth="32%p" android:keyHeight="50dp" />
+        <Key android:codes="46" android:keyLabel="." android:keyWidth="8%p" android:keyHeight="50dp" />
+        <Key android:codes="-100" android:keyLabel="Banter ✨" android:keyWidth="22%p" android:keyHeight="50dp" />
+        <Key android:codes="-4" android:keyLabel="DONE" android:keyWidth="15%p" android:keyHeight="50dp" />
     </Row>
 </Keyboard>

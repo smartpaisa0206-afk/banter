@@ -67,7 +67,32 @@ export const mobileTokens = sqliteTable('mobile_tokens', {
   device: text('device'),
   createdAt: integer('created_at').notNull(),
   expiresAt: integer('expires_at').notNull(),
+  lastUsedAt: integer('last_used_at'),
+  revokedAt: integer('revoked_at'),
 });
+
+export const securityEvents = sqliteTable(
+  'security_events',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
+    eventType: text('event_type').notNull(),
+    source: text('source').notNull(),
+    ipHash: text('ip_hash'),
+    country: text('country'),
+    userAgent: text('user_agent'),
+    success: integer('success', { mode: 'boolean' }).notNull().default(true),
+    severity: text('severity').notNull().default('info'),
+    metadataJson: text('metadata_json'),
+    createdAt: integer('created_at').notNull(),
+  },
+  (t) => ({
+    eventCreatedIdx: index('sec_event_created_idx').on(t.createdAt),
+    eventTypeIdx: index('sec_event_type_idx').on(t.eventType),
+    eventUserIdx: index('sec_event_user_idx').on(t.userId),
+    eventIpIdx: index('sec_event_ip_idx').on(t.ipHash),
+  }),
+);
 
 // User feedback / bug reports.
 export const feedback = sqliteTable('feedback', {

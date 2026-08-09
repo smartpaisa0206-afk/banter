@@ -9,86 +9,46 @@
     <com.banter.keyboard.BanterCandidateView
         android:id="@+id/candidates"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="58dp"
         android:background="#10101a" />
 
-    <HorizontalScrollView
+    <LinearLayout
+        android:id="@+id/mode_row"
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="44dp"
+        android:layout_height="42dp"
+        android:gravity="center_vertical"
         android:background="#0f0f18"
-        android:fillViewport="false"
-        android:overScrollMode="never"
-        android:scrollbars="none">
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp">
 
-        <LinearLayout
-            android:id="@+id/mode_row"
-            android:orientation="horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp">
+        <TextView
+            android:id="@+id/mode_personal"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Personal"
+            android:textColor="#ffffff"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:clickable="true"
+            android:focusable="true" />
 
-            <TextView
-                android:id="@+id/mode_personal"
-                android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:gravity="center"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
-                android:text="Personal"
-                android:textColor="#ffffff"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:clickable="true"
-                android:focusable="true" />
-
-            <TextView
-                android:id="@+id/mode_professional"
-                android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:gravity="center"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
-                android:layout_marginStart="8dp"
-                android:text="Professional"
-                android:textColor="#b9b9c8"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:clickable="true"
-                android:focusable="true" />
-
-            <TextView
-                android:id="@+id/mode_genz"
-                android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:gravity="center"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
-                android:layout_marginStart="8dp"
-                android:text="Gen-Z"
-                android:textColor="#b9b9c8"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:clickable="true"
-                android:focusable="true" />
-
-            <TextView
-                android:id="@+id/mode_roast"
-                android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:gravity="center"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
-                android:layout_marginStart="8dp"
-                android:text="Roast"
-                android:textColor="#b9b9c8"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:clickable="true"
-                android:focusable="true" />
-        </LinearLayout>
-    </HorizontalScrollView>
+        <TextView
+            android:id="@+id/mode_professional"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:layout_marginStart="8dp"
+            android:text="Professional"
+            android:textColor="#b9b9c8"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:clickable="true"
+            android:focusable="true" />
+    </LinearLayout>
 
     <android.inputmethodservice.KeyboardView
         android:id="@+id/keyboard"

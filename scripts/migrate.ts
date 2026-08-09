@@ -65,9 +65,32 @@ export async function migrate() {
       token TEXT NOT NULL UNIQUE,
       device TEXT,
       created_at INTEGER NOT NULL,
-      expires_at INTEGER NOT NULL
+      expires_at INTEGER NOT NULL,
+      last_used_at INTEGER,
+      revoked_at INTEGER
     );
   `);
+  await db.run(sql`ALTER TABLE mobile_tokens ADD COLUMN last_used_at INTEGER;`).catch(() => {});
+  await db.run(sql`ALTER TABLE mobile_tokens ADD COLUMN revoked_at INTEGER;`).catch(() => {});
+  await db.run(sql`
+    CREATE TABLE IF NOT EXISTS security_events (
+      id TEXT PRIMARY KEY,
+      user_id TEXT,
+      event_type TEXT NOT NULL,
+      source TEXT NOT NULL,
+      ip_hash TEXT,
+      country TEXT,
+      user_agent TEXT,
+      success INTEGER NOT NULL DEFAULT 1,
+      severity TEXT NOT NULL DEFAULT 'info',
+      metadata_json TEXT,
+      created_at INTEGER NOT NULL
+    );
+  `);
+  await db.run(sql`CREATE INDEX IF NOT EXISTS sec_event_created_idx ON security_events (created_at);`);
+  await db.run(sql`CREATE INDEX IF NOT EXISTS sec_event_type_idx ON security_events (event_type);`);
+  await db.run(sql`CREATE INDEX IF NOT EXISTS sec_event_user_idx ON security_events (user_id);`);
+  await db.run(sql`CREATE INDEX IF NOT EXISTS sec_event_ip_idx ON security_events (ip_hash);`);
   await db.run(sql`
     CREATE TABLE IF NOT EXISTS feedback (
       id TEXT PRIMARY KEY,
