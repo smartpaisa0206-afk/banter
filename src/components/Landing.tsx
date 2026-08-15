@@ -51,6 +51,7 @@ export function Landing({ plans, country, currency }: { plans: Plan[]; country: 
             <Link href="/introduction" className="hover:text-white">Introduction</Link>
             <Link href="/examples" className="hover:text-white">Examples</Link>
             <Link href="/methods" className="hover:text-white">How to use</Link>
+            <Link href="/keyboard" className="hover:text-white">Keyboard beta</Link>
             <Link href="/articles" className="hover:text-white">Articles</Link>
             <Link href="/support" className="hover:text-white">Support</Link>
           </nav>
@@ -96,14 +97,14 @@ export function Landing({ plans, country, currency }: { plans: Plan[]; country: 
               <Link href="/signup" className="btn-plus rounded-full px-6 py-3 text-base">
                 Start free <ArrowRight size={17} />
               </Link>
-              <Link href="/dashboard" className="btn-ghost rounded-full px-6 py-3 text-base">
-                Open workspace
+              <Link href="/keyboard" className="btn-ghost rounded-full px-6 py-3 text-base">
+                Try keyboard beta
               </Link>
             </motion.div>
             <motion.div variants={item} className="mt-8 flex flex-wrap gap-3 text-xs text-muted">
               <span className="chip"><ShieldCheck size={13} /> Private by design</span>
               <span className="chip"><Zap size={13} /> Live suggestions</span>
-              <span className="chip"><Keyboard size={13} /> Keyboard coming soon</span>
+              <span className="chip"><Keyboard size={13} /> Android keyboard beta</span>
             </motion.div>
           </div>
 
@@ -214,9 +215,10 @@ export function Landing({ plans, country, currency }: { plans: Plan[]; country: 
             <div className="absolute right-0 top-0 h-72 w-72 rounded-full bg-[#4aa8ff]/20 blur-3xl" />
             <div className="relative grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
               <div>
-                  <p className="font-mono text-sm uppercase tracking-[0.24em] text-[#9fd0ff]">Phase 2</p>
-                <h2 className="mt-3 text-5xl font-black tracking-[-0.05em]">Keyboard mode is next.</h2>
-                <p className="mt-5 text-muted">Use Banter inside WhatsApp, Instagram, Gmail, LinkedIn, and anywhere you type.</p>
+                  <p className="font-mono text-sm uppercase tracking-[0.24em] text-[#9fd0ff]">Keyboard beta</p>
+                <h2 className="mt-3 text-5xl font-black tracking-[-0.05em]">Use Banter inside any app.</h2>
+                <p className="mt-5 text-muted">Android beta is now being tested inside WhatsApp, Instagram, Gmail, LinkedIn, and anywhere you type.</p>
+                <Link href="/keyboard" className="btn-plus mt-6 rounded-full px-5 py-3">Download beta instructions</Link>
               </div>
               <div className="grid gap-3 sm:grid-cols-3">
                 {['WhatsApp replies', 'Gmail drafts', 'LinkedIn posts'].map((x) => (

@@ -2909,6 +2909,8 @@ drawable btn_radio_off_mtrl
 drawable btn_radio_off_to_on_mtrl_animation
 drawable btn_radio_on_mtrl
 drawable btn_radio_on_to_off_mtrl_animation
+drawable button_primary_bg
+drawable button_secondary_bg
 drawable design_fab_background
 drawable design_ic_visibility
 drawable design_ic_visibility_off
@@ -2924,6 +2926,7 @@ drawable ic_call_decline_low
 drawable ic_clear_black_24
 drawable ic_clock_black_24dp
 drawable ic_keyboard_black_24dp
+drawable ic_launcher
 drawable ic_m3_chip_check
 drawable ic_m3_chip_checked_circle
 drawable ic_m3_chip_close
@@ -2933,6 +2936,7 @@ drawable ic_mtrl_chip_checked_circle
 drawable ic_mtrl_chip_close_circle
 drawable ic_search_black_24
 drawable indeterminate_static
+drawable input_bg
 drawable keyboard_key_bg
 drawable m3_avd_hide_password
 drawable m3_avd_show_password
@@ -3006,6 +3010,8 @@ drawable notification_template_icon_bg
 drawable notification_template_icon_low_bg
 drawable notification_tile_bg
 drawable notify_panel_notification_icon_bg
+drawable privacy_note_bg
+drawable settings_card_bg
 drawable test_level_drawable
 drawable tooltip_frame_dark
 drawable tooltip_frame_light
@@ -3077,6 +3083,7 @@ id action_text
 id actions
 id activity_chooser_view_content
 id add
+id advanced_section
 id alertTitle
 id aligned
 id all
@@ -3097,11 +3104,10 @@ id beginning
 id blocking
 id bottom
 id bounce
-id btn_genz
 id btn_personal
 id btn_professional
-id btn_roast
 id btn_save
+id btn_toggle_advanced
 id buttonPanel
 id cancel_button
 id candidates
@@ -3265,11 +3271,6 @@ id matrix
 id message
 id middle
 id mini
-id mode_genz
-id mode_personal
-id mode_professional
-id mode_roast
-id mode_row
 id month_grid
 id month_navigation_bar
 id month_navigation_fragment_toggle
@@ -3451,6 +3452,10 @@ id title
 id titleDividerNoCustom
 id title_template
 id toggle
+id tool_extra
+id tool_magic
+id tool_settings
+id toolbar_row
 id top
 id topPanel
 id touch_outside
@@ -3465,6 +3470,7 @@ id transition_position
 id transition_scene_layoutid_cache
 id transition_transform
 id triangle
+id tv_connection_status
 id tv_status
 id unchecked
 id uniform
@@ -5122,3 +5128,4 @@ styleable ViewPager2 android_orientation
 styleable ViewStubCompat android_id android_layout android_inflatedId
 xml method
 xml qwerty
+xml symbols

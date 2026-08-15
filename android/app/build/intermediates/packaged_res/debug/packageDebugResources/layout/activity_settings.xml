@@ -3,188 +3,328 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/ink"
-    android:padding="20dp">
+    android:fillViewport="true">
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Banter Keyboard"
-            android:textColor="@color/brand"
-            android:textSize="24sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Login once, then tap the Banter key inside any app to rewrite what you typed."
-            android:textColor="#8b8ba7"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="16dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Privacy note: Banter only sends your current text to the server when you tap the Banter key."
-            android:textColor="#ffffff"
-            android:background="#151526"
-            android:padding="12dp"
-            android:layout_marginBottom="16dp" />
-
-        <EditText
-            android:id="@+id/et_base_url"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="https://banter-mu.vercel.app"
-            android:inputType="textUri"
-            android:textColor="#ffffff"
-            android:textColorHint="#8b8ba7" />
-
-        <EditText
-            android:id="@+id/et_email"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Banter email"
-            android:inputType="textEmailAddress"
-            android:textColor="#ffffff"
-            android:textColorHint="#8b8ba7"
-            android:layout_marginTop="8dp" />
-
-        <EditText
-            android:id="@+id/et_password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Banter password used once, not stored"
-            android:inputType="textPassword"
-            android:textColor="#ffffff"
-            android:textColorHint="#8b8ba7"
-            android:layout_marginTop="8dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Quick modes"
-            android:textColor="#8b8ba7"
-            android:layout_marginTop="16dp" />
+        android:layout_height="wrap_content"
+        android:padding="20dp">
 
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp">
+            android:gravity="center_vertical"
+            android:layout_marginBottom="18dp">
 
-            <Button
-                android:id="@+id/btn_personal"
+            <ImageView
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:src="@drawable/ic_launcher"
+                android:contentDescription="Banter Keyboard" />
+
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Personal" />
+                android:layout_marginStart="14dp">
 
-            <Button
-                android:id="@+id/btn_professional"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Professional"
-                android:layout_marginStart="8dp" />
-        </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Banter Keyboard"
+                    android:textColor="#ffffff"
+                    android:textSize="26sp"
+                    android:textStyle="bold" />
 
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp">
-
-            <Button
-                android:id="@+id/btn_genz"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Gen-Z" />
-
-            <Button
-                android:id="@+id/btn_roast"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Roast"
-                android:layout_marginStart="8dp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="by HNY Labs"
+                    android:textColor="#9fd0ff"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </LinearLayout>
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Defaults used when you tap the Banter key"
-            android:textColor="#8b8ba7"
-            android:layout_marginTop="16dp" />
-
-        <EditText
-            android:id="@+id/et_relationship"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="relationship: partner, crush, friend, boss, client"
+            android:text="Type rough. Tap 🪄. Send better."
             android:textColor="#ffffff"
-            android:textColorHint="#8b8ba7"
-            android:layout_marginTop="8dp" />
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:background="@drawable/settings_card_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="14dp" />
 
-        <EditText
-            android:id="@+id/et_intent"
+        <TextView
+            android:id="@+id/tv_connection_status"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="intent: flirt, genz_reply, roast_comeback, email_professional"
-            android:textColor="#ffffff"
-            android:textColorHint="#8b8ba7"
-            android:layout_marginTop="8dp" />
+            android:text="Status: Not connected"
+            android:textColor="#e9c46a"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:lineSpacingExtra="3dp"
+            android:background="@drawable/privacy_note_bg"
+            android:padding="14dp"
+            android:layout_marginBottom="14dp" />
 
-        <EditText
-            android:id="@+id/et_tone"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="tone: warm, genz, savage, formal, confident"
-            android:textColor="#ffffff"
-            android:textColorHint="#8b8ba7"
-            android:layout_marginTop="8dp" />
+            android:text="Privacy: Banter only sends your current text when you tap 🪄. Password is used once and not stored. Private fields are protected."
+            android:textColor="#d8ecff"
+            android:textSize="14sp"
+            android:lineSpacingExtra="3dp"
+            android:background="@drawable/privacy_note_bg"
+            android:padding="14dp"
+            android:layout_marginBottom="18dp" />
 
-        <EditText
-            android:id="@+id/et_language"
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="language code: en, hi"
-            android:textColor="#ffffff"
-            android:textColorHint="#8b8ba7"
-            android:layout_marginTop="8dp" />
+            android:background="@drawable/settings_card_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
 
-        <CheckBox
-            android:id="@+id/cb_hurry"
-            android:layout_width="wrap_content"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1. Connect account"
+                android:textColor="#ffffff"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Use the same account you use on the Banter website."
+                android:textColor="#8b8ba7"
+                android:textSize="13sp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="14dp" />
+
+            <EditText
+                android:id="@+id/et_base_url"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:hint="Server URL"
+                android:inputType="textUri"
+                android:singleLine="true"
+                android:textColor="#ffffff"
+                android:textColorHint="#7f8193"
+                android:textSize="15sp"
+                android:background="@drawable/input_bg" />
+
+            <EditText
+                android:id="@+id/et_email"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:hint="Banter email"
+                android:inputType="textEmailAddress"
+                android:singleLine="true"
+                android:textColor="#ffffff"
+                android:textColorHint="#7f8193"
+                android:textSize="15sp"
+                android:background="@drawable/input_bg"
+                android:layout_marginTop="10dp" />
+
+            <EditText
+                android:id="@+id/et_password"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:hint="Password used once, not stored"
+                android:inputType="textPassword"
+                android:singleLine="true"
+                android:textColor="#ffffff"
+                android:textColorHint="#7f8193"
+                android:textSize="15sp"
+                android:background="@drawable/input_bg"
+                android:layout_marginTop="10dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Hurry mode: one short reply"
+            android:background="@drawable/settings_card_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2. Default style"
+                android:textColor="#ffffff"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Choose how 🪄 should write by default. You can change it later from the extra menu."
+                android:textColor="#8b8ba7"
+                android:textSize="13sp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="14dp" />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/btn_personal"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:layout_weight="1"
+                    android:text="Personal"
+                    android:textAllCaps="false"
+                    android:textColor="#ffffff"
+                    android:textStyle="bold"
+                    android:background="@drawable/button_primary_bg" />
+
+                <Button
+                    android:id="@+id/btn_professional"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:layout_weight="1"
+                    android:text="Professional"
+                    android:textAllCaps="false"
+                    android:textColor="#ffffff"
+                    android:textStyle="bold"
+                    android:background="@drawable/button_secondary_bg"
+                    android:layout_marginStart="10dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_toggle_advanced"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Show advanced defaults"
+            android:textAllCaps="false"
             android:textColor="#ffffff"
-            android:layout_marginTop="8dp" />
+            android:textStyle="bold"
+            android:background="@drawable/button_secondary_bg"
+            android:layout_marginBottom="12dp" />
+
+        <LinearLayout
+            android:id="@+id/advanced_section"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/settings_card_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Advanced defaults"
+                android:textColor="#ffffff"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Optional. Leave these as they are if you are testing."
+                android:textColor="#8b8ba7"
+                android:textSize="13sp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="14dp" />
+
+            <EditText
+                android:id="@+id/et_relationship"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:hint="relationship"
+                android:singleLine="true"
+                android:textColor="#ffffff"
+                android:textColorHint="#7f8193"
+                android:textSize="15sp"
+                android:background="@drawable/input_bg" />
+
+            <EditText
+                android:id="@+id/et_intent"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:hint="intent"
+                android:singleLine="true"
+                android:textColor="#ffffff"
+                android:textColorHint="#7f8193"
+                android:textSize="15sp"
+                android:background="@drawable/input_bg"
+                android:layout_marginTop="10dp" />
+
+            <EditText
+                android:id="@+id/et_tone"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:hint="tone"
+                android:singleLine="true"
+                android:textColor="#ffffff"
+                android:textColorHint="#7f8193"
+                android:textSize="15sp"
+                android:background="@drawable/input_bg"
+                android:layout_marginTop="10dp" />
+
+            <EditText
+                android:id="@+id/et_language"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:hint="language code"
+                android:singleLine="true"
+                android:textColor="#ffffff"
+                android:textColorHint="#7f8193"
+                android:textSize="15sp"
+                android:background="@drawable/input_bg"
+                android:layout_marginTop="10dp" />
+
+            <CheckBox
+                android:id="@+id/cb_hurry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hurry mode: one short reply"
+                android:textColor="#ffffff"
+                android:layout_marginTop="10dp" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/btn_save"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:text="Save and Connect"
-            android:layout_marginTop="16dp" />
+            android:textAllCaps="false"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:background="@drawable/button_primary_bg" />
 
         <TextView
             android:id="@+id/tv_status"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/gold"
-            android:layout_marginTop="12dp" />
+            android:textColor="#9fd0ff"
+            android:textSize="14sp"
+            android:lineSpacingExtra="3dp"
+            android:layout_marginTop="14dp" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="After saving: Android Settings → Keyboard → Manage keyboards → enable Banter Keyboard. Then select it in any text field."
+            android:text="3. Enable it: Android Settings → Keyboard → Manage keyboards → Banter Keyboard. Then switch to it in any text field."
             android:textColor="#8b8ba7"
-            android:layout_marginTop="16dp" />
+            android:textSize="13sp"
+            android:lineSpacingExtra="3dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="24dp" />
     </LinearLayout>
 </ScrollView>

@@ -4,12 +4,28 @@
         "source": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-main-33:\\layout\\keyboard_view.xml"
     },
     {
+        "merged": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-debug-31:\\drawable_input_bg.xml.flat",
+        "source": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-main-33:\\drawable\\input_bg.xml"
+    },
+    {
         "merged": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-debug-31:\\xml_method.xml.flat",
         "source": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-main-33:\\xml\\method.xml"
     },
     {
-        "merged": "com.banter.keyboard.app-debug-31:/layout_keyboard_view.xml.flat",
-        "source": "com.banter.keyboard.app-main-33:/layout/keyboard_view.xml"
+        "merged": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-debug-31:\\xml_symbols.xml.flat",
+        "source": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-main-33:\\xml\\symbols.xml"
+    },
+    {
+        "merged": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-debug-31:\\drawable_button_primary_bg.xml.flat",
+        "source": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-main-33:\\drawable\\button_primary_bg.xml"
+    },
+    {
+        "merged": "com.banter.keyboard.app-debug-31:/layout_activity_settings.xml.flat",
+        "source": "com.banter.keyboard.app-main-33:/layout/activity_settings.xml"
+    },
+    {
+        "merged": "com.banter.keyboard.app-debug-31:/drawable_ic_launcher.png.flat",
+        "source": "com.banter.keyboard.app-main-33:/drawable/ic_launcher.png"
     },
     {
         "merged": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-debug-31:\\xml_qwerty.xml.flat",
@@ -20,7 +36,27 @@
         "source": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-main-33:\\layout\\activity_settings.xml"
     },
     {
-        "merged": "com.banter.keyboard.app-debug-31:/drawable_keyboard_key_bg.xml.flat",
-        "source": "com.banter.keyboard.app-main-33:/drawable/keyboard_key_bg.xml"
+        "merged": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-debug-31:\\drawable_button_secondary_bg.xml.flat",
+        "source": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-main-33:\\drawable\\button_secondary_bg.xml"
+    },
+    {
+        "merged": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-debug-31:\\drawable_keyboard_key_bg.xml.flat",
+        "source": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-main-33:\\drawable\\keyboard_key_bg.xml"
+    },
+    {
+        "merged": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-debug-31:\\drawable_privacy_note_bg.xml.flat",
+        "source": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-main-33:\\drawable\\privacy_note_bg.xml"
+    },
+    {
+        "merged": "com.banter.keyboard.app-debug-31:/layout_keyboard_view.xml.flat",
+        "source": "com.banter.keyboard.app-main-33:/layout/keyboard_view.xml"
+    },
+    {
+        "merged": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-debug-31:\\drawable_settings_card_bg.xml.flat",
+        "source": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-main-33:\\drawable\\settings_card_bg.xml"
+    },
+    {
+        "merged": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-debug-31:\\drawable_ic_launcher.png.flat",
+        "source": "C:\\Users\\FUTURE SELF\\.gradle\\daemon\\8.9\\com.banter.keyboard.app-main-33:\\drawable\\ic_launcher.png"
     }
 ]

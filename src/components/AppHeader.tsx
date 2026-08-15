@@ -112,6 +112,7 @@ export function AppHeader() {
             <Link onClick={() => setOpen(false)} href="/articles" className={navItem}>Articles</Link>
             <Link onClick={() => setOpen(false)} href="/examples" className={navItem}>Examples</Link>
             <Link onClick={() => setOpen(false)} href="/methods" className={navItem}>How to use</Link>
+            <Link onClick={() => setOpen(false)} href="/keyboard" className={navItem}>Keyboard beta</Link>
             <Link onClick={() => setOpen(false)} href="/support" className={navItem}>Support</Link>
             <Link onClick={() => setOpen(false)} href="/dashboard/settings" className={navItem}><Settings size={16} /> Settings</Link>
             <Link onClick={() => setOpen(false)} href="/dashboard/settings" className={navItem}><UserCircle size={16} /> Profile</Link>

@@ -101,11 +101,21 @@ object BanterApi {
             } else {
                 val err = conn.errorStream?.bufferedReader()?.use { it.readText() }
                 Log.w("BanterApi", "generate http $code $err")
-                null
+                val serverMessage = try {
+                    if (!err.isNullOrBlank()) JSONObject(err).optString("error") else ""
+                } catch (_: Exception) {
+                    ""
+                }
+                when (code) {
+                    401 -> listOf("Login expired — open Banter Keyboard app and Save again")
+                    403 -> listOf(serverMessage.ifBlank { "This mode needs Plus access" })
+                    429 -> listOf(serverMessage.ifBlank { "Daily limit reached" })
+                    else -> listOf(serverMessage.ifBlank { "Server error. Try again later" })
+                }
             }
         } catch (e: Exception) {
             Log.e("BanterApi", "generate failed", e)
-            null
+            listOf("Network error — check internet/server")
         }
     }
 }

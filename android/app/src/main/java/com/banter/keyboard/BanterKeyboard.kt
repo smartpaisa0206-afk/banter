@@ -2,6 +2,9 @@
 
 package com.banter.keyboard
 
+import android.content.ClipboardManager
+import android.content.Intent
+import android.net.Uri
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.inputmethodservice.InputMethodService
@@ -24,20 +27,23 @@ import kotlinx.coroutines.withContext
  *
  * Privacy behavior:
  * - It does NOT upload while the user is normally typing.
- * - It only reads/sends text when the user taps the Banter key.
+ * - It only reads/sends text when the user taps the magic key.
  * - It disables Banter in sensitive fields like passwords.
  */
 class BanterKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListener {
 
     private lateinit var kv: KeyboardView
     private lateinit var candidateView: BanterCandidateView
-    private lateinit var personalMode: TextView
-    private lateinit var professionalMode: TextView
+    private lateinit var toolExtra: TextView
+    private lateinit var toolSettings: TextView
+    private lateinit var toolMagic: TextView
 
     private var lastContextText: String = ""
     private var lastReplacementText: String = ""
     private var undoAvailable: Boolean = false
     private var banterDisabledForField: Boolean = false
+    private var caps: Boolean = false
+    private var symbols: Boolean = false
 
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
@@ -45,19 +51,20 @@ class BanterKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListen
         val view = layoutInflater.inflate(R.layout.keyboard_view, null)
         kv = view.findViewById(R.id.keyboard)
         candidateView = view.findViewById(R.id.candidates)
-        personalMode = view.findViewById(R.id.mode_personal)
-        professionalMode = view.findViewById(R.id.mode_professional)
+        toolExtra = view.findViewById(R.id.tool_extra)
+        toolSettings = view.findViewById(R.id.tool_settings)
+        toolMagic = view.findViewById(R.id.tool_magic)
 
         kv.keyboard = Keyboard(this, R.xml.qwerty)
         kv.setOnKeyboardActionListener(this)
-        candidateView.onPick = { commitSuggestion(it) }
+        candidateView.onPick = { handleCandidateTap(it) }
 
-        personalMode.setOnClickListener { applyMode(Prefs.MODE_PERSONAL, showMessage = true) }
-        professionalMode.setOnClickListener { applyMode(Prefs.MODE_PROFESSIONAL, showMessage = true) }
+        toolExtra.setOnClickListener { showExtraMenu() }
+        toolSettings.setOnClickListener { openSettings() }
+        toolMagic.setOnClickListener { requestBanterSuggestions() }
 
-        val prefs = getSharedPreferences(Prefs.NAME, MODE_PRIVATE)
-        applyMode(prefs.getString(Prefs.KEY_MODE, Prefs.DEF_MODE) ?: Prefs.DEF_MODE, showMessage = false)
-
+        updateToolbarUi()
+        updateKeyboardCase()
         return view
     }
 
@@ -68,10 +75,12 @@ class BanterKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListen
         lastReplacementText = ""
         undoAvailable = false
         banterDisabledForField = isSensitiveField(info)
-        val prefs = getSharedPreferences(Prefs.NAME, MODE_PRIVATE)
-        updateModeUi(prefs.getString(Prefs.KEY_MODE, Prefs.DEF_MODE) ?: Prefs.DEF_MODE)
+        symbols = false
+        caps = false
+        kv.keyboard = Keyboard(this, R.xml.qwerty)
+        updateKeyboardCase()
         if (banterDisabledForField) {
-            candidateView.setCandidates(listOf("Banter is disabled in private fields"))
+            candidateView.setCandidates(listOf("Magic is disabled in private fields"))
         }
     }
 
@@ -83,17 +92,50 @@ class BanterKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListen
     override fun onKey(primaryCode: Int, keyCodes: IntArray?) {
         val ic = currentInputConnection ?: return
         when (primaryCode) {
-            Keyboard.KEYCODE_DELETE -> ic.deleteSurroundingText(1, 0)
+            Keyboard.KEYCODE_DELETE -> deleteSelectionOrChar()
             Keyboard.KEYCODE_DONE -> {
                 ic.sendKeyEvent(KeyEvent(0, 0, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER, 0))
                 ic.sendKeyEvent(KeyEvent(0, 0, KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER, 0))
             }
-            KEYCODE_BANTER -> requestBanterSuggestions()
-            KEYCODE_UNDO -> undoLastSuggestion()
+            Keyboard.KEYCODE_SHIFT -> toggleCaps()
+            KEYCODE_SYMBOLS -> toggleSymbols()
+            KEYCODE_EMOJI -> ic.commitText("🙂", 1)
             else -> {
-                if (primaryCode > 0) ic.commitText(primaryCode.toChar().toString(), 1)
+                if (primaryCode > 0) {
+                    val ch = primaryCode.toChar()
+                    ic.commitText(if (caps && ch.isLetter()) ch.uppercaseChar().toString() else ch.toString(), 1)
+                    if (caps && ch.isLetter()) {
+                        caps = false
+                        updateKeyboardCase()
+                    }
+                }
             }
         }
+    }
+
+    private fun deleteSelectionOrChar() {
+        val ic = currentInputConnection ?: return
+        val selected = ic.getSelectedText(0)
+        if (!selected.isNullOrEmpty()) {
+            ic.commitText("", 1)
+        } else {
+            ic.deleteSurroundingText(1, 0)
+        }
+    }
+
+    private fun toggleSymbols() {
+        symbols = !symbols
+        caps = false
+        kv.keyboard = Keyboard(this, if (symbols) R.xml.symbols else R.xml.qwerty)
+        updateKeyboardCase()
+    }
+
+    private fun showExtraMenu() {
+        candidateView.setCandidates(listOf("Clipboard", "Share keyboard", "Modes", "Feedback"))
+    }
+
+    private fun showModes() {
+        candidateView.setCandidates(listOf("Personal mode", "Professional mode"))
     }
 
     private fun applyMode(mode: String, showMessage: Boolean) {
@@ -102,57 +144,67 @@ class BanterKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListen
 
         when (mode) {
             Prefs.MODE_PROFESSIONAL -> editor
-                .putString(Prefs.KEY_RELATIONSHIP, "client")
-                .putString(Prefs.KEY_INTENT, "email_professional")
+                .putString(Prefs.KEY_RELATIONSHIP, "stranger")
+                .putString(Prefs.KEY_INTENT, "icebreaker")
                 .putString(Prefs.KEY_TONE, "formal")
-            // Use existing always-supported backend intents for MVP, then guide style through context.
-            // This keeps Gen-Z/Roast working even if the live server has not deployed new intent IDs yet.
-            Prefs.MODE_GENZ -> editor
-                .putString(Prefs.KEY_RELATIONSHIP, "friend")
-                .putString(Prefs.KEY_INTENT, "icebreaker")
-                .putString(Prefs.KEY_TONE, "warm")
-            Prefs.MODE_ROAST -> editor
-                .putString(Prefs.KEY_RELATIONSHIP, "friend")
-                .putString(Prefs.KEY_INTENT, "icebreaker")
-                .putString(Prefs.KEY_TONE, "confident")
             else -> editor
                 .putString(Prefs.KEY_RELATIONSHIP, "partner")
                 .putString(Prefs.KEY_INTENT, "flirt")
                 .putString(Prefs.KEY_TONE, "warm")
         }
         editor.apply()
-        updateModeUi(mode)
-        if (showMessage) {
-            candidateView.setCandidates(listOf("${modeLabel(mode)} mode selected"))
+        if (showMessage) candidateView.setCandidates(listOf("${modeLabel(mode)} selected"))
+    }
+
+    private fun modeLabel(mode: String): String = if (mode == Prefs.MODE_PROFESSIONAL) "Professional" else "Personal"
+
+    private fun handleCandidateTap(text: String) {
+        when (text) {
+            "Clipboard" -> pasteClipboard()
+            "Share keyboard" -> shareKeyboard()
+            "Modes" -> showModes()
+            "Feedback" -> openFeedback()
+            "Personal mode" -> applyMode(Prefs.MODE_PERSONAL, showMessage = true)
+            "Professional mode" -> applyMode(Prefs.MODE_PROFESSIONAL, showMessage = true)
+            "Undo" -> undoLastSuggestion()
+            else -> commitSuggestion(text)
         }
     }
 
-    private fun updateModeUi(active: String) {
-        styleMode(personalMode, active != Prefs.MODE_PROFESSIONAL, 0xFF7C5CFF.toInt())
-        styleMode(professionalMode, active == Prefs.MODE_PROFESSIONAL, 0xFF4AA8FF.toInt())
-    }
-
-    private fun styleMode(view: TextView, active: Boolean, color: Int) {
-        view.setTextColor(if (active) Color.WHITE else 0xFFB9B9C8.toInt())
-        view.background = GradientDrawable().apply {
-            cornerRadius = dp(18).toFloat()
-            setColor(if (active) adjustAlpha(color, 0.35f) else 0xFF171722.toInt())
-            setStroke(dp(1), if (active) color else 0xFF34344A.toInt())
+    private fun pasteClipboard() {
+        val cm = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+        val text = cm.primaryClip?.getItemAt(0)?.coerceToText(this)?.toString()?.takeIf { it.isNotBlank() }
+        if (text == null) {
+            candidateView.setCandidates(listOf("Clipboard is empty"))
+        } else {
+            currentInputConnection?.commitText(text, 1)
+            candidateView.setCandidates(listOf("Pasted from clipboard ✓"))
         }
     }
 
-    private fun modeLabel(mode: String): String {
-        return when (mode) {
-            Prefs.MODE_PROFESSIONAL -> "Professional"
-            Prefs.MODE_GENZ -> "Gen-Z"
-            Prefs.MODE_ROAST -> "Roast"
-            else -> "Personal"
+    private fun shareKeyboard() {
+        val share = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, "Try Banter Keyboard beta: https://banter-mu.vercel.app")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
+        startActivity(Intent.createChooser(share, "Share Banter Keyboard").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+    }
+
+    private fun openSettings() {
+        val intent = Intent(this, SettingsActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
+    }
+
+    private fun openFeedback() {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://banter-mu.vercel.app/dashboard/feedback"))
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
     }
 
     private fun requestBanterSuggestions() {
         if (banterDisabledForField) {
-            candidateView.setCandidates(listOf("Banter is disabled in private fields"))
+            candidateView.setCandidates(listOf("Magic is disabled in private fields"))
             return
         }
 
@@ -166,14 +218,14 @@ class BanterKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListen
         val language = prefs.getString(Prefs.KEY_LANGUAGE, Prefs.DEF_LANGUAGE) ?: Prefs.DEF_LANGUAGE
         val hurry = prefs.getBoolean(Prefs.KEY_HURRY, false)
 
-        val rawCtx = currentInputConnection?.getTextBeforeCursor(200, 0)?.toString()?.trim() ?: ""
-        val ctx = styleContext(mode, rawCtx)
-        if (ctx.isBlank()) {
-            candidateView.setCandidates(listOf("Type something first, then tap Banter ✨"))
+        val rawCtx = currentInputConnection?.getTextBeforeCursor(220, 0)?.toString() ?: ""
+        val ctx = styleContext(mode, rawCtx.trim())
+        if (rawCtx.trim().isBlank()) {
+            candidateView.setCandidates(listOf("Type something first, then tap 🪄"))
             return
         }
         if (token.isBlank()) {
-            candidateView.setCandidates(listOf("Open Banter Keyboard app → login first"))
+            candidateView.setCandidates(listOf("Open settings ⚙ and login first"))
             return
         }
 
@@ -183,11 +235,8 @@ class BanterKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListen
         scope.launch {
             val variants = BanterApi.generate(baseUrl, token, relationship, intent, tone, language, ctx, hurry)
             withContext(Dispatchers.Main) {
-                if (!variants.isNullOrEmpty()) {
-                    candidateView.setCandidates(variants.take(3))
-                } else {
-                    candidateView.setCandidates(listOf("No suggestions. Check login/server, then try again."))
-                }
+                if (!variants.isNullOrEmpty()) candidateView.setCandidates(variants.take(3))
+                else candidateView.setCandidates(listOf("No suggestions. Try again."))
             }
         }
     }
@@ -197,10 +246,11 @@ class BanterKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListen
 
         val ic = currentInputConnection ?: return
         val original = lastContextText
-        if (original.isNotEmpty()) {
-            ic.deleteSurroundingText(original.length, 0)
-        }
+        ic.beginBatchEdit()
+        ic.finishComposingText()
+        if (original.isNotEmpty()) ic.deleteSurroundingText(original.length, 0)
         ic.commitText(text, 1)
+        ic.endBatchEdit()
 
         lastContextText = original
         lastReplacementText = text
@@ -214,50 +264,88 @@ class BanterKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListen
             return
         }
         val ic = currentInputConnection ?: return
+        ic.beginBatchEdit()
+        ic.finishComposingText()
         ic.deleteSurroundingText(lastReplacementText.length, 0)
         ic.commitText(lastContextText, 1)
+        ic.endBatchEdit()
         lastReplacementText = ""
         undoAvailable = false
         candidateView.setCandidates(listOf("Restored original ✓"))
     }
 
     private fun isSystemChip(text: String): Boolean {
-        if (text == "Undo") {
-            undoLastSuggestion()
-            return true
-        }
-        return text == "Thinking…" ||
-            text == "Done ✓" ||
-            text.endsWith("mode selected") ||
+        return text == "Thinking…" || text == "Done ✓" ||
+            text.endsWith("selected") ||
+            text.startsWith("Open settings") ||
             text.startsWith("Open Banter") ||
+            text.startsWith("Login expired") ||
+            text.startsWith("This mode needs") ||
+            text.startsWith("Upgrade") ||
+            text.startsWith("Daily limit") ||
+            text.startsWith("Network error") ||
+            text.startsWith("Server error") ||
             text.startsWith("No suggestions") ||
             text.startsWith("Type something") ||
             text.startsWith("Nothing to undo") ||
             text.startsWith("Restored original") ||
-            text.startsWith("Banter is disabled")
+            text.startsWith("Magic is disabled") ||
+            text.endsWith("coming soon") ||
+            text == "Clipboard is empty" ||
+            text == "Pasted from clipboard ✓"
     }
 
     private fun styleContext(mode: String, text: String): String {
-        return when (mode) {
-            Prefs.MODE_GENZ -> "Write a short casual Gen-Z style reply. Keep it natural, not cringe, and match the vibe. Situation: $text"
-            Prefs.MODE_ROAST -> "Write a playful roast or comeback for a friend. Keep it funny and safe, no hate, no slurs, no threats, no cruelty. Situation: $text"
-            Prefs.MODE_PROFESSIONAL -> "Write this in a clear professional tone. Situation: $text"
-            else -> text
+        val current = text.trim()
+        val autoLang = "Use ONLY the current user text below. Do not continue the previous language, tone, or output style. Detect the language/script/style from the current text only. If current text is English, reply in English. If current text is Roman Hindi/Hinglish, reply in natural Roman Hinglish. If current text is Tamil or another language, reply in that same language/script. Understand shorthand, missing letters, and casual typing. Keep it sendable and concise."
+        return if (mode == Prefs.MODE_PROFESSIONAL) {
+            "$autoLang Professional rule: no emojis unless the current user text explicitly asks for emojis. Rewrite or draft this as a clear professional message or email. If it looks like rough office notes, create a polished formal message. Current user text: $current"
+        } else {
+            "$autoLang Personal rule: emojis are allowed only if they feel natural. Current user text: $current"
         }
+    }
+
+    private fun toggleCaps() {
+        caps = !caps
+        updateKeyboardCase()
+    }
+
+    private fun updateKeyboardCase() {
+        val keyboard = kv.keyboard ?: return
+        for (key in keyboard.keys) {
+            val label = key.label?.toString() ?: continue
+            if (label.length == 1 && label[0].isLetter()) {
+                key.label = if (caps) label.uppercase() else label.lowercase()
+            }
+            if (key.codes != null && key.codes.isNotEmpty() && key.codes[0] == Keyboard.KEYCODE_SHIFT) {
+                key.label = if (caps) "⇧" else "⇧"
+            }
+        }
+        kv.invalidateAllKeys()
+        updateToolbarUi()
+    }
+
+    private fun updateToolbarUi() {
+        fun bg(fill: Int, stroke: Int): GradientDrawable = GradientDrawable().apply {
+            cornerRadius = dp(18).toFloat()
+            setColor(fill)
+            setStroke(dp(1), stroke)
+        }
+        toolExtra.background = bg(0xFF171722.toInt(), 0xFF34344A.toInt())
+        toolSettings.background = bg(0xFF171722.toInt(), 0xFF34344A.toInt())
+        toolMagic.background = bg(0xFF243B63.toInt(), 0xFF4AA8FF.toInt())
     }
 
     private fun isSensitiveField(info: EditorInfo?): Boolean {
         val inputType = info?.inputType ?: return false
         val variation = inputType and InputType.TYPE_MASK_VARIATION
         val clazz = inputType and InputType.TYPE_MASK_CLASS
-
         val passwordVariations = setOf(
             InputType.TYPE_TEXT_VARIATION_PASSWORD,
             InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD,
             InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD,
             InputType.TYPE_NUMBER_VARIATION_PASSWORD,
         )
-
         if (variation in passwordVariations) return true
         if (clazz == InputType.TYPE_CLASS_NUMBER && variation == InputType.TYPE_NUMBER_VARIATION_PASSWORD) return true
         if (info.imeOptions and EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING != 0) return true
@@ -265,11 +353,6 @@ class BanterKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListen
     }
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
-
-    private fun adjustAlpha(color: Int, factor: Float): Int {
-        val alpha = (Color.alpha(color) * factor).toInt()
-        return Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color))
-    }
 
     override fun onPress(primaryCode: Int) {}
     override fun onRelease(primaryCode: Int) {}
@@ -280,7 +363,7 @@ class BanterKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListen
     override fun swipeUp() {}
 
     companion object {
-        const val KEYCODE_BANTER = -100
-        const val KEYCODE_UNDO = -101
+        const val KEYCODE_SYMBOLS = -102
+        const val KEYCODE_EMOJI = -103
     }
 }

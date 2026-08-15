@@ -3,6 +3,8 @@
 package com.banter.keyboard
 
 import android.os.Bundle
+import android.view.View
+import android.widget.LinearLayout
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
@@ -32,11 +34,12 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var hurry: CheckBox
     private lateinit var save: Button
     private lateinit var status: TextView
+    private lateinit var connectionStatus: TextView
+    private lateinit var advancedSection: LinearLayout
+    private lateinit var toggleAdvanced: Button
 
     private lateinit var personalBtn: Button
     private lateinit var professionalBtn: Button
-    private lateinit var genzBtn: Button
-    private lateinit var roastBtn: Button
 
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
@@ -54,11 +57,12 @@ class SettingsActivity : AppCompatActivity() {
         hurry = findViewById(R.id.cb_hurry)
         save = findViewById(R.id.btn_save)
         status = findViewById(R.id.tv_status)
+        connectionStatus = findViewById(R.id.tv_connection_status)
+        advancedSection = findViewById(R.id.advanced_section)
+        toggleAdvanced = findViewById(R.id.btn_toggle_advanced)
 
         personalBtn = findViewById(R.id.btn_personal)
         professionalBtn = findViewById(R.id.btn_professional)
-        genzBtn = findViewById(R.id.btn_genz)
-        roastBtn = findViewById(R.id.btn_roast)
 
         val prefs = getSharedPreferences(Prefs.NAME, MODE_PRIVATE)
         baseUrl.setText(prefs.getString(Prefs.KEY_BASE_URL, Prefs.DEF_BASE_URL))
@@ -69,34 +73,30 @@ class SettingsActivity : AppCompatActivity() {
         tone.setText(prefs.getString(Prefs.KEY_TONE, Prefs.DEF_TONE))
         language.setText(prefs.getString(Prefs.KEY_LANGUAGE, Prefs.DEF_LANGUAGE))
         hurry.isChecked = prefs.getBoolean(Prefs.KEY_HURRY, false)
+        updateConnectionStatus(prefs.getString(Prefs.KEY_TOKEN, ""))
+
+        toggleAdvanced.setOnClickListener {
+            val show = advancedSection.visibility != View.VISIBLE
+            advancedSection.visibility = if (show) View.VISIBLE else View.GONE
+            toggleAdvanced.text = if (show) "Hide advanced defaults" else "Show advanced defaults"
+        }
 
         personalBtn.setOnClickListener {
+            prefs.edit().putString(Prefs.KEY_MODE, Prefs.MODE_PERSONAL).apply()
             relationship.setText("partner")
             intentEt.setText("flirt")
             tone.setText("warm")
-            status.text = "Personal mode selected. Tap Save & Connect."
+            status.text = "Personal mode selected. Tap Save and Connect."
         }
 
         professionalBtn.setOnClickListener {
-            relationship.setText("client")
-            intentEt.setText("email_professional")
+            prefs.edit().putString(Prefs.KEY_MODE, Prefs.MODE_PROFESSIONAL).apply()
+            relationship.setText("stranger")
+            intentEt.setText("icebreaker")
             tone.setText("formal")
-            status.text = "Professional mode selected. Tap Save & Connect."
+            status.text = "Professional mode selected. Tap Save and Connect."
         }
 
-        genzBtn.setOnClickListener {
-            relationship.setText("friend")
-            intentEt.setText("icebreaker")
-            tone.setText("warm")
-            status.text = "Gen-Z reply mode selected. Tap Save & Connect."
-        }
-
-        roastBtn.setOnClickListener {
-            relationship.setText("friend")
-            intentEt.setText("icebreaker")
-            tone.setText("confident")
-            status.text = "Playful roast mode selected. Keep it friendly. Tap Save & Connect."
-        }
 
         save.setOnClickListener {
             val url = baseUrl.text.toString().trim().trimEnd('/')
@@ -115,13 +115,15 @@ class SettingsActivity : AppCompatActivity() {
             prefs.edit().apply {
                 putString(Prefs.KEY_BASE_URL, url)
                 putString(Prefs.KEY_EMAIL, emailValue)
+                if (intentEt.text.toString().trim() == "icebreaker" && tone.text.toString().trim() == "formal") putString(Prefs.KEY_MODE, Prefs.MODE_PROFESSIONAL)
+                else putString(Prefs.KEY_MODE, Prefs.MODE_PERSONAL)
                 remove(Prefs.KEY_PASSWORD)
                 putString(Prefs.KEY_RELATIONSHIP, relationship.text.toString().trim())
                 putString(Prefs.KEY_INTENT, intentEt.text.toString().trim())
                 putString(Prefs.KEY_TONE, tone.text.toString().trim())
                 putString(Prefs.KEY_LANGUAGE, language.text.toString().trim().ifBlank { Prefs.DEF_LANGUAGE })
                 putBoolean(Prefs.KEY_HURRY, hurry.isChecked)
-                remove(Prefs.KEY_TOKEN) // force fresh token if server/login changed
+                remove(Prefs.KEY_TOKEN)
                 apply()
             }
 
@@ -138,12 +140,23 @@ class SettingsActivity : AppCompatActivity() {
                             .remove(Prefs.KEY_PASSWORD)
                             .apply()
                         password.setText("")
+                        updateConnectionStatus(token)
                         status.text = "Connected ✓ Password not stored. Now enable Banter Keyboard in Android settings."
                     } else {
                         status.text = "Login failed. Check server URL, account email, and password."
                     }
                 }
             }
+        }
+    }
+
+    private fun updateConnectionStatus(token: String?) {
+        if (!token.isNullOrBlank()) {
+            connectionStatus.text = "Status: Connected ✓ Ready to use"
+            connectionStatus.setTextColor(0xFF34D399.toInt())
+        } else {
+            connectionStatus.text = "Status: Not connected — login and tap Save"
+            connectionStatus.setTextColor(0xFFE9C46A.toInt())
         }
     }
 

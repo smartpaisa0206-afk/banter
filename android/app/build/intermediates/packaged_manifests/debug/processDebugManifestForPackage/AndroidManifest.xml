@@ -21,8 +21,9 @@
         android:appComponentFactory="androidx.core.app.CoreComponentFactory"
         android:debuggable="true"
         android:extractNativeLibs="false"
+        android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:testOnly="true"
+        android:roundIcon="@drawable/ic_launcher"
         android:theme="@style/Theme.BanterKeyboard"
         android:usesCleartextTraffic="false" >
 

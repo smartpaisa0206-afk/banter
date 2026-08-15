@@ -13,6 +13,7 @@ export function Footer() {
           <Link href="/introduction" className="hover:text-white">Introduction</Link>
           <Link href="/examples" className="hover:text-white">Examples</Link>
           <Link href="/methods" className="hover:text-white">How to use</Link>
+          <Link href="/keyboard" className="hover:text-white">Keyboard beta</Link>
           <Link href="/articles" className="hover:text-white">Articles</Link>
           <Link href="/support" className="hover:text-white">Support</Link>
           <Link href="/cookies" className="hover:text-white">Cookies</Link>
