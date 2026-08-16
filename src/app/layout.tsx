@@ -4,6 +4,7 @@ import { BRAND_NAME, BRAND_TAGLINE } from '@/lib/config';
 import { LangProvider } from '@/components/LanguageContext';
 import { RegisterSW } from '@/components/RegisterSW';
 import { CookieBanner } from '@/components/CookieBanner';
+import { Analytics } from '@vercel/analytics/react';
 
 export const metadata: Metadata = {
   title: `${BRAND_NAME} — ${BRAND_TAGLINE}`,
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
+        <Analytics />
         <LangProvider>{children}</LangProvider>
         <CookieBanner />
         <RegisterSW />
