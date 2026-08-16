@@ -33,7 +33,7 @@ const SAMPLES: Record<string, string[]> = {
   de: ['ich', 'danke', 'bitte', 'und', 'ist', 'sehr', 'hallo', 'warum', 'du', 'nicht'],
   it: ['ciao', 'grazie', 'sono', 'perche', 'amico', 'come', 'sei', 'bene', 'buongiorno', 'tu'],
   pt: ['ola', 'obrigado', 'voce', 'sim', 'estou', 'tudo', 'bem', 'porque', 'tambem'],
-  hing: ['hai', 'kya', 'nahi', 'mera', 'tera', 'pyaar', 'kal', 'aaj', 'yaar', 'acha', 'tum', 'dil', 'baat', 'tumse'],
+  hing: ['hai', 'kya', 'ky', 'kr', 'krrh', 'kkrh', 'rhe', 'rahe', 'kar', 'nahi', 'nhi', 'mera', 'tera', 'pyaar', 'kal', 'aaj', 'yaar', 'acha', 'tum', 'tm', 'khana', 'khna', 'kha', 'liya', 'liye', 'dil', 'baat', 'tumse'],
 };
 
 // Lightweight, dependency-free language detection from user text.
@@ -52,6 +52,12 @@ export function detectLanguage(text: string): string | null {
   if (/[\u0B80-\u0BFF]/.test(text)) return 'ta';
   if (/[\u0C00-\u0C7F]/.test(text)) return 'te';
   if (/[\u0980-\u09FF]/.test(text)) return 'bn';
+
+  const lower = text.toLowerCase();
+  // Strong Roman-Hindi/Hinglish shorthand signals used in Indian chats.
+  if (/(^|[^a-z])(kkrh|krrh|kr rhe|kr rha|kr rhi|tm|tum|kya|ky|khna|khana|kha liya|khya liya|nhi|nahi|yaar)([^a-z]|$)/i.test(lower)) {
+    return 'hing';
+  }
 
   let best: string | null = null;
   let bestScore = 0;

@@ -545,6 +545,29 @@ function templateFallback(input: GenerateInput, format: string = 'chat'): LLMRes
   return { variants: [v1, v2, v3], tip, coachNote: coach };
 }
 
+
+function languageSample(context?: string): string {
+  const text = (context || '').trim();
+  if (!text) return '';
+  const markers = ['CURRENT_USER_TEXT:', 'Current user text:', 'User text:', 'Situation:'];
+  for (const marker of markers) {
+    const idx = text.lastIndexOf(marker);
+    if (idx >= 0) return text.slice(idx + marker.length).trim();
+  }
+  return text;
+}
+
+function forcedLanguageFromContext(context?: string): string | null {
+  const text = (context || '').toLowerCase();
+  if (text.includes('target_language: english only')) return 'en';
+  if (text.includes('target_language: roman hinglish only')) return 'hing';
+  if (text.includes('target_language: hindi only')) return 'hi';
+  if (text.includes('target_language: tamil only')) return 'ta';
+  if (text.includes('target_language: telugu only')) return 'te';
+  if (text.includes('target_language: bengali only')) return 'bn';
+  return null;
+}
+
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
@@ -566,8 +589,10 @@ export async function generate(input: GenerateInput): Promise<GenerateOutput> {
   const format = outputFormat(intent);
 
   let langCode = input.language || 'en';
-  const detected = input.context ? detectLanguage(input.context) : null;
-  if (detected) langCode = detected;
+  const forced = forcedLanguageFromContext(input.context);
+  const detected = input.context ? detectLanguage(languageSample(input.context)) : null;
+  if (forced) langCode = forced;
+  else if (detected) langCode = detected;
   const lLabel = langLabel(langCode);
 
   const sys = buildSystem({ langLabel: lLabel, langCode, intimacy: intent.intimacy, hurry: input.hurry, category: intent.category, format });
@@ -637,8 +662,10 @@ export async function streamGenerate(
   const format = outputFormat(intent);
 
   let langCode = input.language || 'en';
-  const detected = input.context ? detectLanguage(input.context) : null;
-  if (detected) langCode = detected;
+  const forced = forcedLanguageFromContext(input.context);
+  const detected = input.context ? detectLanguage(languageSample(input.context)) : null;
+  if (forced) langCode = forced;
+  else if (detected) langCode = detected;
   const lLabel = langLabel(langCode);
 
   emit({

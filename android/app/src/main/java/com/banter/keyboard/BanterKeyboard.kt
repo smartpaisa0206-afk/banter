@@ -215,7 +215,7 @@ class BanterKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListen
         val relationship = prefs.getString(Prefs.KEY_RELATIONSHIP, Prefs.DEF_RELATIONSHIP) ?: Prefs.DEF_RELATIONSHIP
         val intent = prefs.getString(Prefs.KEY_INTENT, Prefs.DEF_INTENT) ?: Prefs.DEF_INTENT
         val tone = prefs.getString(Prefs.KEY_TONE, Prefs.DEF_TONE) ?: Prefs.DEF_TONE
-        val language = prefs.getString(Prefs.KEY_LANGUAGE, Prefs.DEF_LANGUAGE) ?: Prefs.DEF_LANGUAGE
+        val language = "en" // keyboard uses backend auto-detection from current text
         val hurry = prefs.getBoolean(Prefs.KEY_HURRY, false)
 
         val rawCtx = currentInputConnection?.getTextBeforeCursor(220, 0)?.toString() ?: ""
@@ -297,12 +297,31 @@ class BanterKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListen
 
     private fun styleContext(mode: String, text: String): String {
         val current = text.trim()
-        val autoLang = "Use ONLY the current user text below. Do not continue the previous language, tone, or output style. Detect the language/script/style from the current text only. If current text is English, reply in English. If current text is Roman Hindi/Hinglish, reply in natural Roman Hinglish. If current text is Tamil or another language, reply in that same language/script. Understand shorthand, missing letters, and casual typing. Keep it sendable and concise."
-        return if (mode == Prefs.MODE_PROFESSIONAL) {
-            "$autoLang Professional rule: no emojis unless the current user text explicitly asks for emojis. Rewrite or draft this as a clear professional message or email. If it looks like rough office notes, create a polished formal message. Current user text: $current"
-        } else {
-            "$autoLang Personal rule: emojis are allowed only if they feel natural. Current user text: $current"
+        val target = detectKeyboardLanguage(current)
+        val languageRule = when (target) {
+            "hing" -> "TARGET_LANGUAGE: Roman Hinglish only."
+            "hi" -> "TARGET_LANGUAGE: Hindi only."
+            "ta" -> "TARGET_LANGUAGE: Tamil only."
+            "te" -> "TARGET_LANGUAGE: Telugu only."
+            "bn" -> "TARGET_LANGUAGE: Bengali only."
+            else -> "TARGET_LANGUAGE: English only."
         }
+        return if (mode == Prefs.MODE_PROFESSIONAL) {
+            "$languageRule STYLE: professional, clear, formal if needed, no emojis unless explicitly requested. TASK: rewrite or draft a professional message/email from the current text. CURRENT_USER_TEXT: $current"
+        } else {
+            "$languageRule STYLE: natural, friendly, concise, emojis only if natural. TASK: write a better sendable reply/message from the current text. CURRENT_USER_TEXT: $current"
+        }
+    }
+
+    private fun detectKeyboardLanguage(text: String): String {
+        if (text.isBlank()) return "en"
+        if (Regex("[\u0900-\u097F]").containsMatchIn(text)) return "hi"
+        if (Regex("[\u0B80-\u0BFF]").containsMatchIn(text)) return "ta"
+        if (Regex("[\u0C00-\u0C7F]").containsMatchIn(text)) return "te"
+        if (Regex("[\u0980-\u09FF]").containsMatchIn(text)) return "bn"
+        val lower = text.lowercase()
+        val hinglish = Regex("(^|[^a-z])(kkrh|krrh|kr rhe|kr rha|kr rhi|kya|ky|tm|tum|nhi|nahi|khna|khana|kha liya|khya liya|yaar|acha|aaj|kal)([^a-z]|$)")
+        return if (hinglish.containsMatchIn(lower)) "hing" else "en"
     }
 
     private fun toggleCaps() {
