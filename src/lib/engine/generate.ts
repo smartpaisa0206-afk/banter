@@ -2,6 +2,8 @@ import { relById, relLabel } from './relationships';
 import { toneById, toneLabel } from './tones';
 import { intentById, intentLabel, outputFormat, type OutputFormat } from './intents';
 import { langLabel, detectLanguage } from './languages';
+import { normalizeShorthand } from './shorthand';
+import { buildSuggestionQualityBlock } from './suggestionQuality';
 
 export interface GenerateInput {
   relationship: string;
@@ -159,115 +161,196 @@ async function callLLM(
   format: string = 'chat',
 ): Promise<{ result: LLMResult | null; source: Source; reason?: string }> {
   const provider = process.env.LLM_PROVIDER;
-  try {
-    if (provider === 'openai' && process.env.OPENAI_API_KEY) {
-      const res = await safeFetch(
-        'https://api.openai.com/v1/chat/completions',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
-          body: JSON.stringify({
-            model: 'gpt-4o-mini',
-            temperature: 0.9,
-            max_tokens: 600,
-            response_format: { type: 'json_object' },
-            messages: [
-              { role: 'system', content: system },
-              { role: 'user', content: user },
-            ],
-          }),
-        },
-        { timeoutMs: NORMAL_TIMEOUT },
-      );
-      if (!res.ok) return { result: null, source: 'error', reason: `OpenAI ${res.status}` };
-      const data = await res.json();
-      const content = data?.choices?.[0]?.message?.content;
-      return { result: content ? parseJSON(content) : null, source: 'llm' };
-    }
-    if (provider === 'anthropic' && process.env.ANTHROPIC_API_KEY) {
-      const res = await safeFetch(
-        'https://api.anthropic.com/v1/messages',
-        {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json',
-            'x-api-key': process.env.ANTHROPIC_API_KEY,
-            'anthropic-version': '2023-06-01',
-          },
-          body: JSON.stringify({
-            model: 'claude-3-5-sonnet-20240620',
-            max_tokens: 600,
-            system,
-            messages: [
-              {
-                role: 'user',
-                content:
-                  user + '\n\nReply ONLY with a JSON object: ' + jsonShapeSpec(format) + '.',
-              },
-            ],
-          }),
-        },
-        { timeoutMs: NORMAL_TIMEOUT },
-      );
-      if (!res.ok) return { result: null, source: 'error', reason: `Anthropic ${res.status}` };
-      const data = await res.json();
-      const content = data?.content?.[0]?.text;
-      return { result: content ? parseJSON(content) : null, source: 'llm' };
-    }
-    if (provider === 'ollama') {
-      const base = process.env.OLLAMA_HOST || 'http://localhost:11434';
-      const model = process.env.OLLAMA_MODEL || 'llama3';
-      const res = await safeFetch(
-        `${base}/api/chat`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model,
-            stream: false,
-            format: 'json',
-            options: { num_predict: 600 },
-            messages: [
-              { role: 'system', content: system },
-              { role: 'user', content: user },
-            ],
-          }),
-        },
-        { timeoutMs: NORMAL_TIMEOUT },
-      );
-      if (!res.ok) return { result: null, source: 'error', reason: `Ollama ${res.status}` };
-      const data = await res.json();
-      const content = data?.message?.content;
-      return { result: content ? parseJSON(content) : null, source: 'llm' };
-    }
-    if (provider === 'groq' && process.env.GROQ_API_KEY) {
-      const res = await safeFetch(
-        'https://api.groq.com/openai/v1/chat/completions',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.GROQ_API_KEY}` },
-          body: JSON.stringify({
-            model: process.env.GROQ_MODEL || 'llama-3.1-8b-instant',
-            temperature: 0.9,
-            max_tokens: 600,
-            response_format: { type: 'json_object' },
-            messages: [
-              { role: 'system', content: system },
-              { role: 'user', content: user },
-            ],
-          }),
-        },
-        { timeoutMs: NORMAL_TIMEOUT },
-      );
-      if (!res.ok) return { result: null, source: 'error', reason: `Groq ${res.status}` };
-      const data = await res.json();
-      const content = data?.choices?.[0]?.message?.content;
-      return { result: content ? parseJSON(content) : null, source: 'llm' };
-    }
-  } catch {
-    return { result: null, source: 'error', reason: 'network' };
+
+  async function callGroq(): Promise<{ result: LLMResult | null; source: Source; reason?: string }> {
+    if (!process.env.GROQ_API_KEY) return { result: null, source: 'none', reason: 'Groq key missing' };
+    const res = await safeFetch(
+      'https://api.groq.com/openai/v1/chat/completions',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.GROQ_API_KEY}` },
+        body: JSON.stringify({
+          model: process.env.GROQ_MODEL || 'openai/gpt-oss-20b',
+          temperature: 0.8,
+          max_tokens: 600,
+          response_format: { type: 'json_object' },
+          messages: [
+            { role: 'system', content: system },
+            { role: 'user', content: user },
+          ],
+        }),
+      },
+      { timeoutMs: NORMAL_TIMEOUT, retries: 0 },
+    );
+    if (!res.ok) return { result: null, source: 'error', reason: `Groq ${res.status}` };
+    const data = await res.json();
+    const content = data?.choices?.[0]?.message?.content;
+    return { result: content ? parseJSON(content) : null, source: 'llm' };
   }
-  return { result: null, source: 'none' };
+
+  async function callOpenRouter(): Promise<{ result: LLMResult | null; source: Source; reason?: string }> {
+    if (!process.env.OPENROUTER_API_KEY) return { result: null, source: 'none', reason: 'OpenRouter key missing' };
+    const res = await safeFetch(
+      'https://openrouter.ai/api/v1/chat/completions',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'https://banter-mu.vercel.app',
+          'X-Title': 'Banter',
+        },
+        body: JSON.stringify({
+          model: process.env.OPENROUTER_MODEL || 'openai/gpt-oss-20b:free',
+          temperature: 0.8,
+          max_tokens: 600,
+          response_format: { type: 'json_object' },
+          messages: [
+            { role: 'system', content: system },
+            { role: 'user', content: user },
+          ],
+        }),
+      },
+      { timeoutMs: NORMAL_TIMEOUT, retries: 0 },
+    );
+    if (!res.ok) return { result: null, source: 'error', reason: `OpenRouter ${res.status}` };
+    const data = await res.json();
+    const content = data?.choices?.[0]?.message?.content;
+    return { result: content ? parseJSON(content) : null, source: 'llm' };
+  }
+
+  async function callGemini(): Promise<{ result: LLMResult | null; source: Source; reason?: string }> {
+    if (!process.env.GEMINI_API_KEY) return { result: null, source: 'none', reason: 'Gemini key missing' };
+    const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+    const res = await safeFetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          generationConfig: {
+            temperature: 0.8,
+            maxOutputTokens: 600,
+            responseMimeType: 'application/json',
+          },
+          systemInstruction: { parts: [{ text: system }] },
+          contents: [{ role: 'user', parts: [{ text: `${user}\n\nReply ONLY with JSON: ${jsonShapeSpec(format)}.` }] }],
+        }),
+      },
+      { timeoutMs: NORMAL_TIMEOUT, retries: 0 },
+    );
+    if (!res.ok) return { result: null, source: 'error', reason: `Gemini ${res.status}` };
+    const data = await res.json();
+    const content = data?.candidates?.[0]?.content?.parts?.map((p: any) => p?.text || '').join('') || '';
+    return { result: content ? parseJSON(content) : null, source: 'llm' };
+  }
+
+  async function callOpenAI(): Promise<{ result: LLMResult | null; source: Source; reason?: string }> {
+    if (!process.env.OPENAI_API_KEY) return { result: null, source: 'none', reason: 'OpenAI key missing' };
+    const res = await safeFetch(
+      'https://api.openai.com/v1/chat/completions',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          temperature: 0.8,
+          max_tokens: 600,
+          response_format: { type: 'json_object' },
+          messages: [
+            { role: 'system', content: system },
+            { role: 'user', content: user },
+          ],
+        }),
+      },
+      { timeoutMs: NORMAL_TIMEOUT, retries: 0 },
+    );
+    if (!res.ok) return { result: null, source: 'error', reason: `OpenAI ${res.status}` };
+    const data = await res.json();
+    const content = data?.choices?.[0]?.message?.content;
+    return { result: content ? parseJSON(content) : null, source: 'llm' };
+  }
+
+  async function callAnthropic(): Promise<{ result: LLMResult | null; source: Source; reason?: string }> {
+    if (!process.env.ANTHROPIC_API_KEY) return { result: null, source: 'none', reason: 'Anthropic key missing' };
+    const res = await safeFetch(
+      'https://api.anthropic.com/v1/messages',
+      {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-api-key': process.env.ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: 'claude-3-5-sonnet-20240620',
+          max_tokens: 600,
+          system,
+          messages: [{ role: 'user', content: user + '\n\nReply ONLY with a JSON object: ' + jsonShapeSpec(format) + '.' }],
+        }),
+      },
+      { timeoutMs: NORMAL_TIMEOUT, retries: 0 },
+    );
+    if (!res.ok) return { result: null, source: 'error', reason: `Anthropic ${res.status}` };
+    const data = await res.json();
+    const content = data?.content?.[0]?.text;
+    return { result: content ? parseJSON(content) : null, source: 'llm' };
+  }
+
+  async function callOllama(): Promise<{ result: LLMResult | null; source: Source; reason?: string }> {
+    const base = process.env.OLLAMA_HOST || 'http://localhost:11434';
+    const model = process.env.OLLAMA_MODEL || 'llama3';
+    const res = await safeFetch(
+      `${base}/api/chat`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model,
+          stream: false,
+          format: 'json',
+          options: { num_predict: 600 },
+          messages: [
+            { role: 'system', content: system },
+            { role: 'user', content: user },
+          ],
+        }),
+      },
+      { timeoutMs: NORMAL_TIMEOUT, retries: 0 },
+    );
+    if (!res.ok) return { result: null, source: 'error', reason: `Ollama ${res.status}` };
+    const data = await res.json();
+    const content = data?.message?.content;
+    return { result: content ? parseJSON(content) : null, source: 'llm' };
+  }
+
+  try {
+    const chain = provider === 'multi'
+      ? [callGroq, callOpenRouter, callGemini]
+      : provider === 'groq'
+        ? [callGroq]
+        : provider === 'openrouter'
+          ? [callOpenRouter]
+          : provider === 'gemini'
+            ? [callGemini]
+            : provider === 'openai'
+              ? [callOpenAI]
+              : provider === 'anthropic'
+                ? [callAnthropic]
+                : provider === 'ollama'
+                  ? [callOllama]
+                  : [];
+
+    let lastReason = 'no provider configured';
+    for (const fn of chain) {
+      const out = await fn();
+      if (out.source === 'llm' && out.result) return out;
+      lastReason = out.reason || 'empty result';
+    }
+    return { result: null, source: chain.length ? 'error' : 'none', reason: lastReason };
+  } catch (e: any) {
+    return { result: null, source: 'error', reason: e?.name === 'AbortError' ? 'timeout' : 'network' };
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -362,6 +445,16 @@ async function streamLLM(
     });
 
   try {
+    if (provider === 'multi') {
+      const { result, source, reason } = await callLLM(system, user, format);
+      clearTimeout(timer);
+      if (result && source === 'llm') {
+        const text = JSON.stringify(result);
+        onDelta(text);
+        return { text, source: 'llm' };
+      }
+      return { text: '', source, reason };
+    }
     if (provider === 'groq' && process.env.GROQ_API_KEY) {
       const res = await common(
         'https://api.groq.com/openai/v1/chat/completions',
@@ -512,9 +605,26 @@ function buildUser(input: GenerateInput): string {
   const intent = intentLabel(input.intent);
   const tone = toneLabel(input.tone);
   const len = input.length || 'medium';
-  return `Relationship: ${rel}\nIntent: ${intent}\nTone: ${tone}\nLength: ${len}\n${
-    input.context ? `Context: ${input.context}\n` : ''
-  }Generate the message(s) now.`;
+  const sample = languageSample(input.context);
+  const shorthand = normalizeShorthand(sample);
+  const shorthandBlock = shorthand.style !== 'none'
+    ? `
+Shorthand interpretation:
+Original: ${shorthand.original}
+Interpreted: ${shorthand.interpreted}
+Style: ${shorthand.style}
+`
+    : '';
+  const qualityBlock = buildSuggestionQualityBlock(input);
+  return `Relationship: ${rel}
+Intent: ${intent}
+Tone: ${tone}
+Length: ${len}
+${
+    input.context ? `Context: ${input.context}
+` : ''
+  }${shorthandBlock}${qualityBlock}
+Generate the message(s) now.`;
 }
 
 // Whether an LLM result actually satisfies the requested output format.
@@ -573,9 +683,12 @@ function forcedLanguageFromContext(context?: string): string | null {
 // ---------------------------------------------------------------------------
 export function llmReady(): boolean {
   const p = process.env.LLM_PROVIDER;
+  if (p === 'multi') return !!(process.env.GROQ_API_KEY || process.env.OPENROUTER_API_KEY || process.env.GEMINI_API_KEY);
   if (p === 'openai') return !!process.env.OPENAI_API_KEY;
   if (p === 'anthropic') return !!process.env.ANTHROPIC_API_KEY;
   if (p === 'groq') return !!process.env.GROQ_API_KEY;
+  if (p === 'openrouter') return !!process.env.OPENROUTER_API_KEY;
+  if (p === 'gemini') return !!process.env.GEMINI_API_KEY;
   if (p === 'ollama') return true; // local, may or may not be running
   return false;
 }
@@ -591,7 +704,10 @@ export async function generate(input: GenerateInput): Promise<GenerateOutput> {
   let langCode = input.language || 'en';
   const forced = forcedLanguageFromContext(input.context);
   const detected = input.context ? detectLanguage(languageSample(input.context)) : null;
+  const shorthand = normalizeShorthand(languageSample(input.context));
   if (forced) langCode = forced;
+  else if (shorthand.style === 'roman_hinglish') langCode = 'hing';
+  else if (shorthand.style === 'english') langCode = 'en';
   else if (detected) langCode = detected;
   const lLabel = langLabel(langCode);
 
@@ -664,7 +780,10 @@ export async function streamGenerate(
   let langCode = input.language || 'en';
   const forced = forcedLanguageFromContext(input.context);
   const detected = input.context ? detectLanguage(languageSample(input.context)) : null;
+  const shorthand = normalizeShorthand(languageSample(input.context));
   if (forced) langCode = forced;
+  else if (shorthand.style === 'roman_hinglish') langCode = 'hing';
+  else if (shorthand.style === 'english') langCode = 'en';
   else if (detected) langCode = detected;
   const lLabel = langLabel(langCode);
 
