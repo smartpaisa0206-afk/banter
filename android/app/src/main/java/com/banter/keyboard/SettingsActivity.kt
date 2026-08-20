@@ -3,6 +3,8 @@
 package com.banter.keyboard
 
 import android.os.Bundle
+import android.content.Intent
+import android.net.Uri
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.Button
@@ -35,8 +37,12 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var save: Button
     private lateinit var status: TextView
     private lateinit var connectionStatus: TextView
+    private lateinit var modeStatus: TextView
+    private lateinit var versionText: TextView
     private lateinit var advancedSection: LinearLayout
     private lateinit var toggleAdvanced: Button
+    private lateinit var keyboardPageBtn: Button
+    private lateinit var feedbackBtn: Button
 
     private lateinit var personalBtn: Button
     private lateinit var professionalBtn: Button
@@ -58,8 +64,12 @@ class SettingsActivity : AppCompatActivity() {
         save = findViewById(R.id.btn_save)
         status = findViewById(R.id.tv_status)
         connectionStatus = findViewById(R.id.tv_connection_status)
+        modeStatus = findViewById(R.id.tv_mode_status)
+        versionText = findViewById(R.id.tv_version)
         advancedSection = findViewById(R.id.advanced_section)
         toggleAdvanced = findViewById(R.id.btn_toggle_advanced)
+        keyboardPageBtn = findViewById(R.id.btn_open_keyboard_page)
+        feedbackBtn = findViewById(R.id.btn_feedback)
 
         personalBtn = findViewById(R.id.btn_personal)
         professionalBtn = findViewById(R.id.btn_professional)
@@ -74,6 +84,11 @@ class SettingsActivity : AppCompatActivity() {
         language.setText(prefs.getString(Prefs.KEY_LANGUAGE, Prefs.DEF_LANGUAGE))
         hurry.isChecked = prefs.getBoolean(Prefs.KEY_HURRY, false)
         updateConnectionStatus(prefs.getString(Prefs.KEY_TOKEN, ""))
+        updateModeStatus(prefs.getString(Prefs.KEY_MODE, Prefs.DEF_MODE) ?: Prefs.DEF_MODE)
+        versionText.text = "Beta 0.3 • Android"
+
+        keyboardPageBtn.setOnClickListener { openUrl("https://banter-mu.vercel.app/keyboard") }
+        feedbackBtn.setOnClickListener { openUrl("https://banter-mu.vercel.app/dashboard/feedback") }
 
         toggleAdvanced.setOnClickListener {
             val show = advancedSection.visibility != View.VISIBLE
@@ -86,6 +101,7 @@ class SettingsActivity : AppCompatActivity() {
             relationship.setText("partner")
             intentEt.setText("flirt")
             tone.setText("warm")
+            updateModeStatus(Prefs.MODE_PERSONAL)
             status.text = "Personal mode selected. Tap Save and Connect."
         }
 
@@ -94,6 +110,7 @@ class SettingsActivity : AppCompatActivity() {
             relationship.setText("stranger")
             intentEt.setText("icebreaker")
             tone.setText("formal")
+            updateModeStatus(Prefs.MODE_PROFESSIONAL)
             status.text = "Professional mode selected. Tap Save and Connect."
         }
 
@@ -141,6 +158,7 @@ class SettingsActivity : AppCompatActivity() {
                             .apply()
                         password.setText("")
                         updateConnectionStatus(token)
+                        updateModeStatus(prefs.getString(Prefs.KEY_MODE, Prefs.DEF_MODE) ?: Prefs.DEF_MODE)
                         status.text = "Connected ✓ Password not stored. Now enable Banter Keyboard in Android settings."
                     } else {
                         status.text = "Login failed. Check server URL, account email, and password."
@@ -148,6 +166,15 @@ class SettingsActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun openUrl(url: String) {
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+    }
+
+    private fun updateModeStatus(mode: String) {
+        val label = if (mode == Prefs.MODE_PROFESSIONAL) "Professional" else "Personal"
+        modeStatus.text = "Default style: $label"
     }
 
     private fun updateConnectionStatus(token: String?) {

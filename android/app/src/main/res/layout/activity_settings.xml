@@ -19,8 +19,8 @@
             android:layout_marginBottom="18dp">
 
             <ImageView
-                android:layout_width="56dp"
-                android:layout_height="56dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:src="@drawable/ic_launcher"
                 android:contentDescription="Banter Keyboard" />
 
@@ -36,29 +36,26 @@
                     android:layout_height="wrap_content"
                     android:text="Banter Keyboard"
                     android:textColor="#ffffff"
-                    android:textSize="26sp"
+                    android:textSize="27sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="by HNY Labs"
-                    android:textColor="#9fd0ff"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
+                    android:text="Type rough. Tap 🪄. Send better."
+                    android:textColor="#c9c9d6"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tv_version"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Beta build"
+                    android:textColor="#8b8ba7"
+                    android:textSize="12sp"
+                    android:layout_marginTop="2dp" />
             </LinearLayout>
         </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Type rough. Tap 🪄. Send better."
-            android:textColor="#ffffff"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:background="@drawable/settings_card_bg"
-            android:padding="16dp"
-            android:layout_marginBottom="14dp" />
 
         <TextView
             android:id="@+id/tv_connection_status"
@@ -71,12 +68,24 @@
             android:lineSpacingExtra="3dp"
             android:background="@drawable/privacy_note_bg"
             android:padding="14dp"
-            android:layout_marginBottom="14dp" />
+            android:layout_marginBottom="12dp" />
+
+        <TextView
+            android:id="@+id/tv_mode_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Default style: Personal"
+            android:textColor="#ffffff"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:background="@drawable/settings_card_bg"
+            android:padding="14dp"
+            android:layout_marginBottom="12dp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Privacy: Banter only sends your current text when you tap 🪄. Password is used once and not stored. Private fields are protected."
+            android:text="Privacy: text is sent only when you tap 🪄. Password is used once and not stored. Private fields are protected."
             android:textColor="#d8ecff"
             android:textSize="14sp"
             android:lineSpacingExtra="3dp"
@@ -103,7 +112,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Use the same account you use on the Banter website."
+                android:text="Use your Banter website account. Server URL is prefilled for beta."
                 android:textColor="#8b8ba7"
                 android:textSize="13sp"
                 android:layout_marginTop="4dp"
@@ -167,7 +176,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Choose how 🪄 should write by default. You can change it later from the extra menu."
+                android:text="Personal is casual. Professional is clean and no-emoji by default."
                 android:textColor="#8b8ba7"
                 android:textSize="13sp"
                 android:layout_marginTop="4dp"
@@ -235,7 +244,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Optional. Leave these as they are if you are testing."
+                android:text="Optional. Normal testers should leave these unchanged."
                 android:textColor="#8b8ba7"
                 android:textSize="13sp"
                 android:layout_marginTop="4dp"
@@ -317,14 +326,59 @@
             android:lineSpacingExtra="3dp"
             android:layout_marginTop="14dp" />
 
-        <TextView
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="3. Enable it: Android Settings → Keyboard → Manage keyboards → Banter Keyboard. Then switch to it in any text field."
-            android:textColor="#8b8ba7"
-            android:textSize="13sp"
-            android:lineSpacingExtra="3dp"
+            android:background="@drawable/settings_card_bg"
+            android:padding="16dp"
             android:layout_marginTop="16dp"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="3. Enable keyboard"
+                android:textColor="#ffffff"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Android Settings → Keyboard → Manage keyboards → Banter Keyboard. Then switch to it in any text field."
+                android:textColor="#8b8ba7"
+                android:textSize="13sp"
+                android:lineSpacingExtra="3dp"
+                android:layout_marginTop="6dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp">
+
+            <Button
+                android:id="@+id/btn_open_keyboard_page"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Beta page"
+                android:textAllCaps="false"
+                android:textColor="#ffffff"
+                android:background="@drawable/button_secondary_bg" />
+
+            <Button
+                android:id="@+id/btn_feedback"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Feedback"
+                android:textAllCaps="false"
+                android:textColor="#ffffff"
+                android:background="@drawable/button_secondary_bg"
+                android:layout_marginStart="10dp" />
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

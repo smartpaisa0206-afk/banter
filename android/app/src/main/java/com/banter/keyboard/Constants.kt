@@ -22,8 +22,6 @@ object Prefs {
 
     const val MODE_PERSONAL = "personal"
     const val MODE_PROFESSIONAL = "professional"
-    const val MODE_GENZ = "genz"
-    const val MODE_ROAST = "roast"
 
     // Your live Banter website. Keep no slash at the end.
     const val DEF_BASE_URL = "https://banter-mu.vercel.app"

@@ -350,9 +350,11 @@ class BanterKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListen
             setColor(fill)
             setStroke(dp(1), stroke)
         }
-        toolExtra.background = bg(0xFF171722.toInt(), 0xFF34344A.toInt())
-        toolSettings.background = bg(0xFF171722.toInt(), 0xFF34344A.toInt())
-        toolMagic.background = bg(0xFF243B63.toInt(), 0xFF4AA8FF.toInt())
+        val normalFill = 0xFF202020.toInt()
+        val normalStroke = 0xFF3F3F3F.toInt()
+        toolExtra.background = bg(normalFill, normalStroke)
+        toolSettings.background = bg(normalFill, normalStroke)
+        toolMagic.background = bg(normalFill, normalStroke)
     }
 
     private fun isSensitiveField(info: EditorInfo?): Boolean {
