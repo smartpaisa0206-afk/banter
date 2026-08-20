@@ -16,6 +16,7 @@ export function Footer() {
           <Link href="/keyboard" className="hover:text-white">Keyboard beta</Link>
           <Link href="/articles" className="hover:text-white">Articles</Link>
           <Link href="/support" className="hover:text-white">Support</Link>
+          <Link href="/privacy" className="hover:text-white">Privacy</Link>
           <Link href="/cookies" className="hover:text-white">Cookies</Link>
         </nav>
         <p className="font-semibold text-white/70">Designed & built by HONEY · HNY Labs</p>

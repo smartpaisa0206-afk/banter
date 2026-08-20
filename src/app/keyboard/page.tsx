@@ -36,7 +36,7 @@ export default function KeyboardPage() {
               This is not Play Store public release yet. Use it only if you are comfortable testing a beta APK and sharing feedback.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <a href="/banter-keyboard-beta.apk" className="btn-plus rounded-full px-5 py-3">
+              <a href="/api/download-keyboard" className="btn-plus rounded-full px-5 py-3">
                 <Download size={17} /> Download APK
               </a>
               <Link href="/dashboard" className="btn-ghost rounded-full px-5 py-3">
