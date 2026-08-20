@@ -3104,6 +3104,8 @@ id beginning
 id blocking
 id bottom
 id bounce
+id btn_feedback
+id btn_open_keyboard_page
 id btn_personal
 id btn_professional
 id btn_save
@@ -3471,7 +3473,9 @@ id transition_scene_layoutid_cache
 id transition_transform
 id triangle
 id tv_connection_status
+id tv_mode_status
 id tv_status
+id tv_version
 id unchecked
 id uniform
 id unlabeled

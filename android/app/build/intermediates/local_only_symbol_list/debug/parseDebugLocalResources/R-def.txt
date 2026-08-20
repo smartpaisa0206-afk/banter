@@ -11,6 +11,8 @@ drawable keyboard_key_bg
 drawable privacy_note_bg
 drawable settings_card_bg
 id advanced_section
+id btn_feedback
+id btn_open_keyboard_page
 id btn_personal
 id btn_professional
 id btn_save
@@ -30,7 +32,9 @@ id tool_magic
 id tool_settings
 id toolbar_row
 id tv_connection_status
+id tv_mode_status
 id tv_status
+id tv_version
 layout activity_settings
 layout keyboard_view
 string app_name
