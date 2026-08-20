@@ -39,8 +39,8 @@ export default function KeyboardPage() {
               <a href="/banter-keyboard-beta.apk" className="btn-plus rounded-full px-5 py-3">
                 <Download size={17} /> Download APK
               </a>
-              <Link href="/signup" className="btn-ghost rounded-full px-5 py-3">
-                Create account
+              <Link href="/dashboard" className="btn-ghost rounded-full px-5 py-3">
+                Open Banter
               </Link>
               <Link href="/dashboard/feedback" className="btn-ghost rounded-full px-5 py-3">
                 <MessageSquare size={17} /> Send feedback

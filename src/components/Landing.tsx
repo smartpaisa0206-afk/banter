@@ -63,8 +63,8 @@ export function Landing({ plans, country, currency }: { plans: Plan[]; country: 
             <Link href="/dashboard" className="hidden items-center gap-2 rounded-full border border-white/12 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-white/85 hover:bg-white/10 sm:inline-flex">
               <Grid3X3 size={15} /> Workspace
             </Link>
-            <Link href="/signup" className="btn-plus rounded-full">
-              Start free
+            <Link href="/dashboard" className="btn-plus rounded-full">
+              Open Banter
             </Link>
           </div>
         </div>
@@ -82,29 +82,28 @@ export function Landing({ plans, country, currency }: { plans: Plan[]; country: 
           <div className="absolute right-0 top-28 -z-10 h-[360px] w-[360px] rounded-full bg-[#4aa8ff]/20 blur-[100px]" />
 
           <div>
-            <motion.div variants={item} className="mb-6 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2">
-              <img src="/hny-labs-logo.png" alt="HNY Labs" className="h-7 w-auto rounded bg-white px-2 py-0.5" />
-              <span className="font-mono text-xs uppercase tracking-[0.22em] text-[#9fd0ff]">Personal + Professional AI writing</span>
+            <motion.div variants={item} className="mb-6 inline-flex items-center gap-3 rounded-full border border-[#4aa8ff]/25 bg-[#4aa8ff]/10 px-4 py-2">
+              <span className="font-mono text-xs uppercase tracking-[0.22em] text-[#9fd0ff]">Android beta now live</span>
             </motion.div>
-            <motion.h1 variants={item} className="max-w-3xl text-6xl font-black leading-[0.92] tracking-[-0.06em] sm:text-7xl lg:text-8xl">
-              Say it better.
-              <span className="block gradient-text">Send faster.</span>
+            <motion.h1 variants={item} className="max-w-4xl text-6xl font-black leading-[0.92] tracking-[-0.06em] sm:text-7xl lg:text-8xl">
+              For the message you
+              <span className="block gradient-text">almost didn’t send.</span>
             </motion.h1>
-            <motion.p variants={item} className="mt-8 max-w-xl text-lg leading-relaxed text-white/68 sm:text-xl">
-              The hardest part is not typing — it is deciding what feels right. Banter gives you a clear first draft for texts, mails, apologies, follow-ups, captions, and moments where you cannot afford to sound wrong.
+            <motion.p variants={item} className="mt-8 max-w-xl text-lg leading-relaxed text-white/72 sm:text-xl">
+              Type rough. Tap 🪄. Banter turns awkward texts, apologies, DMs, and work messages into replies you can actually send.
             </motion.p>
             <motion.div variants={item} className="mt-9 flex flex-wrap gap-3">
-              <Link href="/signup" className="btn-plus rounded-full px-6 py-3 text-base">
-                Start free <ArrowRight size={17} />
+              <Link href="/keyboard" className="btn-plus rounded-full px-6 py-3 text-base">
+                Try keyboard beta <ArrowRight size={17} />
               </Link>
-              <Link href="/keyboard" className="btn-ghost rounded-full px-6 py-3 text-base">
-                Try keyboard beta
+              <Link href="/dashboard" className="btn-ghost rounded-full px-6 py-3 text-base">
+                Open Banter
               </Link>
             </motion.div>
             <motion.div variants={item} className="mt-8 flex flex-wrap gap-3 text-xs text-muted">
-              <span className="chip"><ShieldCheck size={13} /> Private by design</span>
-              <span className="chip"><Zap size={13} /> Live suggestions</span>
-              <span className="chip"><Keyboard size={13} /> Android keyboard beta</span>
+              <span className="chip"><ShieldCheck size={13} /> Sends only when you tap 🪄</span>
+              <span className="chip"><Zap size={13} /> Works inside WhatsApp</span>
+              <span className="chip"><Keyboard size={13} /> Limited beta testers</span>
             </motion.div>
           </div>
 
@@ -114,18 +113,17 @@ export function Landing({ plans, country, currency }: { plans: Plan[]; country: 
 
             <div className="absolute left-1/2 top-1/2 w-full max-w-[560px] -translate-x-1/2 -translate-y-1/2 rounded-[2.5rem] border border-white/10 bg-white/[0.055] p-4 shadow-[0_40px_120px_-50px_rgba(74,168,255,0.9)] backdrop-blur-2xl">
               <div className="rounded-[2rem] border border-white/10 bg-black/35 p-4">
-                <div className="mb-4 grid grid-cols-2 gap-2 rounded-3xl border border-white/10 bg-white/[0.04] p-2">
-                  <span className="mode-pill mode-pill-active"><Heart size={15} /> Personal</span>
-                  <span className="mode-pill"><Briefcase size={15} /> Professional</span>
+                <div className="mb-4 rounded-3xl border border-white/10 bg-white/[0.04] p-3 text-center text-sm font-semibold text-white/80">
+                  Keyboard beta preview
                 </div>
                 <div className="space-y-3">
-                  <div className="rounded-2xl border border-[#4aa8ff]/25 bg-[#4aa8ff]/10 p-4">
-                    <p className="text-xs text-[#9fd0ff]">Banter suggestion</p>
-                    <p className="mt-2 text-sm leading-relaxed">I had a great time talking to you today. Want to continue this over coffee?</p>
+                  <div className="rounded-2xl border border-red-300/20 bg-red-400/5 p-4">
+                    <p className="text-xs uppercase tracking-[0.18em] text-red-200">Rough</p>
+                    <p className="mt-2 text-sm leading-relaxed">sorry busy</p>
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-                    <p className="text-xs text-muted">Professional version</p>
-                    <p className="mt-2 text-sm leading-relaxed text-white/80">Subject: Quick follow-up on our discussion...</p>
+                  <div className="rounded-2xl border border-[#4aa8ff]/25 bg-[#4aa8ff]/10 p-4">
+                    <p className="text-xs uppercase tracking-[0.18em] text-[#9fd0ff]">After 🪄</p>
+                    <p className="mt-2 text-sm leading-relaxed text-white/90">Sorry, I got caught up. Didn’t mean to ignore you — I should’ve replied earlier.</p>
                   </div>
                 </div>
               </div>
@@ -269,8 +267,8 @@ export function Landing({ plans, country, currency }: { plans: Plan[]; country: 
             <Mail className="mx-auto mb-5 text-[#9fd0ff]" size={34} />
             <h2 className="text-5xl font-black tracking-[-0.05em]">Stop overthinking the send button.</h2>
             <p className="mx-auto mt-4 max-w-xl text-muted">Open Banter, choose Personal or Professional, and get the right words in seconds.</p>
-            <Link href="/signup" className="btn-plus mt-8 rounded-full px-7 py-3 text-base">
-              Create free account <ArrowRight size={17} />
+            <Link href="/dashboard" className="btn-plus mt-8 rounded-full px-7 py-3 text-base">
+              Open Banter <ArrowRight size={17} />
             </Link>
           </div>
         </section>

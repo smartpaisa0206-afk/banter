@@ -26,7 +26,7 @@ export default function IntroductionPage() {
           </div>
         ))}
       </section>
-      <Link href="/signup" className="btn-plus rounded-full">Try Banter free</Link>
+      <Link href="/dashboard" className="btn-plus rounded-full">Open Banter</Link>
     </InfoPageShell>
   );
 }

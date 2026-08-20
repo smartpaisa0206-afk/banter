@@ -28,7 +28,7 @@ export default function MethodsPage() {
         <h2 className="text-2xl font-bold">Best tip</h2>
         <p className="mt-2 text-muted">Don’t ask for “a reply.” Add the real situation: who it is for, what happened, and how you want to sound.</p>
       </div>
-      <Link href="/signup" className="btn-plus rounded-full">Start free</Link>
+      <Link href="/dashboard" className="btn-plus rounded-full">Open Banter</Link>
     </InfoPageShell>
   );
 }

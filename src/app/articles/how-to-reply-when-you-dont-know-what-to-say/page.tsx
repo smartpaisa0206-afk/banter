@@ -54,7 +54,7 @@ export default function ArticlePage() {
         <section className="rounded-3xl border border-[#4aa8ff]/30 bg-[#4aa8ff]/10 p-6">
           <h2 className="text-2xl font-bold text-white">Still stuck?</h2>
           <p className="mt-2 text-muted">Banter can turn your situation into a message you can actually send.</p>
-          <Link href="/signup" className="btn-plus mt-5 rounded-full">Try Banter free</Link>
+          <Link href="/dashboard" className="btn-plus mt-5 rounded-full">Open Banter</Link>
         </section>
       </article>
     </InfoPageShell>
