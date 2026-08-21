@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { Logo } from '@/components/Logo';
 import { Footer } from '@/components/Footer';
-import { ThemeToggle } from '@/components/ThemeToggle';
 
 export function InfoPageShell({
   eyebrow,
@@ -27,7 +26,7 @@ export function InfoPageShell({
             <Link href="/privacy" className="hover:text-white">Privacy</Link>
             <Link href="/support" className="hover:text-white">Support</Link>
           </nav>
-          <div className="flex items-center gap-2"><ThemeToggle /><Link href="/dashboard" className="btn-plus rounded-full px-4 py-2.5">Open Banter</Link></div>
+          <Link href="/dashboard" className="btn-plus rounded-full px-4 py-2.5">Open Banter</Link>
         </div>
       </header>
 

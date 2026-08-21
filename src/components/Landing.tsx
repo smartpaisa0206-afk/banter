@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { Logo } from '@/components/Logo';
 import { LanguagePicker } from '@/components/LanguagePicker';
 import { Footer } from '@/components/Footer';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import type { Plan } from '@/lib/pricing';
 import {
   ArrowRight,
@@ -58,7 +57,6 @@ export function Landing({ plans, country, currency }: { plans: Plan[]; country: 
             <Link href="/support" className="hover:text-white">Support</Link>
           </nav>
           <div className="flex items-center gap-2 sm:gap-3">
-            <ThemeToggle />
             <LanguagePicker />
             <Link href="/support" className="btn-ghost hidden rounded-full sm:inline-flex">
               Support
