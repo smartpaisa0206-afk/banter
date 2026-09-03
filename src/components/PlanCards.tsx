@@ -28,12 +28,12 @@ export function PlanCards({ plans }: { plans: Plan[] }) {
           return (
             <div
               key={tier.key}
-              className={`relative flex min-h-[390px] flex-col overflow-hidden rounded-3xl border p-6 shadow-card transition hover:-translate-y-1 ${
+              className={`relative flex min-h-[390px] flex-col overflow-hidden rounded-[2rem] border p-6 shadow-card transition hover:-translate-y-1 ${
                 featured
-                  ? 'border-[#4aa8ff]/70 bg-[#173456] shadow-[0_30px_80px_-35px_rgba(74,168,255,0.9)]'
+                  ? 'border-[#4aa8ff]/70 bg-gradient-to-b from-[#173456] to-[#101827] shadow-[0_30px_80px_-35px_rgba(74,168,255,0.9)]'
                   : pro
                     ? 'border-white/20 bg-gradient-to-br from-white/[0.08] to-white/[0.03] backdrop-blur-xl'
-                    : 'border-white/12 bg-white/[0.055] backdrop-blur-xl'
+                    : 'border-white/12 bg-white/[0.045] backdrop-blur-xl' 
               }`}
             >
               {featured && <div className="absolute inset-x-0 top-0 h-1 bg-[#4aa8ff]" />}

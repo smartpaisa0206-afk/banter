@@ -43,6 +43,14 @@ const itemV = {
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 280, damping: 24 } },
 };
 
+const quickStarts = [
+  ['Late reply', 'sorry busy'],
+  ['Not my fault', 'how do i say this is not my fault'],
+  ['Hinglish', 'kkrh'],
+  ['Dry reply', 'she replied with just ok'],
+  ['Work mail', 'write mail we did not book these parts error came'],
+];
+
 export function Composer() {
   const t = useT();
   const { outputLang } = useLang();
@@ -315,9 +323,10 @@ export function Composer() {
         className="flex items-start justify-between gap-3"
       >
         <div>
-          <h1 className="text-2xl font-semibold">{t('composer_title')}</h1>
-          <p className="mt-0.5 text-sm text-muted">
-            Switch between Personal and Office mode, then get words that sound like you.
+          <p className="kicker mb-2">Banter composer</p>
+          <h1 className="headline-balance text-4xl font-black tracking-[-0.04em]">What do you need to say?</h1>
+          <p className="mt-2 max-w-xl text-sm text-muted">
+            Type the messy version first. Banter turns it into something clear, human, and sendable.
           </p>
         </div>
         <AnimatePresence mode="popLayout">
@@ -335,11 +344,24 @@ export function Composer() {
         </AnimatePresence>
       </motion.div>
 
+      <div className="grid gap-3 sm:grid-cols-5">
+        {quickStarts.map(([label, value]) => (
+          <button
+            key={label}
+            onClick={() => setContext(value)}
+            className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3 text-left text-sm transition hover:border-[#4aa8ff]/40 hover:bg-white/[0.07]"
+          >
+            <span className="block text-xs uppercase tracking-[0.18em] text-[#9fd0ff]">{label}</span>
+            <span className="mt-1 block truncate text-white/80">{value}</span>
+          </button>
+        ))}
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, delay: 0.05 }}
-        className="card space-y-4 p-5"
+        className="premium-card space-y-4 rounded-[2rem] p-5"
       >
         <div>
           <label className="label">Writing mode</label>

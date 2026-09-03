@@ -68,7 +68,7 @@ function KeyboardMockup() {
 
 export function Landing({ plans, country, currency }: { plans: Plan[]; country: string; currency: string }) {
   return (
-    <div className="flex min-h-screen flex-col overflow-hidden">
+    <div className="premium-shell flex min-h-screen flex-col overflow-hidden">
       <motion.header initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="sticky top-0 z-30 border-b border-white/5 bg-ink/70 backdrop-blur-2xl">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-5 py-3">
           <Logo />
@@ -100,9 +100,9 @@ export function Landing({ plans, country, currency }: { plans: Plan[]; country: 
             <motion.div variants={item} className="mb-6 inline-flex items-center gap-3 rounded-full border border-[#4aa8ff]/25 bg-[#4aa8ff]/10 px-4 py-2">
               <span className="font-mono text-xs uppercase tracking-[0.22em] text-[#9fd0ff]">Android beta • limited testers</span>
             </motion.div>
-            <motion.h1 variants={item} className="max-w-4xl text-6xl font-black leading-[0.92] tracking-[-0.06em] sm:text-7xl lg:text-8xl">
-              For the message you
-              <span className="block gradient-text">almost didn’t send.</span>
+            <motion.h1 variants={item} className="headline-balance max-w-4xl text-6xl font-black leading-[0.92] tracking-[-0.06em] sm:text-7xl lg:text-8xl">
+              For the message
+              <span className="block gradient-text">you almost didn’t send.</span>
             </motion.h1>
             <motion.p variants={item} className="mt-8 max-w-xl text-lg leading-relaxed text-white/72 sm:text-xl">
               Type rough. Tap 🪄. Banter turns awkward texts, apologies, DMs, and work messages into replies you can actually send.
@@ -131,7 +131,7 @@ export function Landing({ plans, country, currency }: { plans: Plan[]; country: 
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             {beforeAfter.map(([label, rough, better]) => (
-              <div key={label} className="rounded-[2rem] border border-white/10 bg-white/[0.045] p-5 backdrop-blur-xl">
+              <div key={label} className="premium-card rounded-[2rem] p-5">
                 <p className="font-mono text-xs uppercase tracking-[0.2em] text-[#9fd0ff]">{label}</p>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   <div className="rounded-2xl border border-red-300/20 bg-red-400/5 p-4">
@@ -155,7 +155,7 @@ export function Landing({ plans, country, currency }: { plans: Plan[]; country: 
               [<Briefcase key="i" />, 'Professional messages', 'Turn rough work notes into clear mails, updates, follow-ups, and polite clarifications.'],
               [<Lock key="i" />, 'Built for trust', 'Keyboard text is sent only when you tap 🪄. Private fields are protected. Devices can be revoked.'],
             ].map(([icon, title, body]) => (
-              <div key={String(title)} className="rounded-[2rem] border border-white/10 bg-white/[0.045] p-7 backdrop-blur-xl">
+              <div key={String(title)} className="premium-card rounded-[2rem] p-7">
                 <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#4aa8ff]/10 text-[#9fd0ff]">{icon}</div>
                 <h3 className="text-2xl font-bold text-white">{title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted">{body}</p>

@@ -14,7 +14,7 @@ export function InfoPageShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="premium-shell flex min-h-screen flex-col">
       <header className="sticky top-0 z-30 border-b border-white/10 bg-ink/80 backdrop-blur-2xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3">
           <Link href="/"><Logo className="scale-105" /></Link>
@@ -31,9 +31,9 @@ export function InfoPageShell({
       </header>
 
       <main className="mx-auto w-full max-w-5xl flex-1 px-5 py-16">
-        <div className="rounded-[2.25rem] border border-white/10 bg-white/[0.035] p-7 backdrop-blur-xl sm:p-10">
-          <p className="font-mono text-sm uppercase tracking-[0.24em] text-[#9fd0ff]">{eyebrow}</p>
-          <h1 className="mt-4 max-w-4xl text-5xl font-black leading-[0.95] tracking-[-0.055em] text-white sm:text-6xl md:text-7xl">{title}</h1>
+        <div className="premium-card rounded-[2.25rem] p-7 sm:p-10">
+          <p className="kicker">{eyebrow}</p>
+          <h1 className="headline-balance mt-4 max-w-4xl text-5xl font-black leading-[0.95] tracking-[-0.055em] text-white sm:text-6xl md:text-7xl">{title}</h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted">{description}</p>
         </div>
         <div className="mt-10 space-y-6">{children}</div>
