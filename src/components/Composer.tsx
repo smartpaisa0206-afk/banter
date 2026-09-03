@@ -1,386 +1,754 @@
-import { useState } from 'react';
+'use client';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  WandSparkles, Copy, Check, RotateCcw, Heart, Briefcase,
-  Sparkles, ArrowRight, Zap, Save,
-} from 'lucide-react';
+import { useLang, useT } from './LanguageContext';
+import { CopyButton } from './CopyButton';
+import { ChipSelect } from './ChipSelect';
+import { RELATIONSHIPS, relAccessible } from '@/lib/engine/relationships';
+import { TONES, toneAccessible } from '@/lib/engine/tones';
+import { RELATIONSHIP_INTENTS, WORKS_INTENTS, outputFormat, intentById } from '@/lib/engine/intents';
+import { canUseWorks } from '@/lib/plans';
+import type { GenerateOutput } from '@/lib/engine';
+import { Sparkles, Zap, Crown, AlertTriangle, Save, RefreshCw, Wifi, WifiOff, Heart, Briefcase, Lock } from 'lucide-react';
 
-const relationships = [
-  { id: 'partner', label: '💑 Partner', group: 'Personal' },
-  { id: 'crush', label: '💜 Crush', group: 'Personal' },
-  { id: 'friend', label: '👯 Best friend', group: 'Personal' },
-  { id: 'family', label: '👨‍👩‍👧 Family', group: 'Personal' },
-  { id: 'acquaintance', label: '🤝 Acquaintance', group: 'Personal' },
-  { id: 'boss', label: '💼 Boss', group: 'Professional' },
-  { id: 'colleague', label: '🏢 Colleague', group: 'Professional' },
-  { id: 'client', label: '📊 Client', group: 'Professional' },
-  { id: 'mentor', label: '🎓 Mentor', group: 'Professional' },
-];
-
-const tones = [
-  { id: 'warm', label: '☀️ Warm' },
-  { id: 'casual', label: '😎 Casual' },
-  { id: 'formal', label: '🎩 Formal' },
-  { id: 'flirty', label: '💫 Flirty' },
-  { id: 'apologetic', label: '🙏 Apologetic' },
-  { id: 'confident', label: '💪 Confident' },
-  { id: 'playful', label: '🎉 Playful' },
-];
-
-const lengths = [
-  { id: 'short', label: 'Short' },
-  { id: 'medium', label: 'Medium' },
-  { id: 'long', label: 'Long' },
-];
-
-const quickStarts = [
-  ['Late reply apology', "Hey, sorry I took so long to reply, I was busy"],
-  ['Check in on a friend', "Just wanted to see how you're doing lately"],
-  ['Crush text', "hey wanna hang out sometime"],
-  ['Work email', "tell client that project is delayed due to issues"],
-  ['Apology text', "sorry for what I said it came out wrong"],
-];
-
-// Simulated results
-const demoResults: Record<string, string[]> = {
-  default: [
-    "Hey! I've been meaning to reach out — hope everything is going well on your end. Let me know if you'd like to catch up.",
-    "Just wanted to drop a quick note to check in. It's been a while and I'd love to hear how things are going with you.",
-    "Hope this message finds you at a good moment. I was thinking about our last conversation and wanted to reconnect.",
-  ],
-};
-
-function ChipGroup({ label, options, value, onChange }: {
-  label: string;
-  options: { id: string; label: string }[];
-  value: string;
-  onChange: (id: string) => void;
-}) {
+function SaveButton({ text }: { text: string }) {
+  const [saved, setSaved] = useState(false);
   return (
-    <div>
-      <p className="label">{label}</p>
-      <div className="flex flex-wrap gap-2">
-        {options.map((o) => (
-          <motion.button
-            key={o.id}
-            type="button"
-            whileTap={{ scale: 0.94 }}
-            onClick={() => onChange(o.id)}
-            className={`chip transition-all ${value === o.id ? 'chip-active border-[#7c5cff] bg-[#7c5cff]/25 text-white shadow-[0_0_12px_-4px_rgba(124,92,255,0.7)]' : ''}`}
-          >
-            {o.label}
-          </motion.button>
-        ))}
-      </div>
-    </div>
+    <button
+      onClick={async () => {
+        const res = await fetch('/api/saved', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: text }),
+        });
+        if (res.ok) {
+          setSaved(true);
+          setTimeout(() => setSaved(false), 1500);
+        }
+      }}
+      className="btn-ghost px-3 py-1.5 text-xs"
+    >
+      <Save size={14} /> {saved ? 'Saved' : 'Save'}
+    </button>
   );
 }
 
+const listV = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.07 } },
+};
+const itemV = {
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 280, damping: 24 } },
+};
+
+const quickStarts = [
+  ['Late reply', 'sorry busy'],
+  ['Not my fault', 'how do i say this is not my fault'],
+  ['Hinglish', 'kkrh'],
+  ['Dry reply', 'she replied with just ok'],
+  ['Work mail', 'write mail we did not book these parts error came'],
+];
+
 export function Composer() {
-  const [mode, setMode] = useState<'personal' | 'professional'>('personal');
-  const [input, setInput] = useState('');
-  const [relationship, setRelationship] = useState('friend');
+  const t = useT();
+  const { outputLang } = useLang();
+  const [role, setRole] = useState<string | null>(null);
+  const [remaining, setRemaining] = useState<number | null>(null);
+  const [mode, setMode] = useState<'personal' | 'office'>('personal');
+  const [relationship, setRelationship] = useState('partner');
+  const [intent, setIntent] = useState('flirt');
   const [tone, setTone] = useState('warm');
-  const [length, setLength] = useState('medium');
+  const [length, setLength] = useState<'short' | 'medium' | 'long'>('medium');
   const [hurry, setHurry] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<string[]>([]);
-  const [copied, setCopied] = useState<number | null>(null);
-  const [saved, setSaved] = useState<number[]>([]);
-  const [selectedResult, setSelectedResult] = useState(0);
+  const [context, setContext] = useState('');
+  const [live, setLive] = useState<GenerateOutput | null>(null);
+  const [meta, setMeta] = useState<{ relationshipLabel: string; intentLabel: string; toneLabel: string; language: string } | null>(null);
+  const [streaming, setStreaming] = useState(false);
+  const [pulse, setPulse] = useState(false);
+  const [suggest, setSuggest] = useState<string[]>([]);
+  const [suggesting, setSuggesting] = useState(false);
+  const [error, setError] = useState('');
+  const [limitHit, setLimitHit] = useState(false);
+  const [acked, setAcked] = useState(false);
+  const [ackCheck, setAckCheck] = useState(false);
 
-  async function generate() {
-    if (!input.trim()) return;
-    setLoading(true);
-    setResults([]);
-    // Simulate AI generation delay
-    await new Promise((r) => setTimeout(r, 1800));
-    setResults(demoResults.default);
-    setLoading(false);
-    setSelectedResult(0);
+  const abortRef = useRef<AbortController | null>(null);
+  const suggestAbort = useRef<AbortController | null>(null);
+  const suggestCache = useRef<Map<string, string[]>>(new Map());
+
+  useEffect(() => {
+    fetch('/api/me')
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.user) {
+          setRole(d.user.role);
+          setRemaining(d.remaining);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Pick up text shared into Banter from another app (Android share sheet).
+  useEffect(() => {
+    try {
+      const shared = localStorage.getItem('banter_share');
+      if (shared) {
+        setContext(shared);
+        localStorage.removeItem('banter_share');
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  // One-time "you're in control" disclaimer — shown before the first reply,
+  // not on the marketing homepage.
+  useEffect(() => {
+    try {
+      if (localStorage.getItem('banter_ack') === '1') setAcked(true);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const rels = useMemo(() => RELATIONSHIPS.filter((r) => relAccessible(r.id, role || 'free')), [role]);
+  const visibleRels = useMemo(() => {
+    const personalIds = ['partner', 'crush', 'friend', 'parent', 'stranger'];
+    const professionalIds = ['boss', 'client', 'colleague', 'teacher'];
+    const ids = mode === 'office' ? professionalIds : personalIds;
+    return rels.filter((r) => ids.includes(r.id));
+  }, [rels, mode]);
+  const tones = useMemo(() => TONES.filter((tn) => toneAccessible(tn.id, role || 'free')), [role]);
+  const worksUnlocked = canUseWorks(role || 'free');
+  const works = useMemo(() => (worksUnlocked ? WORKS_INTENTS : []), [worksUnlocked]);
+  const intentGroups = useMemo(() => {
+    if (mode === 'office') {
+      const groups: { label: string; options: { id: string; label: string }[] }[] = [];
+      for (const g of ['Emails', 'Office', 'Social', 'Marketing']) {
+        const opts = works.filter((w) => w.group === g).map((w) => ({ id: w.id, label: w.label }));
+        if (opts.length) groups.push({ label: g, options: opts });
+      }
+      return groups;
+    }
+
+    const groups = [{ label: 'Personal chats', options: RELATIONSHIP_INTENTS.map((i) => ({ id: i.id, label: i.label })) }];
+    const personalTools = works.filter((w) => w.group === 'Personal').map((w) => ({ id: w.id, label: w.label }));
+    if (personalTools.length) groups.push({ label: 'Personal writing', options: personalTools });
+    return groups;
+  }, [mode, works]);
+
+  // The selected intent decides how the result is laid out (chat / email /
+  // social / notice / document) — this is what makes "pick mail → different
+  // format" actually visible in the UI.
+  const fmt = useMemo(() => outputFormat(intentById(intent)), [intent]);
+  const officeLocked = mode === 'office' && !worksUnlocked;
+
+  const contextPh = useMemo(() => {
+    switch (fmt) {
+      case 'email':
+        return 'What is this email about? (who, what, any details)';
+      case 'notice':
+        return 'What should the notice say? (decision, date, audience)';
+      case 'social':
+        return 'What is the post about?';
+      case 'document':
+        return 'What do you need written?';
+      default:
+        return t('context_ph');
+    }
+  }, [fmt, t]);
+
+  useEffect(() => {
+    if (!visibleRels.find((r) => r.id === relationship)) setRelationship(visibleRels[0]?.id || 'partner');
+  }, [visibleRels, relationship]);
+  useEffect(() => {
+    if (!tones.find((tn) => tn.id === tone)) setTone(tones[0]?.id || 'warm');
+  }, [tones, tone]);
+  useEffect(() => {
+    if (mode === 'office') {
+      const office = works.filter((w) => ['Emails', 'Office', 'Social', 'Marketing'].includes(w.group || ''));
+      if (office.length && !office.find((i) => i.id === intent)) setIntent(office[0].id);
+      return;
+    }
+
+    const personal = [...RELATIONSHIP_INTENTS, ...works.filter((w) => w.group === 'Personal')];
+    if (!personal.find((i) => i.id === intent)) setIntent(RELATIONSHIP_INTENTS[0].id);
+  }, [mode, works, intent]);
+
+  // Live as-you-type suggestions: abortable + cached so we never pile up
+  // competing LLM calls behind the user's keystrokes.
+  useEffect(() => {
+    if (officeLocked) {
+      setSuggest([]);
+      return;
+    }
+    const text = context.trim();
+    if (text.length < 4) {
+      setSuggest([]);
+      return;
+    }
+    const key = `${relationship}|${intent}|${tone}|${outputLang}|${text}`;
+    if (suggestCache.current.has(key)) {
+      setSuggest(suggestCache.current.get(key)!);
+      return;
+    }
+    const handle = setTimeout(async () => {
+      suggestAbort.current?.abort();
+      const ac = new AbortController();
+      suggestAbort.current = ac;
+      setSuggesting(true);
+      try {
+        const res = await fetch('/api/suggest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ partial: text, relationship, intent, tone, language: outputLang }),
+          signal: ac.signal,
+        });
+        const d = await res.json().catch(() => ({}));
+        if (res.ok && Array.isArray(d.suggestions)) {
+          suggestCache.current.set(key, d.suggestions);
+          setSuggest(d.suggestions);
+        } else {
+          setSuggest([]);
+        }
+      } catch {
+        /* aborted or failed — keep last suggestions */
+      } finally {
+        setSuggesting(false);
+      }
+    }, 800);
+    return () => clearTimeout(handle);
+  }, [context, relationship, intent, tone, outputLang, officeLocked]);
+
+  function applySuggestion(s: string) {
+    setContext((prev) => (prev.trim() ? prev + ' ' + s : s));
   }
 
-  async function copy(text: string, idx: number) {
-    await navigator.clipboard.writeText(text).catch(() => {});
-    setCopied(idx);
-    setTimeout(() => setCopied(null), 1600);
+  async function generateStream() {
+    setError('');
+    setLimitHit(false);
+    if (officeLocked) {
+      setError('Professional mode is available on paid plans. Upgrade to use mails, notices, professional docs, and marketing tools.');
+      return;
+    }
+    setLive(null);
+    setMeta(null);
+    setStreaming(true);
+    setPulse(false);
+
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ relationship, intent, tone, language: outputLang, context, length, hurry, stream: true }),
+    });
+
+    if (res.status === 429) {
+      const d = await res.json().catch(() => ({}));
+      setLimitHit(true);
+      setRemaining(d.remaining ?? 0);
+      setStreaming(false);
+      return;
+    }
+    if (res.status === 403) {
+      const d = await res.json().catch(() => ({}));
+      setError(d.error || 'Upgrade required.');
+      setStreaming(false);
+      return;
+    }
+    if (!res.ok || !res.body) {
+      const d = await res.json().catch(() => ({}));
+      setError(d.error || 'Generation failed.');
+      setStreaming(false);
+      return;
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = '';
+    const process = (event: string, data: any) => {
+      if (event === 'meta') setMeta(data);
+      else if (event === 'delta') {
+        setPulse(true);
+        setTimeout(() => setPulse(false), 220);
+      } else if (event === 'done') {
+        setLive(data);
+        setMeta(null);
+        if (typeof data.remaining === 'number') setRemaining(data.remaining);
+      } else if (event === 'remaining') {
+        setRemaining(data.remaining);
+      } else if (event === 'error') {
+        setError(data.message || 'Generation failed.');
+      }
+    };
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        const parts = buf.split('\n\n');
+        buf = parts.pop() || '';
+        for (const part of parts) {
+          let event = '';
+          let data = '';
+          for (const line of part.split('\n')) {
+            if (line.startsWith('event:')) event = line.slice(6).trim();
+            else if (line.startsWith('data:')) data += line.slice(5).trim();
+          }
+          if (!event || !data) continue;
+          try {
+            process(event, JSON.parse(data));
+          } catch {
+            /* ignore malformed chunk */
+          }
+        }
+      }
+    } catch {
+      if (!live) setError('Connection lost. Please retry.');
+    } finally {
+      setStreaming(false);
+    }
   }
 
-  const filteredRelationships = relationships.filter(
-    (r) => (mode === 'personal' ? r.group === 'Personal' : r.group === 'Professional')
-  );
+  const showOffline = live?.usedFallback;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 space-y-6">
-      {/* Header */}
+    <div className="space-y-5">
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
+        initial={{ opacity: 0, y: -6 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between"
+        transition={{ duration: 0.3 }}
+        className="flex items-start justify-between gap-3"
       >
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Compose</h1>
-          <p className="text-sm text-muted mt-0.5">Turn your rough thought into something worth sending.</p>
+          <p className="kicker mb-2">Banter composer</p>
+          <h1 className="headline-balance text-4xl font-black tracking-[-0.04em]">What do you need to say?</h1>
+          <p className="mt-2 max-w-xl text-sm text-muted">
+            Type the messy version first. Banter turns it into something clear, human, and sendable.
+          </p>
         </div>
-        <div className="flex items-center gap-1.5 rounded-2xl border border-white/10 bg-white/[0.03] p-1">
-          <button
-            onClick={() => setMode('personal')}
-            className={`mode-pill py-2 px-4 text-sm ${mode === 'personal' ? 'mode-pill-active' : ''}`}
-          >
-            <Heart size={14} />
-            Personal
-          </button>
-          <button
-            onClick={() => setMode('professional')}
-            className={`mode-pill py-2 px-4 text-sm ${mode === 'professional' ? 'mode-pill-active' : ''}`}
-          >
-            <Briefcase size={14} />
-            Works
-          </button>
-        </div>
+        <AnimatePresence mode="popLayout">
+          {remaining !== null && (
+            <motion.span
+              key={remaining}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              className="chip"
+            >
+              {remaining === null ? '∞' : remaining} {t('remaining')}
+            </motion.span>
+          )}
+        </AnimatePresence>
       </motion.div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
-        {/* Left column — form */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4, delay: 0.05 }}
-          className="space-y-5"
-        >
-          {/* Quick starts */}
-          <div className="premium-card p-5">
-            <p className="label mb-3">Quick start</p>
-            <div className="flex flex-wrap gap-2">
-              {quickStarts.map(([label, val]) => (
-                <motion.button
-                  key={label}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setInput(val)}
-                  className="chip hover:border-[#7c5cff]/50 hover:text-white transition-all"
-                >
-                  {label}
-                </motion.button>
-              ))}
-            </div>
-          </div>
+      <div className="grid gap-3 sm:grid-cols-5">
+        {quickStarts.map(([label, value]) => (
+          <button
+            key={label}
+            onClick={() => setContext(value)}
+            className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3 text-left text-sm transition hover:border-[#4aa8ff]/40 hover:bg-white/[0.07]"
+          >
+            <span className="block text-xs uppercase tracking-[0.18em] text-[#9fd0ff]">{label}</span>
+            <span className="mt-1 block truncate text-white/80">{value}</span>
+          </button>
+        ))}
+      </div>
 
-          {/* Main input */}
-          <div className="premium-card p-5 space-y-4">
-            <div>
-              <label className="label">What do you want to say? *</label>
-              <motion.textarea
-                whileFocus={{ boxShadow: '0 0 0 3px rgba(124,92,255,0.2)' }}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Just type it rough… 'hey sry was busy' or 'need to tell boss deadline moved'"
-                rows={4}
-                className="input resize-none leading-relaxed"
-              />
-            </div>
-
-            {/* Relationship chips */}
-            <ChipGroup
-              label="Relationship"
-              options={filteredRelationships}
-              value={relationship}
-              onChange={setRelationship}
-            />
-
-            {/* Tone chips */}
-            <ChipGroup
-              label="Tone"
-              options={tones}
-              value={tone}
-              onChange={setTone}
-            />
-
-            {/* Length + hurry */}
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="flex-1 min-w-[180px]">
-                <p className="label">Length</p>
-                <div className="flex gap-2">
-                  {lengths.map((l) => (
-                    <button
-                      key={l.id}
-                      onClick={() => setLength(l.id)}
-                      className={`chip flex-1 justify-center ${length === l.id ? 'chip-active' : ''}`}
-                    >
-                      {l.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 hover:border-white/20 transition-colors">
-                <input
-                  type="checkbox"
-                  checked={hurry}
-                  onChange={(e) => setHurry(e.target.checked)}
-                  className="h-4 w-4 accent-[#7c5cff]"
-                />
-                <span className="text-sm text-white/75">⚡ In a hurry</span>
-              </label>
-            </div>
-
-            {/* Generate button */}
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              onClick={generate}
-              disabled={loading || !input.trim()}
-              className="btn btn-premium w-full rounded-xl py-3.5 text-base shadow-[0_12px_40px_-12px_rgba(124,92,255,0.8)]"
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, delay: 0.05 }}
+        className="premium-card space-y-4 rounded-[2rem] p-5"
+      >
+        <div>
+          <label className="label">Writing mode</label>
+          <div className="grid grid-cols-2 gap-2 rounded-3xl border border-white/10 bg-black/20 p-2">
+            <button
+              type="button"
+              onClick={() => setMode('personal')}
+              className={`mode-pill ${mode === 'personal' ? 'mode-pill-active' : 'hover:bg-white/10'}`}
             >
-              {loading ? (
-                <>
-                  <motion.span
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                  >
-                    <Zap size={18} />
-                  </motion.span>
-                  Generating your message…
-                </>
-              ) : (
-                <>
-                  <WandSparkles size={18} />
-                  Generate with Banter
-                  <ArrowRight size={16} />
-                </>
-              )}
-            </motion.button>
+              <Heart size={16} className="text-pink-300" /> Personal
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode('office')}
+              className={`mode-pill ${mode === 'office' ? 'mode-pill-active' : 'hover:bg-white/10'}`}
+            >
+              <Briefcase size={16} className="text-[#9fd0ff]" /> Professional
+            </button>
           </div>
-        </motion.div>
+          <p className="mt-2 text-xs text-muted">
+            {mode === 'personal'
+              ? 'For partner, friend, family, flirting, apologies, invites, and everyday chats.'
+              : 'For mails, follow-ups, notices, professional documents, social posts, and marketing copy.'}
+          </p>
+        </div>
 
-        {/* Right column — results */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-          className="space-y-4"
-        >
-          <AnimatePresence mode="wait">
-            {loading && (
-              <motion.div
-                key="loading"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="premium-card p-6 space-y-4"
-              >
-                <div className="flex items-center gap-3">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
-                    className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-[#7c5cff] to-[#4aa8ff]"
-                  >
-                    <WandSparkles size={18} className="text-white" />
-                  </motion.div>
-                  <div>
-                    <p className="font-semibold text-white">Banter is thinking…</p>
-                    <p className="text-xs text-muted">Reading context · Picking the right words</p>
-                  </div>
-                </div>
-                {[100, 80, 60].map((w, i) => (
-                  <div key={i} className="animate-shimmer h-4 rounded-full" style={{ width: `${w}%` }} />
-                ))}
-              </motion.div>
-            )}
+        {officeLocked && (
+          <div className="flex items-start justify-between gap-3 rounded-2xl border border-gold/25 bg-gold/5 px-4 py-3 text-sm text-gold/90">
+            <span className="flex items-start gap-2">
+              <Lock size={16} className="mt-0.5 shrink-0" /> Professional mode is a paid feature.
+            </span>
+            <Link href="/dashboard/upgrade" className="btn-gold shrink-0 px-3 py-1.5 text-xs">
+              Upgrade
+            </Link>
+          </div>
+        )}
 
-            {!loading && results.length > 0 && (
+        <div>
+          <ChipSelect
+            groups={[{ label: mode === 'office' ? 'Professional audience' : t('label_relationship'), options: visibleRels.map((r) => ({ id: r.id, label: r.label })) }]}
+            value={relationship}
+            onChange={setRelationship}
+          />
+        </div>
+
+        <div>
+          <ChipSelect groups={intentGroups} value={intent} onChange={setIntent} />
+        </div>
+
+        <div>
+          <ChipSelect
+            groups={[{ label: t('label_tone'), options: tones.map((tn) => ({ id: tn.id, label: tn.label })) }]}
+            value={tone}
+            onChange={setTone}
+          />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-4">
+          <div>
+            <label className="label">{t('label_length')}</label>
+            <select
+              className="input w-auto"
+              value={length}
+              onChange={(e) => setLength(e.target.value as 'short' | 'medium' | 'long')}
+            >
+              <option value="short">{t('len_short')}</option>
+              <option value="medium">{t('len_medium')}</option>
+              <option value="long">{t('len_long')}</option>
+            </select>
+          </div>
+          <label className="mt-5 inline-flex cursor-pointer items-center gap-2 text-sm text-white/80">
+            <input
+              type="checkbox"
+              checked={hurry}
+              onChange={(e) => setHurry(e.target.checked)}
+              className="h-4 w-4 accent-brand"
+            />
+            <Zap size={14} className="text-gold" /> {t('hurry')}
+          </label>
+        </div>
+
+        <div>
+          <label className="label">{t('label_context')}</label>
+          <textarea
+            className="input min-h-[90px] resize-y"
+            value={context}
+            onChange={(e) => setContext(e.target.value)}
+            placeholder={contextPh}
+          />
+          <AnimatePresence>
+            {suggest.length > 0 && (
               <motion.div
-                key="results"
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-                className="space-y-3"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-2 flex flex-wrap gap-2 overflow-hidden"
               >
-                <div className="flex items-center justify-between">
-                  <p className="text-xs font-bold uppercase tracking-wider text-muted">{results.length} options ready</p>
+                {suggest.map((s, i) => (
                   <button
-                    onClick={generate}
-                    className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white/65 transition-all hover:bg-white/10 hover:text-white"
-                  >
-                    <RotateCcw size={11} /> Regenerate
-                  </button>
-                </div>
-                {results.map((r, i) => (
-                  <motion.div
                     key={i}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.08 }}
-                    onClick={() => setSelectedResult(i)}
-                    className={`premium-card cursor-pointer p-4 transition-all duration-200 ${
-                      selectedResult === i
-                        ? 'border-[#7c5cff]/50 shadow-[0_0_25px_-8px_rgba(124,92,255,0.6)]'
-                        : 'hover:border-white/20'
-                    }`}
+                    onClick={() => applySuggestion(s)}
+                    className="chip hover:border-brand/60 hover:text-white"
+                    title="Tap to add"
                   >
-                    <div className="mb-2 flex items-center justify-between">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-muted">Option {i + 1}</span>
-                      {selectedResult === i && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-[#7c5cff]/25 px-2 py-0.5 text-[10px] font-bold text-[#c4b5fd]">
-                          ✦ Selected
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm leading-relaxed text-white/88">{r}</p>
-                    <div className="mt-3 flex items-center gap-2">
-                      <motion.button
-                        whileTap={{ scale: 0.92 }}
-                        onClick={(e) => { e.stopPropagation(); copy(r, i); }}
-                        className="btn btn-ghost flex-1 rounded-lg py-1.5 text-xs"
-                      >
-                        {copied === i ? (
-                          <><Check size={13} className="text-emerald-400" /> Copied!</>
-                        ) : (
-                          <><Copy size={13} /> Copy</>
-                        )}
-                      </motion.button>
-                      <motion.button
-                        whileTap={{ scale: 0.92 }}
-                        onClick={(e) => { e.stopPropagation(); setSaved((prev) => [...prev, i]); }}
-                        className={`btn rounded-lg py-1.5 text-xs ${saved.includes(i) ? 'border border-[#e9c46a]/50 bg-[#e9c46a]/15 text-[#e9c46a]' : 'btn-ghost'}`}
-                      >
-                        {saved.includes(i) ? (
-                          <><Save size={13} className="fill-current" /> Saved</>
-                        ) : (
-                          <><Save size={13} /> Save</>
-                        )}
-                      </motion.button>
-                    </div>
-                  </motion.div>
+                    {suggesting ? '…' : s}
+                  </button>
                 ))}
-              </motion.div>
-            )}
-
-            {!loading && results.length === 0 && (
-              <motion.div
-                key="empty"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="premium-card flex min-h-[280px] flex-col items-center justify-center gap-4 p-8 text-center"
-              >
-                <motion.div
-                  animate={{ y: [0, -8, 0] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                  className="grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-[#7c5cff]/25 to-[#4aa8ff]/20 text-[#a78bfa]"
-                >
-                  <WandSparkles size={28} />
-                </motion.div>
-                <div>
-                  <p className="font-semibold text-white">Your message appears here</p>
-                  <p className="mt-1 text-sm text-muted">Type anything rough and hit generate.</p>
-                </div>
-                <div className="flex items-center gap-1.5 rounded-full border border-white/8 bg-white/[0.03] px-4 py-2 text-xs text-muted">
-                  <Sparkles size={12} className="text-[#a78bfa]" />
-                  3 polished options, every time
-                </div>
               </motion.div>
             )}
           </AnimatePresence>
-        </motion.div>
+        </div>
+
+        <button
+          onClick={generateStream}
+          disabled={streaming || officeLocked}
+          className={`btn-premium w-full py-3 ${pulse ? 'animate-pulse-brand' : ''}`}
+        >
+          {streaming ? (
+            <>
+              <RefreshCw size={16} className="animate-spin" /> {t('generating')}
+            </>
+          ) : officeLocked ? (
+            <>
+              <Lock size={16} /> Unlock Professional mode
+            </>
+          ) : (
+            <>
+              <Sparkles size={16} /> {t('generate')}
+            </>
+          )}
+        </button>
+
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              className="flex items-center justify-between gap-3 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-200"
+            >
+              <span className="flex items-center gap-2">
+                <AlertTriangle size={16} /> {error}
+              </span>
+              <button onClick={generateStream} className="btn-gold px-3 py-1.5 text-xs">
+                {t('retry')}
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {limitHit && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              className="flex items-center justify-between gap-3 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-200"
+            >
+              <span className="flex items-center gap-2">
+                <AlertTriangle size={16} /> {t('limit_hit')}
+              </span>
+              <Link href="/dashboard/upgrade" className="btn-gold px-3 py-1.5 text-xs">
+                {t('go_premium')}
+              </Link>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+
+      {/* Composing indicator (streaming) */}
+      <AnimatePresence>
+        {streaming && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            className="card space-y-4 p-5"
+          >
+            <div className="flex items-center gap-2 text-sm text-white/70">
+              <RefreshCw size={15} className="animate-spin text-brand-soft" />
+              {t('composing')}
+            </div>
+            {meta && (
+              <div className="flex flex-wrap gap-2">
+                <span className="chip">{meta.relationshipLabel}</span>
+                <span className="chip">{meta.intentLabel}</span>
+                <span className="chip">{meta.toneLabel}</span>
+                <span className="chip uppercase">{meta.language}</span>
+              </div>
+            )}
+            <div className="flex items-center gap-1.5 px-1">
+              {[0, 1, 2].map((i) => (
+                <motion.span
+                  key={i}
+                  className="h-2.5 w-2.5 rounded-full bg-brand-soft"
+                  animate={{ opacity: [0.3, 1, 0.3], y: [0, -4, 0] }}
+                  transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15 }}
+                />
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Result */}
+      <AnimatePresence>
+        {live && !streaming && (
+          <motion.div
+            key="result"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 12 }}
+            className="card space-y-4 p-5"
+          >
+            <AnimatePresence>
+              {showOffline && (
+                <motion.div
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="flex items-start gap-2 rounded-xl border border-gold/20 bg-gold/5 px-4 py-2.5 text-xs text-gold/90"
+                >
+                  <WifiOff size={15} className="mt-0.5 shrink-0" />
+                  <span>{live.fallbackReason}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div className="flex items-center justify-between">
+              <h2 className="font-semibold">{t('result')}</h2>
+              <button onClick={generateStream} disabled={streaming} className="btn-ghost px-3 py-1.5 text-xs">
+                <RefreshCw size={13} className={streaming ? 'animate-spin' : ''} /> {t('regenerate')}
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <span className="chip">{live.relationshipLabel}</span>
+              <span className="chip">{live.intentLabel}</span>
+              <span className="chip">{live.toneLabel}</span>
+              <span className="chip uppercase">{live.language}</span>
+              {live.format && live.format !== 'chat' && (
+                <span className="chip border-gold/40 capitalize text-gold/90">{live.format}</span>
+              )}
+            </div>
+            {/* Format-specific layout — this is what changes when the user
+                picks mail / notice / social / document. */}
+            {fmt === 'email' && live.subject ? (
+              <div className="space-y-3">
+                <div>
+                  <label className="label">Subject</label>
+                  <div className="flex items-start justify-between gap-3 rounded-xl border border-white/10 bg-black/20 p-3">
+                    <p className="text-sm">{live.subject}</p>
+                    <CopyButton text={live.subject} />
+                  </div>
+                </div>
+                <div>
+                  <label className="label">Body</label>
+                  <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                    <p className="whitespace-pre-wrap text-sm">{live.body}</p>
+                  </div>
+                  <div className="mt-2 flex gap-2">
+                    <CopyButton text={`Subject: ${live.subject}\n\n${live.body}`} />
+                    <SaveButton text={`Subject: ${live.subject}\n\n${live.body}`} />
+                  </div>
+                </div>
+              </div>
+            ) : fmt === 'notice' && live.statement ? (
+              <div className="rounded-xl border border-gold/25 bg-gold/5 p-4">
+                <div className="mb-2 text-xs font-medium uppercase tracking-wide text-gold/80">
+                  Formal notice
+                </div>
+                <p className="whitespace-pre-wrap text-sm">{live.statement}</p>
+                <div className="mt-3 flex gap-2">
+                  <CopyButton text={live.statement} />
+                  <SaveButton text={live.statement} />
+                </div>
+              </div>
+            ) : (
+              <motion.div variants={listV} initial="hidden" animate="show" className="space-y-3">
+                {live.variants.map((v, i) => (
+                  <motion.div
+                    key={i}
+                    variants={itemV}
+                    className={`rounded-xl border border-white/10 bg-black/20 p-3 ${
+                      fmt === 'social'
+                        ? 'border-l-2 border-l-pink-400/60'
+                        : fmt === 'document'
+                          ? 'border-l-2 border-l-sky-400/60'
+                          : 'border-l-2 border-l-brand/60'
+                    }`}
+                  >
+                    <p className="whitespace-pre-wrap text-sm">{v}</p>
+                    <div className="mt-2 flex gap-2">
+                      <CopyButton text={v} />
+                      <SaveButton text={v} />
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+
+            {live.tip && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.25 }}
+                className="rounded-xl border border-brand/20 bg-brand/5 px-4 py-3 text-sm"
+              >
+                <span className="font-medium text-brand-soft">{t('tip')}: </span>
+                {live.tip}
+              </motion.div>
+            )}
+            {live.coachNote && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="flex items-start gap-2 rounded-xl border border-gold/20 bg-gold/5 px-4 py-3 text-sm text-gold/90"
+              >
+                <AlertTriangle size={16} className="mt-0.5 shrink-0" />
+                <span>
+                  <span className="font-medium">Coach note: </span>
+                  {live.coachNote}
+                </span>
+              </motion.div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Subtle live-AI hint when connected but idle */}
+      <div className="flex items-center gap-2 px-1 text-xs text-muted">
+        {showOffline ? (
+          <span className="inline-flex items-center gap-1">
+            <WifiOff size={13} /> {t('ai_offline')}
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1">
+            <Wifi size={13} className="text-emerald-400" /> {t('ai_live')}
+          </span>
+        )}
       </div>
+
+      <AnimatePresence>
+        {!acked && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 !mt-0 flex items-center justify-center bg-ink/85 p-4 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 10 }}
+              animate={{ scale: 1, y: 0 }}
+              className="card max-w-md space-y-4 p-6 text-center"
+            >
+              <h2 className="text-xl font-semibold">You&apos;re in control</h2>
+              <p className="text-sm text-white/80">
+                Banter is still in active development. AI suggestions can be imperfect, occasionally off,
+                or not right for your situation. You&apos;re always responsible for what you actually send —
+                if something feels wrong, don&apos;t send it.
+              </p>
+              <label className="flex items-center justify-center gap-2 text-sm text-white/80">
+                <input
+                  type="checkbox"
+                  checked={ackCheck}
+                  onChange={(e) => setAckCheck(e.target.checked)}
+                  className="h-4 w-4 accent-brand"
+                />
+                I understand — I&apos;ll review before sending
+              </label>
+              <button
+                disabled={!ackCheck}
+                onClick={() => {
+                  try {
+                    localStorage.setItem('banter_ack', '1');
+                  } catch {
+                    /* ignore */
+                  }
+                  setAcked(true);
+                }}
+                className="btn-premium w-full py-2.5 disabled:opacity-50"
+              >
+                Start using Banter
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

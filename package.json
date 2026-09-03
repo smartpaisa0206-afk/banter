@@ -1,31 +1,43 @@
 {
-  "name": "react-vite-tailwind",
+  "name": "banter",
+  "version": "1.0.0",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "description": "Banter — say the right thing to the right person. Relationship-aware, real-time message assistant.",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "next dev -H 0.0.0.0 -p 3000",
+    "build": "next build",
+    "postbuild": "tsx scripts/migrate.ts",
+    "start": "next start -H 0.0.0.0 -p 3000",
+    "lint": "next lint",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:seed": "tsx scripts/seed.ts",
+    "setup": "tsx scripts/setup.ts",
+    "audit:security": "tsx scripts/security-audit.ts",
+    "eval:prompts": "tsx scripts/prompt-eval.ts",
+    "preflight": "npm run audit:security && npm run eval:prompts && npm run build"
   },
   "dependencies": {
-    "clsx": "2.1.1",
-    "framer-motion": "^13.2.0",
-    "lucide-react": "^1.40.0",
-    "react": "19.2.6",
-    "react-dom": "19.2.6",
-    "react-router-dom": "^7.18.3",
-    "tailwind-merge": "3.4.0"
+    "@libsql/client": "^0.14.0",
+    "clsx": "^2.1.1",
+    "drizzle-orm": "^0.33.0",
+    "framer-motion": "^11.18.2",
+    "lucide-react": "^0.439.0",
+    "next": "^14.2.35",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "tailwind-merge": "^2.5.2",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "4.1.17",
-    "@types/node": "22.19.17",
-    "@types/react": "19.2.7",
-    "@types/react-dom": "19.2.3",
-    "@vitejs/plugin-react": "5.1.1",
-    "tailwindcss": "4.1.17",
-    "typescript": "5.9.3",
-    "vite": "7.3.2",
-    "vite-plugin-singlefile": "2.3.0"
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.20",
+    "dotenv": "^16.4.5",
+    "drizzle-kit": "^0.24.0",
+    "postcss": "^8.4.41",
+    "tailwindcss": "^3.4.10",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.4"
   }
 }

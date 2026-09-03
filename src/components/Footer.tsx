@@ -1,79 +1,25 @@
-import { Link } from 'react-router-dom';
-import { Logo } from './Logo';
-import { motion } from 'framer-motion';
-import { Heart } from 'lucide-react';
-
-const links = [
-  { to: '/introduction', label: 'Introduction' },
-  { to: '/examples', label: 'Examples' },
-  { to: '/methods', label: 'How to use' },
-  { to: '/keyboard', label: 'Keyboard beta' },
-  { to: '/articles', label: 'Articles' },
-  { to: '/support', label: 'Support' },
-  { to: '/privacy', label: 'Privacy' },
-  { to: '/cookies', label: 'Cookies' },
-];
+import Link from 'next/link';
+import { BRAND_NAME } from '@/lib/config';
 
 export function Footer() {
   return (
-    <footer className="relative mt-auto border-t border-white/8 py-12">
-      {/* Glow top border */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#7c5cff]/40 to-transparent" />
-      
-      <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-5">
-        {/* Logo */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          <Logo className="scale-110" />
-        </motion.div>
-
-        {/* Tagline */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-sm text-muted text-center max-w-md"
-        >
-          Say the right thing to the right person. A relationship-aware message assistant built for real conversations.
-        </motion.p>
-
-        {/* Nav links */}
-        <motion.nav
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.15 }}
-          className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2"
-        >
-          {links.map((l) => (
-            <Link
-              key={l.to}
-              to={l.to}
-              className="text-xs text-muted hover:text-white transition-colors duration-200"
-            >
-              {l.label}
-            </Link>
-          ))}
-        </motion.nav>
-
-        {/* Divider */}
-        <div className="divider w-full max-w-xs" />
-
-        {/* Bottom */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="flex items-center gap-1.5 text-xs text-white/40"
-        >
-          Designed & built with <Heart size={11} className="text-[#7c5cff] fill-[#7c5cff]" /> by HONEY · HNY Labs · 2026
-        </motion.p>
+    <footer className="border-t border-white/10 py-10 text-center text-xs text-muted">
+      <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 px-5">
+        <img src="/hny-labs-logo.png" alt="HNY Labs" className="h-12 w-auto rounded-lg bg-white px-3 py-1" />
+        <p>
+          {BRAND_NAME} · Say the right thing to the right person. · A product by HNY Labs.
+        </p>
+        <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+          <Link href="/introduction" className="hover:text-white">Introduction</Link>
+          <Link href="/examples" className="hover:text-white">Examples</Link>
+          <Link href="/methods" className="hover:text-white">How to use</Link>
+          <Link href="/keyboard" className="hover:text-white">Keyboard beta</Link>
+          <Link href="/articles" className="hover:text-white">Articles</Link>
+          <Link href="/support" className="hover:text-white">Support</Link>
+          <Link href="/privacy" className="hover:text-white">Privacy</Link>
+          <Link href="/cookies" className="hover:text-white">Cookies</Link>
+        </nav>
+        <p className="font-semibold text-white/70">Designed & built by HONEY · HNY Labs</p>
       </div>
     </footer>
   );
