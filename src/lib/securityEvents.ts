@@ -7,6 +7,8 @@ export type SecurityEventType =
   | 'login_success'
   | 'login_failed'
   | 'login_locked'
+  | 'register_success'
+  | 'register_failed'
   | 'mobile_login_success'
   | 'mobile_login_failed'
   | 'generate_success'

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import { liveSuggest, relAccessible, toneAccessible, intentAccessible, intentById } from '@/lib/engine';
 import { withinLimit, remainingFor } from '@/lib/usage';
+import { rateLimit } from '@/lib/rateLimit';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
@@ -18,6 +19,9 @@ const schema = z.object({
 export async function POST(req: NextRequest) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+
+  const burst = rateLimit(req, { key: 'suggest:web', userId: user.id, limit: 20, windowMs: 60 * 1000 });
+  if (!burst.ok) return NextResponse.json({ error: 'Too many suggestions. Slow down and try again.' }, { status: 429 });
 
   const body = await req.json().catch(() => ({}));
   const parsed = schema.safeParse(body);

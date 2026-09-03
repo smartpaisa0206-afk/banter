@@ -4,6 +4,7 @@ import { users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { verifyPassword, createMobileToken } from '@/lib/auth';
 import { logSecurityEvent } from '@/lib/securityEvents';
+import { rateLimit } from '@/lib/rateLimit';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
@@ -17,6 +18,12 @@ const schema = z.object({
 
 // Native keyboard login: returns a bearer token the keyboard stores on-device.
 export async function POST(req: NextRequest) {
+  const rl = rateLimit(req, { key: 'mobile:login', limit: 8, windowMs: 15 * 60 * 1000 });
+  if (!rl.ok) {
+    await logSecurityEvent({ req, eventType: 'mobile_login_failed', source: 'android_keyboard', success: false, severity: 'warn', metadata: { reason: 'rate_limited' } });
+    return NextResponse.json({ error: 'Too many login attempts. Try again later.' }, { status: 429 });
+  }
+
   const body = await req.json().catch(() => ({}));
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Invalid input' }, { status: 400 });

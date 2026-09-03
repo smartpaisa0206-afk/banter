@@ -3,6 +3,7 @@ import crypto from 'node:crypto';
 import { getCurrentUser } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { feedback } from '@/lib/db/schema';
+import { rateLimit } from '@/lib/rateLimit';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
@@ -15,6 +16,9 @@ const schema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  const rl = rateLimit(req, { key: 'feedback', limit: 5, windowMs: 10 * 60 * 1000 });
+  if (!rl.ok) return NextResponse.json({ error: 'Too many feedback submissions. Try again later.' }, { status: 429 });
+
   const user = await getCurrentUser().catch(() => null);
   const body = await req.json().catch(() => ({}));
   const parsed = schema.safeParse(body);

@@ -8,6 +8,7 @@ import { canUseWorks } from '@/lib/plans';
 import { withinLimit, remainingFor } from '@/lib/usage';
 import { encryptText } from '@/lib/security';
 import { logSecurityEvent } from '@/lib/securityEvents';
+import { rateLimit } from '@/lib/rateLimit';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
@@ -27,6 +28,12 @@ const schema = z.object({
 export async function POST(req: NextRequest) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+
+  const burst = rateLimit(req, { key: 'generate:web', userId: user.id, limit: 12, windowMs: 60 * 1000 });
+  if (!burst.ok) {
+    await logSecurityEvent({ req, userId: user.id, eventType: 'generate_failed', source: 'web', success: false, severity: 'warn', metadata: { reason: 'burst_rate_limited' } });
+    return NextResponse.json({ error: 'Too many requests. Slow down and try again.' }, { status: 429 });
+  }
 
   const body = await req.json().catch(() => ({}));
   const parsed = schema.safeParse(body);

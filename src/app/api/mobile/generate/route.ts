@@ -8,6 +8,7 @@ import { canUseWorks } from '@/lib/plans';
 import { withinLimit, remainingFor } from '@/lib/usage';
 import { encryptText } from '@/lib/security';
 import { logSecurityEvent } from '@/lib/securityEvents';
+import { rateLimit } from '@/lib/rateLimit';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
@@ -34,6 +35,12 @@ export async function POST(req: NextRequest) {
   if (!user) {
     await logSecurityEvent({ req, eventType: 'mobile_generate_failed', source: 'android_keyboard', success: false, severity: 'warn', metadata: { reason: 'unauthorized' } });
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const burst = rateLimit(req, { key: 'generate:mobile', userId: user.id, limit: 10, windowMs: 60 * 1000 });
+  if (!burst.ok) {
+    await logSecurityEvent({ req, userId: user.id, eventType: 'mobile_generate_failed', source: 'android_keyboard', success: false, severity: 'warn', metadata: { reason: 'burst_rate_limited' } });
+    return NextResponse.json({ error: 'Too many keyboard requests. Slow down and try again.' }, { status: 429 });
   }
 
   const parsed = schema.safeParse(body);
