@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Banter — Say it better</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,450;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="scroll-progress" id="scrollProgress"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<header>
+  <div class="nav">
+    <div class="brand">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 12c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8c-1.1 0-2.1-.2-3-.6L4 20l1.3-4.6C4.5 14.3 4 13.2 4 12z" stroke="#2B0E05" stroke-width="1.6" fill="#2B0E05" fill-opacity=".14"/></svg>
+      </span>
+      Banter
+    </div>
+    <nav class="navlinks">
+      <a href="#demo">Keyboard</a>
+      <a href="#examples">Examples</a>
+      <a href="#wall">Reviews</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#beta">Beta</a>
+    </nav>
+    <div class="navcta">
+      <a class="btn btn-ghost" href="#">Open Banter</a>
+      <a class="btn btn-primary" href="#beta">Try beta</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero" id="demo">
+    <div class="hero-glow"></div>
+    <div class="hero-grid">
+      <div>
+        <span class="pill"><span class="dot-live"></span> Android beta &middot; limited testers</span>
+        <h1 class="h1 serif">For the message<br>you almost <em>didn't</em> send.</h1>
+        <p class="lede">Type rough. Tap the wand. Banter rewrites awkward texts, apologies, DMs and work mail into something you'll actually hit send on.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#beta">Try keyboard beta
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a class="btn btn-ghost" href="#examples">See examples</a>
+        </div>
+        <div class="hero-foot">
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l7 4v6c0 5-3.4 8.6-7 10-3.6-1.4-7-5-7-10V6z"/></svg>Sends only when you tap the wand</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>Works inside WhatsApp</span>
+        </div>
+      </div>
+
+      <div class="demo-stage">
+        <div class="tape" style="top:-6px; right:56px; transform:rotate(9deg);"></div>
+        <div class="stamp" style="left:-40px; bottom:30px;">private<br>beta<br>2026</div>
+        <svg class="doodle float" style="top:-18px; left:18px; --r:-8deg;" width="46" height="46" viewBox="0 0 46 46" fill="none">
+          <path d="M23 4v11M23 31v11M4 23h11M31 23h11M10 10l7.5 7.5M28.5 28.5L36 36M36 10l-7.5 7.5M17.5 28.5L10 36" stroke="var(--gold)" stroke-width="2.4" stroke-linecap="round"/>
+        </svg>
+        <svg class="doodle float-slow" style="bottom:64px; right:-26px; --r:6deg;" width="52" height="34" viewBox="0 0 52 34" fill="none">
+          <path d="M2 24c8-2 14-14 22-14s10 12 20 8" stroke="var(--mint)" stroke-width="2.6" stroke-linecap="round"/>
+          <path d="M36 14l8 4-3 8" stroke="var(--mint)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-head">
+            <div class="av" style="position:relative;">
+              <span style="position:absolute; right:-1px; bottom:-1px; width:9px; height:9px; border-radius:50%; background:var(--mint); border:2px solid var(--ink-2);"></span>
+            </div>
+            <div>
+              <div class="who" id="demoWho">Work mail</div>
+              <div class="sub">drafting&hellip;</div>
+            </div>
+          </div>
+          <div class="thread">
+            <div>
+              <div class="tag">Rough</div>
+              <div class="bubble rough"><span class="strike" id="roughText"></span></div>
+            </div>
+            <div class="wand-row">
+              <span class="lbl" id="wandLabel">Tap to rewrite</span>
+              <span class="wand-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2B0E05" stroke-width="2.2"><path d="M5 19L19 5M15 3l1 3 3 1-3 1-1 3-1-3-3-1 3-1zM4 13l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg>
+              </span>
+            </div>
+            <div>
+              <div class="tag after">After</div>
+              <div class="bubble better" id="betterWrap" style="min-height:20px;">
+                <span id="betterText"></span>
+              </div>
+            </div>
+          </div>
+          <div class="keys">
+            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <div class="progress" id="progressDots"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="marquee-wrap">
+    <div class="marquee" id="marqueeTrack"></div>
+  </div>
+
+  <section id="examples">
+    <div class="shead" data-reveal>
+      <h2 class="serif">Rough becomes sendable.</h2>
+      <p>People don't need more typing. They need the right first draft at the right moment &mdash; in whatever language they were already thinking in.</p>
+    </div>
+    <div class="desk" data-reveal>
+      <div class="cards" id="notesGrid"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="shead" data-reveal>
+      <h2 class="serif">Built for how you actually talk.</h2>
+      <p>One keyboard, three registers &mdash; because the way you text a friend isn't the way you email a client.</p>
+    </div>
+    <div class="bento" data-reveal>
+      <div class="feat tall spot">
+        <div class="ic">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </div>
+        <h3>Personal chats</h3>
+        <p>Late replies, dry texts, apologies, crush replies, Hinglish &mdash; the everyday conversations you actually have, rewritten in the tone you meant.</p>
+      </div>
+      <div class="bcol">
+        <div class="feat spot">
+          <div class="ic" style="background:rgba(47,191,143,.14); color:var(--mint);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+          </div>
+          <h3>Professional mail</h3>
+          <p>Turn a rushed note into a clear update, follow-up, or polite clarification &mdash; no more re-reading it five times before you hit send.</p>
+        </div>
+        <div class="feat spot">
+          <div class="ic">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          </div>
+          <h3>Built for trust</h3>
+          <p>Keyboard text is sent only when you tap the wand. Private fields stay protected. Devices can be revoked anytime.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="reel">
+    <div class="shead" data-reveal>
+      <h2 class="serif">Watch a rewrite happen.</h2>
+      <p>A 6-second replay of the keyboard in action &mdash; press play.</p>
+    </div>
+    <div class="reel" id="reelBox" data-reveal>
+      <span class="reel-tag"><span class="dot-live"></span> Live demo</span>
+      <div class="reel-scene">
+        <div class="reel-msg rough" id="reelRough">hey sry i missed ur call was slammed</div>
+        <svg class="reel-arrow" id="reelArrow" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        <div class="reel-msg better" id="reelBetter">Sorry I missed your call, work's been non-stop &mdash; can I ring you back tonight?</div>
+      </div>
+      <div class="reel-caption">Same meaning, sendable tone. Replays every few seconds.</div>
+      <div class="reel-play" id="reelPlay">
+        <span class="reel-play-btn">
+          <svg viewBox="0 0 24 24" fill="#2B0E05"><path d="M8 5v14l11-7z"/></svg>
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <section id="wall">
+    <div class="shead" data-reveal style="display:flex; align-items:flex-end; justify-content:space-between; gap:24px; max-width:none;">
+      <div style="max-width:600px;">
+        <h2 class="serif">Testers keep quoting it back to us.</h2>
+        <p>Pulled straight from beta feedback &mdash; unedited, wands and all.</p>
+      </div>
+      <div class="wall-nav">
+        <span class="wall-btn" id="wallPrev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg></span>
+        <span class="wall-btn" id="wallNext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18l6-6-6-6"/></svg></span>
+      </div>
+    </div>
+    <div class="wall" data-reveal>
+      <div class="wall-track" id="wallTrack"></div>
+    </div>
+  </section>
+
+  <section id="beta">
+    <div class="beta" data-reveal>
+      <div>
+        <span class="pill" style="border-color:rgba(47,191,143,.35); background:rgba(47,191,143,.08); color:var(--mint);"><span class="dot-live" style="background:var(--mint);"></span> Private beta</span>
+        <h2 class="serif" style="margin:18px 0 0; font-size:clamp(28px,3.6vw,42px);">Testing with real Android users.</h2>
+        <p style="color:var(--muted); max-width:420px; margin:12px 0 0; line-height:1.6;">Beta access is limited while we collect bugs, language examples, and keyboard feedback. If it helps once, tell us where it failed next.</p>
+        <div class="stat-row">
+          <div class="stat"><b id="statCount">0</b><span>rewrites this week</span></div>
+          <div class="stat"><b>14</b><span>languages in beta</span></div>
+          <div class="stat"><b>200</b><span>tester seats left</span></div>
+        </div>
+      </div>
+      <div class="beta-card">
+        <ul class="checklist">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>Download after login</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>Android APK beta</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>Feedback needed from testers</li>
+        </ul>
+        <a class="btn btn-primary" href="#" style="width:100%; justify-content:center;">Get beta instructions</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing">
+    <div class="shead" data-reveal>
+      <h2 class="serif">Start free. Upgrade when it becomes a habit.</h2>
+      <p>Simple plans while Banter is still early &mdash; prices shown in USD.</p>
+    </div>
+    <div class="tickets" data-reveal>
+      <div class="ticket">
+        <h3>Free</h3>
+        <div class="price">$0<span>/forever</span></div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>20 rewrites a day</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>Personal chat mode</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>One device</li>
+        </ul>
+        <a class="btn btn-ghost" href="#" style="width:100%; justify-content:center;">Start free</a>
+      </div>
+      <div class="ticket feat-plan">
+        <span class="badge">Most popular</span>
+        <h3>Plus</h3>
+        <div class="price">$4.99<span>/mo</span></div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>Unlimited rewrites</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>Work mail mode</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>Three devices</li>
+        </ul>
+        <a class="btn btn-primary" href="#" style="width:100%; justify-content:center;">Upgrade to Plus</a>
+        <div class="perf"></div>
+      </div>
+      <div class="ticket">
+        <h3>Pro</h3>
+        <div class="price">$9.99<span>/mo</span></div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>Everything in Plus</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>Custom tone presets</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>Unlimited devices</li>
+        </ul>
+        <a class="btn btn-ghost" href="#" style="width:100%; justify-content:center;">Upgrade to Pro</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="final" data-reveal>
+      <div class="blob"></div>
+      <h2 class="serif">Stop letting the reply sit there.</h2>
+      <p>Open the beta page, install the keyboard, and test it on one message you almost didn't send.</p>
+      <a class="btn btn-primary" href="#beta">Try keyboard beta
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap fgrid">
+    <div class="brand" style="font-size:15px;">
+      <span class="brand-mark" style="width:26px; height:26px; border-radius:8px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 12c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8c-1.1 0-2.1-.2-3-.6L4 20l1.3-4.6C4.5 14.3 4 13.2 4 12z" stroke="#2B0E05" stroke-width="1.6" fill="#2B0E05" fill-opacity=".14"/></svg>
+      </span>
+      Banter
+    </div>
+    <div class="flinks">
+      <a href="#">Privacy</a>
+      <a href="#">Support</a>
+      <a href="#">Twitter</a>
+    </div>
+    <div class="fnote">&copy; 2026 Banter. Made for the messages you almost didn't send.</div>
+  </div>
+</footer>
+
+<script src="script.js" defer></script>
+</body>
+</html>
