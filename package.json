@@ -11,7 +11,10 @@
     "lint": "next lint",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
-    "setup": "tsx scripts/setup.ts"
+    "setup": "tsx scripts/setup.ts",
+    "audit:security": "tsx scripts/security-audit.ts",
+    "eval:prompts": "tsx scripts/prompt-eval.ts",
+    "preflight": "npm run audit:security && npm run eval:prompts && npm run build"
   },
   "dependencies": {
     "@libsql/client": "^0.14.0",

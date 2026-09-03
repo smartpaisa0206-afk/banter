@@ -1,0 +1,48 @@
+[
+  {
+    "name": "English stays English",
+    "input": "how are you",
+    "expectedLanguage": "en",
+    "mustNotDetect": "hing"
+  },
+  {
+    "name": "WYD is English shorthand",
+    "input": "wyd",
+    "expectedLanguage": "en",
+    "expectedStyle": "english"
+  },
+  {
+    "name": "KKRH is Roman Hinglish",
+    "input": "kkrh",
+    "expectedLanguage": "hing",
+    "expectedStyle": "roman_hinglish"
+  },
+  {
+    "name": "Food check Hinglish",
+    "input": "tmne khna kha liya?",
+    "expectedLanguage": "hing",
+    "expectedStyle": "roman_hinglish"
+  },
+  {
+    "name": "Professional email English",
+    "input": "write mail we did not book these parts error came",
+    "expectedLanguage": "en",
+    "expectedSituation": "office_email"
+  },
+  {
+    "name": "Not my fault English",
+    "input": "how do i say this is not my fault",
+    "expectedLanguage": "en",
+    "expectedSituation": "not_my_fault"
+  },
+  {
+    "name": "Devanagari Hindi",
+    "input": "तुमने खाना खा लिया",
+    "expectedLanguage": "hi"
+  },
+  {
+    "name": "Tamil script",
+    "input": "நீ என்ன செய்கிறாய்",
+    "expectedLanguage": "ta"
+  }
+]

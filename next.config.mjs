@@ -12,7 +12,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https:",
       "font-src 'self' data:",
-      "connect-src 'self' https://api.openai.com https://api.anthropic.com",
+      "connect-src 'self' https://api.openai.com https://api.anthropic.com https://api.groq.com https://openrouter.ai https://generativelanguage.googleapis.com",
       "frame-ancestors 'none'",
     ].join('; '),
   },

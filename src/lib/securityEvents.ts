@@ -17,6 +17,7 @@ export type SecurityEventType =
   | 'admin_user_banned'
   | 'admin_user_unbanned'
   | 'token_revoked'
+  | 'keyboard_download'
   | 'account_deleted';
 
 export type SecuritySource = 'web' | 'android_keyboard' | 'admin' | 'api';
