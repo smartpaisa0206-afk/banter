@@ -234,6 +234,11 @@ body {
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
 }
 
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
 
 /* ---- Premium interaction system ---- */
 .premium-shell {
