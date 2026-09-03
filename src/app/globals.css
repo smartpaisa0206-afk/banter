@@ -239,6 +239,32 @@ body {
   to { transform: translateX(-50%); }
 }
 
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: var(--scroll-width, 0%);
+  z-index: 80;
+  background: linear-gradient(90deg, #7c5cff, #a78bfa, #4aa8ff);
+}
+.cursor-ring {
+  position: fixed;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 1px solid rgba(167, 139, 250, 0.62);
+  pointer-events: none;
+  z-index: 999;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: width .22s ease, height .22s ease, opacity .22s ease, background .22s ease;
+  mix-blend-mode: difference;
+}
+.cursor-ring.show { opacity: 1; }
+.cursor-ring.big { width: 58px; height: 58px; background: rgba(124, 92, 255, 0.12); }
+@media (hover:none), (pointer:coarse) { .cursor-ring { display: none; } }
+
 
 /* ---- Premium interaction system ---- */
 .premium-shell {

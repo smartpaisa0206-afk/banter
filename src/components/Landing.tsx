@@ -33,6 +33,47 @@ const tags = ['Apologies', 'Late replies', 'Work mail', 'Hinglish', 'Crush texts
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
 const item = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 220, damping: 24 } } };
 
+function CursorEffects() {
+  useEffect(() => {
+    const progress = document.getElementById('scrollProgress');
+    const ring = document.getElementById('cursorRing');
+    const onScroll = () => {
+      if (!progress) return;
+      const h = document.documentElement;
+      const pct = (h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight)) * 100;
+      progress.style.setProperty('--scroll-width', `${pct}%`);
+    };
+    const onMove = (e: MouseEvent) => {
+      if (!ring) return;
+      ring.classList.add('show');
+      ring.style.left = `${e.clientX}px`;
+      ring.style.top = `${e.clientY}px`;
+    };
+    const onLeave = () => ring?.classList.remove('show');
+    const big = () => ring?.classList.add('big');
+    const small = () => ring?.classList.remove('big');
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseleave', onLeave);
+    const hoverables = Array.from(document.querySelectorAll('a, button, .premium-card'));
+    hoverables.forEach((el) => {
+      el.addEventListener('mouseenter', big);
+      el.addEventListener('mouseleave', small);
+    });
+    onScroll();
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseleave', onLeave);
+      hoverables.forEach((el) => {
+        el.removeEventListener('mouseenter', big);
+        el.removeEventListener('mouseleave', small);
+      });
+    };
+  }, []);
+  return <><div id="scrollProgress" className="scroll-progress" /><div id="cursorRing" className="cursor-ring" /></>;
+}
+
 function PhoneDemo() {
   const [idx, setIdx] = useState(0);
   const ex = examples[idx];
@@ -92,9 +133,68 @@ function PhoneDemo() {
   );
 }
 
+function ReelDemo() {
+  const [playing, setPlaying] = useState(false);
+  useEffect(() => {
+    const id = setInterval(() => setPlaying(true), 4500);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <section className="mx-auto max-w-7xl px-5 py-16">
+      <div className="mb-8 max-w-2xl">
+        <p className="kicker">Watch it happen</p>
+        <h2 className="mt-3 text-5xl font-black tracking-[-0.05em] text-white">A rewrite in six seconds.</h2>
+        <p className="mt-3 text-muted">This is the motion users should understand instantly: rough thought, magic tap, sendable reply.</p>
+      </div>
+      <div onClick={() => setPlaying(true)} className="premium-card relative min-h-[360px] cursor-pointer overflow-hidden rounded-[2.5rem] p-8">
+        <span className="absolute left-6 top-6 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#c4b5fd]"><span className="h-2 w-2 rounded-full bg-emerald-400" /> Live demo</span>
+        <div className="grid min-h-[300px] place-items-center">
+          <div className="flex flex-col items-center gap-5 md:flex-row">
+            <motion.div animate={playing ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0.45, y: 18, scale: 0.96 }} className="max-w-xs rounded-3xl border border-white/10 bg-white/[0.06] p-5 text-white/75">
+              hey sry i missed ur call was slammed
+            </motion.div>
+            <motion.div animate={playing ? { opacity: 1, x: 0 } : { opacity: 0, x: -12 }} transition={{ delay: 0.45 }} className="text-[#a78bfa]"><ArrowRight /></motion.div>
+            <motion.div animate={playing ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 18, scale: 0.96 }} transition={{ delay: 0.75 }} className="max-w-sm rounded-3xl border border-[#4aa8ff]/30 bg-[#4aa8ff]/10 p-5 text-white">
+              Sorry I missed your call — work has been non-stop. Can I call you back tonight?
+            </motion.div>
+          </div>
+        </div>
+        {!playing && <div className="absolute inset-0 grid place-items-center bg-black/35 backdrop-blur-sm"><span className="grid h-20 w-20 place-items-center rounded-full bg-[#a78bfa] text-ink shadow-glow"><Play fill="currentColor" /></span></div>}
+      </div>
+    </section>
+  );
+}
+
+function Testimonials() {
+  const testimonials = [
+    ['Work mail', 'Turned my rough note into a mail I could send without rereading ten times.'],
+    ['Hinglish', 'It understood kkrh and replied like a real chat, not formal Hindi.'],
+    ['Apology', 'It changed “sorry busy” into something that actually sounded honest.'],
+    ['Keyboard', 'Using it inside WhatsApp feels different from opening another AI app.'],
+  ];
+  return (
+    <section className="mx-auto max-w-7xl px-5 py-16">
+      <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <div><p className="kicker">Beta feedback</p><h2 className="mt-3 text-5xl font-black tracking-[-0.05em] text-white">What testers notice first.</h2></div>
+        <Link href="/dashboard/feedback" className="btn-ghost rounded-full">Send feedback</Link>
+      </div>
+      <div className="flex snap-x gap-4 overflow-x-auto pb-4">
+        {testimonials.map(([label, quote], i) => (
+          <motion.div key={label} whileHover={{ y: -5 }} className="premium-card min-w-[290px] snap-start rounded-[2rem] p-6">
+            <div className="mb-4 flex gap-1 text-[#a78bfa]">★★★★★</div>
+            <p className="text-base leading-relaxed text-white/85">“{quote}”</p>
+            <div className="mt-6 inline-flex rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-[#9fd0ff]">{label}</div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export function Landing({ plans, country, currency }: { plans: Plan[]; country: string; currency: string }) {
   return (
     <div className="premium-shell flex min-h-screen flex-col overflow-hidden">
+      <CursorEffects />
       <motion.header initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="sticky top-0 z-30 border-b border-white/5 bg-ink/70 backdrop-blur-2xl">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-5 py-3">
           <Logo />
@@ -190,6 +290,9 @@ export function Landing({ plans, country, currency }: { plans: Plan[]; country: 
             </div>
           </div>
         </section>
+
+        <ReelDemo />
+        <Testimonials />
 
         <section className="mx-auto max-w-7xl px-5 py-16">
           <div className="premium-card relative overflow-hidden rounded-[2.5rem] p-8 sm:p-12">
