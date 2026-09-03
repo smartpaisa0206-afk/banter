@@ -2,33 +2,43 @@ import Link from 'next/link';
 import { InfoPageShell } from '@/components/InfoPageShell';
 
 const steps = [
-  ['1. Choose a mode', 'Use Personal for relationships and everyday chats. Use Professional for emails, work, captions, and business messages.'],
-  ['2. Pick the situation', 'Select what you want: flirt, apologize, follow up, write an email, make a caption, or create a notice.'],
-  ['3. Add real context', 'Write one or two lines about what happened. The more specific you are, the better the result feels.'],
-  ['4. Choose tone and length', 'Make it warm, confident, professional, bold, short, medium, or long.'],
-  ['5. Review before sending', 'Banter gives a draft. You stay in control. Edit anything that does not feel like you.'],
+  ['Type rough', 'Don’t perfect the message first. Write the messy version you already have in your head.'],
+  ['Tap 🪄 or Generate', 'Banter reads the current situation and turns it into sendable options.'],
+  ['Pick the closest one', 'Choose the message that feels most like you.'],
+  ['Edit before sending', 'AI gives the first draft. You stay responsible for the final message.'],
+];
+
+const rules = [
+  ['For chat', 'Use real words: “sorry busy”, “kkrh”, “she said ok”.'],
+  ['For work', 'Paste rough instructions: “send mail, parts not booked, error came”.'],
+  ['For privacy', 'Keyboard sends text only when you tap 🪄. Private fields are protected.'],
 ];
 
 export default function MethodsPage() {
   return (
     <InfoPageShell
-      eyebrow="How to use"
-      title="The simple Banter method."
-      description="Use Banter as a decision helper. It gives you the first draft so you stop overthinking and start communicating clearly."
+      eyebrow="How it works"
+      title="Don’t overthink the setup."
+      description="Banter works best when you give it the real messy situation, not a perfect prompt."
     >
-      <div className="space-y-4">
-        {steps.map(([title, body]) => (
-          <section key={title} className="rounded-3xl border border-white/10 bg-white/[0.045] p-6">
-            <h2 className="text-2xl font-bold">{title}</h2>
+      <div className="grid gap-4 md:grid-cols-2">
+        {steps.map(([title, body], i) => (
+          <section key={title} className="rounded-[2rem] border border-white/10 bg-white/[0.045] p-6">
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-[#4aa8ff]/15 text-sm font-bold text-[#9fd0ff]">{i + 1}</span>
+            <h2 className="mt-5 text-2xl font-bold text-white">{title}</h2>
             <p className="mt-2 leading-relaxed text-muted">{body}</p>
           </section>
         ))}
       </div>
-      <div className="rounded-3xl border border-[#4aa8ff]/30 bg-[#4aa8ff]/10 p-6">
-        <h2 className="text-2xl font-bold">Best tip</h2>
-        <p className="mt-2 text-muted">Don’t ask for “a reply.” Add the real situation: who it is for, what happened, and how you want to sound.</p>
+      <div className="grid gap-4 md:grid-cols-3">
+        {rules.map(([title, body]) => (
+          <div key={title} className="rounded-3xl border border-white/10 bg-white/[0.045] p-5">
+            <h3 className="font-bold text-white">{title}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted">{body}</p>
+          </div>
+        ))}
       </div>
-      <Link href="/dashboard" className="btn-plus rounded-full">Open Banter</Link>
+      <Link href="/keyboard" className="btn-plus rounded-full">Try keyboard beta</Link>
     </InfoPageShell>
   );
 }

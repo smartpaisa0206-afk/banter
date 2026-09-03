@@ -24,11 +24,10 @@ export default async function Upgrade() {
       <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.045] p-6 backdrop-blur-xl sm:p-8">
         <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-[#4aa8ff]/20 blur-3xl" />
         <div className="relative max-w-2xl">
-          <p className="chip mb-4">Plans</p>
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Choose your Banter plan.</h1>
+          <p className="chip mb-4">Simple pricing</p>
+          <h1 className="text-4xl font-black tracking-[-0.04em] sm:text-6xl">Start free. Upgrade when Banter becomes a habit.</h1>
           <p className="mt-3 text-base leading-relaxed text-muted">
-            Personal mode is free. Upgrade when you want Professional mode, deeper history, saved messages,
-            stronger decision-making tones, and keyboard access when Phase 2 launches.
+            Free is for testing. Plus is for everyday replies. Pro is for people who use Banter across chats, work, and the keyboard.
           </p>
           <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-muted">
             Showing prices for <span className="font-medium text-white/90">{cc}</span> in{' '}
