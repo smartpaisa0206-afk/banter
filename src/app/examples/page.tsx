@@ -1,38 +1,92 @@
-import Link from 'next/link';
+'use client';
+import { motion } from 'framer-motion';
 import { InfoPageShell } from '@/components/InfoPageShell';
+import { Copy, Check } from 'lucide-react';
+import { useState } from 'react';
 
 const examples = [
-  ['Late reply', 'sorry busy', 'Sorry, I got caught up. Didn’t mean to ignore you — I should’ve replied earlier.'],
-  ['Not my fault', 'how do i say this is not my fault', 'I understand why it looks that way, but I want to clarify this wasn’t from my side.'],
-  ['Hinglish', 'kkrh', 'kuch khaas nahi, tu bata?'],
-  ['Apology', 'sorry if you felt bad', 'I’m sorry I said it that way. That wasn’t fair, and I’ll be more careful with my tone.'],
-  ['Work mail', 'tell x we did not book these parts error came', 'Hi, I’d like to clarify that these parts were not booked from our side. We are checking the error and will update you shortly.'],
-  ['Dry reply', 'she replied just ok', 'That “ok” feels a little mysterious. What happened?'],
+  {
+    category: '💑 Romantic',
+    items: [
+      { rough: 'sorry i forgot our plans', polished: "Hey, I'm really sorry about today. I completely dropped the ball and I feel terrible about it. Can we reschedule? I want to make it up to you." },
+      { rough: 'wanna hang', polished: "Hey! I've been thinking about you — would love to grab coffee or do something fun together this week if you're up for it?" },
+    ],
+  },
+  {
+    category: '💼 Professional',
+    items: [
+      { rough: 'deadline moved', polished: "I wanted to give you a heads-up that we'll need to adjust the project timeline. I'll share a revised schedule with updated milestones by end of day." },
+      { rough: 'follow up invoice', polished: "Hope you're having a great week! I wanted to gently follow up on the invoice from last month. Please let me know if you need any documentation." },
+    ],
+  },
+  {
+    category: '🤝 Casual',
+    items: [
+      { rough: 'sry busy', polished: "Hey, sorry for going quiet! Things got hectic on my end. How are you doing? Would love to catch up soon." },
+      { rough: 'how r u', polished: "Hey! It's been a while — how have you been? Hope everything's going well on your end." },
+    ],
+  },
+  {
+    category: '🇮🇳 Hinglish',
+    items: [
+      { rough: 'kkrh', polished: 'kuch khaas nahi, tu bata kya chal raha hai?' },
+      { rough: 'bhai help chahiye', polished: 'Bhai, ek kaam tha — thoda time hai toh baat karni thi, important hai yaar.' },
+    ],
+  },
 ];
+
+function ExCard({ rough, polished }: { rough: string; polished: string }) {
+  const [copied, setCopied] = useState(false);
+  async function copy() {
+    await navigator.clipboard.writeText(polished).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }
+  return (
+    <motion.div
+      whileHover={{ y: -4 }}
+      className="premium-card card-hover p-5 space-y-3"
+    >
+      <div>
+        <p className="label mb-1.5">Rough draft</p>
+        <p className="text-sm text-white/55 line-through decoration-[#7c5cff]/50">{rough}</p>
+      </div>
+      <div className="divider" />
+      <div>
+        <p className="label mb-1.5 text-[#9fd0ff]">Banter ✦</p>
+        <p className="text-sm leading-relaxed text-white/88">{polished}</p>
+      </div>
+      <button onClick={copy} className="btn btn-ghost w-full rounded-xl py-2 text-xs">
+        {copied ? <><Check size={13} className="text-emerald-400" /> Copied!</> : <><Copy size={13} /> Copy this</>}
+      </button>
+    </motion.div>
+  );
+}
 
 export default function ExamplesPage() {
   return (
     <InfoPageShell
-      eyebrow="Examples"
-      title="See the exact moment Banter helps."
-      description="No abstract feature list. Just rough words becoming replies people can actually send."
+      eyebrow="See it in action"
+      title="Real examples. Real messages."
+      description="Banter handles everything from awkward apologies to professional follow-ups — across relationships, tones, and languages."
     >
-      <div className="grid gap-4 md:grid-cols-2">
-        {examples.map(([label, bad, better]) => (
-          <section key={label} className="rounded-[2rem] border border-white/10 bg-white/[0.045] p-6">
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-[#9fd0ff]">{label}</p>
-            <div className="mt-4 space-y-3">
-              <div className="rounded-2xl border border-red-400/20 bg-red-400/5 p-4"><p className="text-xs uppercase tracking-[0.18em] text-red-200">Rough</p><p className="mt-2 text-white/85">{bad}</p></div>
-              <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/5 p-4"><p className="text-xs uppercase tracking-[0.18em] text-emerald-200">After 🪄</p><p className="mt-2 text-white/85">{better}</p></div>
-            </div>
-          </section>
-        ))}
-      </div>
-      <div className="rounded-[2rem] border border-[#4aa8ff]/30 bg-[#4aa8ff]/10 p-7 text-center">
-        <h2 className="text-3xl font-black tracking-[-0.03em] text-white">Have one message you’re avoiding?</h2>
-        <p className="mx-auto mt-2 max-w-xl text-muted">Open Banter, paste the rough version, and let it give you a sendable first draft.</p>
-        <Link href="/dashboard" className="btn-plus mt-5 rounded-full">Open Banter</Link>
-      </div>
+      {examples.map((cat, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: i * 0.08 }}
+          className="space-y-4"
+        >
+          <h2 className="text-xl font-black text-white">{cat.category}</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {cat.items.map((ex, j) => (
+              <ExCard key={j} rough={ex.rough} polished={ex.polished} />
+            ))}
+          </div>
+        </motion.div>
+      ))}
     </InfoPageShell>
   );
 }

@@ -1,347 +1,553 @@
 'use client';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { Logo } from '@/components/Logo';
-import { LanguagePicker } from '@/components/LanguagePicker';
-import { Footer } from '@/components/Footer';
-import type { Plan } from '@/lib/pricing';
+import { useEffect, useRef, useState } from 'react';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { Logo } from './Logo';
+import { Footer } from './Footer';
+import { CursorEffects } from './CursorEffects';
 import {
-  ArrowRight,
-  ShieldCheck,
-  Zap,
-  Check,
-  Grid3X3,
-  Keyboard,
-  WandSparkles,
-  Lock,
-  MessageCircle,
-  Briefcase,
-  Sparkles,
-  Play,
+  ArrowRight, ShieldCheck, Zap, Check, Keyboard, WandSparkles,
+  Lock, MessageCircle, Briefcase, Sparkles, Star, Users, Globe,
+  ChevronDown, MessageSquare, Heart, Send, Wand2, Layers,
 } from 'lucide-react';
 
 const examples = [
-  { who: 'Late reply', rough: 'sorry busy', better: "Sorry, I got caught up. Didn't mean to ignore you — I should've replied earlier." },
-  { who: 'Not my fault', rough: 'how do i say this is not my fault', better: "I understand why it looks that way, but I want to clarify this wasn't from my side." },
-  { who: 'Hinglish', rough: 'kkrh', better: 'kuch khaas nahi, tu bata?' },
-  { who: 'Work mail', rough: 'tell x we did not book these parts error came', better: 'Hi, I’d like to clarify these parts were not booked from our side. We are checking the error and will update you shortly.' },
+  { who: 'Late reply', emoji: '⏰', rough: 'sorry busy', better: "Sorry, I got caught up. Didn't mean to ignore you — I should've replied earlier." },
+  { who: 'Crush text', emoji: '💜', rough: 'hey wanna hang', better: "Hey! I was thinking about you — would love to grab coffee this week if you're free?" },
+  { who: 'Hinglish', emoji: '🇮🇳', rough: 'kkrh', better: 'kuch khaas nahi, tu bata?' },
+  { who: 'Work mail', emoji: '💼', rough: 'tell x we did not book error came', better: "Hi, I'd like to clarify these parts were not booked from our side. We're checking the error and will update you shortly." },
 ];
 
-const tags = ['Apologies', 'Late replies', 'Work mail', 'Hinglish', 'Crush texts', 'Follow-ups', 'DMs', 'Clarifications'];
+const features = [
+  { icon: <MessageCircle size={22} />, title: 'Relationship-aware', desc: 'Knows the difference between texting your crush vs emailing your boss.', color: '#7c5cff' },
+  { icon: <WandSparkles size={22} />, title: 'AI-powered rewrites', desc: 'Powered by Groq / OpenAI / Anthropic with smart template fallback.', color: '#4aa8ff' },
+  { icon: <Globe size={22} />, title: 'Multi-language', desc: 'English, Hinglish, and growing. Write in the language you actually use.', color: '#e9c46a' },
+  { icon: <Keyboard size={22} />, title: 'Native keyboard', desc: 'Android keyboard that rewrites without leaving your app.', color: '#a78bfa' },
+  { icon: <ShieldCheck size={22} />, title: 'Private by default', desc: 'Encrypted at rest, rate-limited, secure sessions. Your words stay yours.', color: '#34d399' },
+  { icon: <Zap size={22} />, title: 'Instant results', desc: 'Ready-to-send in under 3 seconds. No overthinking required.', color: '#f87171' },
+];
 
-const container = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
-const item = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 220, damping: 24 } } };
+const tags = ['Apologies', 'Late replies', 'Work mail', 'Hinglish', 'Crush texts', 'Follow-ups', 'DMs', 'Clarifications', 'Pitches', 'Break-ups', 'Thank-yous', 'Check-ins'];
 
-function CursorEffects() {
-  useEffect(() => {
-    const progress = document.getElementById('scrollProgress');
-    const ring = document.getElementById('cursorRing');
-    const onScroll = () => {
-      if (!progress) return;
-      const h = document.documentElement;
-      const pct = (h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight)) * 100;
-      progress.style.setProperty('--scroll-width', `${pct}%`);
-    };
-    const onMove = (e: MouseEvent) => {
-      if (!ring) return;
-      ring.classList.add('show');
-      ring.style.left = `${e.clientX}px`;
-      ring.style.top = `${e.clientY}px`;
-    };
-    const onLeave = () => ring?.classList.remove('show');
-    const big = () => ring?.classList.add('big');
-    const small = () => ring?.classList.remove('big');
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseleave', onLeave);
-    const hoverables = Array.from(document.querySelectorAll('a, button, .premium-card'));
-    hoverables.forEach((el) => {
-      el.addEventListener('mouseenter', big);
-      el.addEventListener('mouseleave', small);
-    });
-    onScroll();
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseleave', onLeave);
-      hoverables.forEach((el) => {
-        el.removeEventListener('mouseenter', big);
-        el.removeEventListener('mouseleave', small);
-      });
-    };
-  }, []);
-  return <><div id="scrollProgress" className="scroll-progress" /><div id="cursorRing" className="cursor-ring" /></>;
-}
+const stats = [
+  { value: '50K+', label: 'Messages rewritten', icon: <MessageSquare size={18} /> },
+  { value: '4.9★', label: 'User satisfaction', icon: <Star size={18} /> },
+  { value: '12+', label: 'Languages supported', icon: <Globe size={18} /> },
+  { value: '98%', label: 'Said it saved time', icon: <Zap size={18} /> },
+];
+
+const container = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.07 } },
+};
+const itemVariant = {
+  hidden: { opacity: 0, y: 22 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 200, damping: 22 } },
+};
 
 function PhoneDemo() {
   const [idx, setIdx] = useState(0);
   const ex = examples[idx];
 
   useEffect(() => {
-    const id = setInterval(() => setIdx((v) => (v + 1) % examples.length), 3600);
+    const id = setInterval(() => setIdx((v) => (v + 1) % examples.length), 3800);
     return () => clearInterval(id);
   }, []);
 
   return (
-    <div className="relative mx-auto max-w-sm">
-      <div className="absolute -left-8 bottom-8 hidden rotate-[-10deg] rounded-full border border-[#8b5cf6]/40 bg-[#8b5cf6]/10 px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-[#c4b5fd] backdrop-blur md:block">
+    <div className="relative mx-auto max-w-xs">
+      {/* Floating badge */}
+      <motion.div
+        animate={{ y: [0, -8, 0] }}
+        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute -left-10 bottom-12 hidden rotate-[-8deg] rounded-2xl border border-[#8b5cf6]/40 bg-[#8b5cf6]/15 px-4 py-3 text-center text-[9px] font-bold uppercase tracking-[0.18em] text-[#c4b5fd] backdrop-blur-xl md:block shadow-[0_8px_32px_-8px_rgba(124,92,255,0.4)]"
+      >
         private<br />beta<br />2026
-      </div>
-      <div className="rounded-[2.4rem] border border-white/10 bg-[#0e0e15] p-4 shadow-[0_45px_120px_-45px_rgba(124,92,255,0.95)] transition-transform duration-500 hover:-translate-y-1 hover:rotate-1">
-        <div className="mx-auto mb-4 h-1.5 w-16 rounded-full bg-white/15" />
-        <div className="mb-4 flex items-center gap-3 border-b border-white/10 pb-4">
-          <div className="relative h-9 w-9 rounded-full bg-gradient-to-br from-[#7c5cff] to-[#4aa8ff]">
-            <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-[#0e0e15] bg-emerald-400" />
+      </motion.div>
+
+      {/* Floating success badge */}
+      <motion.div
+        animate={{ y: [0, 6, 0] }}
+        transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+        className="absolute -right-8 top-8 hidden rotate-[6deg] rounded-2xl border border-emerald-500/30 bg-emerald-500/15 px-3 py-2 text-[10px] font-bold text-emerald-400 backdrop-blur-xl md:block shadow-[0_8px_24px_-8px_rgba(52,211,153,0.4)]"
+      >
+        ✓ Ready to send
+      </motion.div>
+
+      {/* Phone shell */}
+      <div className="rounded-[2.5rem] border border-white/12 bg-[#0a0a14] p-4 shadow-[0_50px_130px_-40px_rgba(124,92,255,1)]">
+        {/* Notch */}
+        <div className="mx-auto mb-4 h-1.5 w-14 rounded-full bg-white/15" />
+
+        {/* Chat header */}
+        <div className="mb-4 flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.04] p-3">
+          <div className="relative h-9 w-9 shrink-0 rounded-full bg-gradient-to-br from-[#7c5cff] to-[#4aa8ff] shadow-glow">
+            <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-[#0a0a14] bg-emerald-400" />
           </div>
-          <div>
-            <div className="text-sm font-bold text-white">{ex.who}</div>
-            <div className="text-xs text-muted">rewriting…</div>
+          <div className="flex-1 min-w-0">
+            <div className="truncate text-sm font-bold text-white">{ex.who}</div>
+            <div className="text-[10px] text-muted">banter is rewriting…</div>
           </div>
+          <span className="text-lg">{ex.emoji}</span>
         </div>
 
-        <motion.div key={`rough-${idx}`} initial={{ opacity: 0, x: 18 }} animate={{ opacity: 1, x: 0 }} className="ml-auto max-w-[86%] rounded-2xl rounded-br-md border border-white/10 bg-white/[0.06] p-3 text-sm text-white/80">
-          <p className="mb-2 text-[10px] uppercase tracking-[0.18em] text-muted">Rough</p>
-          <span className="line-through decoration-[#a78bfa] decoration-2">{ex.rough}</span>
-        </motion.div>
+        {/* Rough message (outgoing) */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`rough-${idx}`}
+            initial={{ opacity: 0, x: 16 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -16 }}
+            transition={{ duration: 0.3 }}
+            className="ml-auto max-w-[88%] rounded-2xl rounded-br-md border border-white/10 bg-white/[0.06] p-3 text-sm text-white/75"
+          >
+            <p className="mb-1.5 text-[9px] uppercase tracking-[0.18em] text-muted">Rough draft</p>
+            <span className="line-through decoration-[#a78bfa] decoration-2">{ex.rough}</span>
+          </motion.div>
+        </AnimatePresence>
 
-        <div className="my-4 flex items-center justify-between rounded-2xl border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 px-4 py-3">
-          <span className="text-xs font-semibold text-[#c4b5fd]">Tap to rewrite</span>
-          <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-[#a78bfa] to-[#4aa8ff] text-lg shadow-[0_0_35px_-10px_rgba(124,92,255,1)]">🪄</span>
+        {/* Magic wand button */}
+        <div className="my-3.5 flex items-center justify-between rounded-2xl border border-[#8b5cf6]/35 bg-[#8b5cf6]/12 px-3.5 py-2.5">
+          <span className="text-xs font-semibold text-[#c4b5fd]">Tap to rewrite ✦</span>
+          <motion.span
+            animate={{ rotate: [0, 15, -10, 0], scale: [1, 1.15, 1] }}
+            transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 1 }}
+            className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[#a78bfa] to-[#4aa8ff] text-base shadow-[0_0_30px_-8px_rgba(124,92,255,1)]"
+          >
+            🪄
+          </motion.span>
         </div>
 
-        <motion.div key={`better-${idx}`} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="max-w-[92%] rounded-2xl rounded-bl-md border border-[#4aa8ff]/30 bg-[#4aa8ff]/10 p-3 text-sm leading-relaxed text-white/90">
-          <p className="mb-2 text-[10px] uppercase tracking-[0.18em] text-[#9fd0ff]">After</p>
-          {ex.better}
-        </motion.div>
+        {/* Rewritten message (incoming) */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`better-${idx}`}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.35, delay: 0.1 }}
+            className="max-w-[92%] rounded-2xl rounded-bl-md border border-[#4aa8ff]/30 bg-[#4aa8ff]/10 p-3 text-sm leading-relaxed text-white/92"
+          >
+            <p className="mb-1.5 text-[9px] uppercase tracking-[0.18em] text-[#9fd0ff]">Banter ✦</p>
+            {ex.better}
+          </motion.div>
+        </AnimatePresence>
 
-        <div className="mt-5 grid grid-cols-10 gap-1.5">
-          {'qwertyuiopasdfghjklzxcvbnm'.slice(0, 30).split('').map((k, i) => (
-            <span key={`${k}-${i}`} className="h-6 rounded-md bg-white/[0.06]" />
+        {/* Mock keyboard */}
+        <div className="mt-4 grid grid-cols-10 gap-1">
+          {'qwertyuiopasdfghjklzxcvbnm'.slice(0, 20).split('').map((k, i) => (
+            <motion.span
+              key={`${k}-${i}`}
+              whileHover={{ scale: 1.2, background: 'rgba(124,92,255,0.2)' }}
+              className="h-5 rounded-md bg-white/[0.06] cursor-pointer transition-colors"
+            />
           ))}
         </div>
-        <div className="mt-2 flex gap-1.5">
-          <span className="grid h-9 w-14 place-items-center rounded-lg bg-white/[0.07] text-[10px]">123</span>
-          <span className="grid h-9 flex-1 place-items-center rounded-lg bg-white/[0.07] text-[10px] tracking-[0.25em] text-white/35">SPACE</span>
-          <span className="grid h-9 w-14 place-items-center rounded-lg bg-white/[0.07] text-sm">↵</span>
+        <div className="mt-1.5 flex gap-1">
+          <span className="grid h-8 w-12 place-items-center rounded-lg bg-white/[0.07] text-[9px] text-white/50">123</span>
+          <span className="grid h-8 flex-1 place-items-center rounded-lg bg-white/[0.07] text-[9px] tracking-[0.2em] text-white/30">SPACE</span>
+          <span className="grid h-8 w-12 place-items-center rounded-lg bg-white/[0.07] text-sm text-white/70">↵</span>
         </div>
-        <div className="mt-4 flex justify-center gap-1.5">
-          {examples.map((_, i) => <span key={i} className={`h-1 rounded-full transition-all ${i === idx ? 'w-7 bg-[#a78bfa]' : 'w-4 bg-white/20'}`} />)}
+
+        {/* Pagination dots */}
+        <div className="mt-3 flex justify-center gap-1.5">
+          {examples.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setIdx(i)}
+              className={`h-1 rounded-full transition-all duration-300 ${i === idx ? 'w-6 bg-[#a78bfa]' : 'w-3 bg-white/20 hover:bg-white/40'}`}
+            />
+          ))}
         </div>
       </div>
     </div>
   );
 }
 
-function ReelDemo() {
-  const [playing, setPlaying] = useState(false);
-  useEffect(() => {
-    const id = setInterval(() => setPlaying(true), 4500);
-    return () => clearInterval(id);
-  }, []);
+function ScrollIndicator() {
   return (
-    <section className="mx-auto max-w-7xl px-5 py-16">
-      <div className="mb-8 max-w-2xl">
-        <p className="kicker">Watch it happen</p>
-        <h2 className="mt-3 text-5xl font-black tracking-[-0.05em] text-white">A rewrite in six seconds.</h2>
-        <p className="mt-3 text-muted">This is the motion users should understand instantly: rough thought, magic tap, sendable reply.</p>
-      </div>
-      <div onClick={() => setPlaying(true)} className="premium-card relative min-h-[360px] cursor-pointer overflow-hidden rounded-[2.5rem] p-8">
-        <span className="absolute left-6 top-6 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#c4b5fd]"><span className="h-2 w-2 rounded-full bg-emerald-400" /> Live demo</span>
-        <div className="grid min-h-[300px] place-items-center">
-          <div className="flex flex-col items-center gap-5 md:flex-row">
-            <motion.div animate={playing ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0.45, y: 18, scale: 0.96 }} className="max-w-xs rounded-3xl border border-white/10 bg-white/[0.06] p-5 text-white/75">
-              hey sry i missed ur call was slammed
-            </motion.div>
-            <motion.div animate={playing ? { opacity: 1, x: 0 } : { opacity: 0, x: -12 }} transition={{ delay: 0.45 }} className="text-[#a78bfa]"><ArrowRight /></motion.div>
-            <motion.div animate={playing ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 18, scale: 0.96 }} transition={{ delay: 0.75 }} className="max-w-sm rounded-3xl border border-[#4aa8ff]/30 bg-[#4aa8ff]/10 p-5 text-white">
-              Sorry I missed your call — work has been non-stop. Can I call you back tonight?
-            </motion.div>
-          </div>
-        </div>
-        {!playing && <div className="absolute inset-0 grid place-items-center bg-black/35 backdrop-blur-sm"><span className="grid h-20 w-20 place-items-center rounded-full bg-[#a78bfa] text-ink shadow-glow"><Play fill="currentColor" /></span></div>}
-      </div>
-    </section>
+    <motion.div
+      animate={{ y: [0, 8, 0] }}
+      transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+      className="flex flex-col items-center gap-1 text-xs text-muted"
+    >
+      <span>Scroll to explore</span>
+      <ChevronDown size={16} />
+    </motion.div>
   );
 }
 
-function Testimonials() {
-  const testimonials = [
-    ['Work mail', 'Turned my rough note into a mail I could send without rereading ten times.'],
-    ['Hinglish', 'It understood kkrh and replied like a real chat, not formal Hindi.'],
-    ['Apology', 'It changed “sorry busy” into something that actually sounded honest.'],
-    ['Keyboard', 'Using it inside WhatsApp feels different from opening another AI app.'],
-  ];
-  return (
-    <section className="mx-auto max-w-7xl px-5 py-16">
-      <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
-        <div><p className="kicker">Beta feedback</p><h2 className="mt-3 text-5xl font-black tracking-[-0.05em] text-white">What testers notice first.</h2></div>
-        <Link href="/dashboard/feedback" className="btn-ghost rounded-full">Send feedback</Link>
-      </div>
-      <div className="flex snap-x gap-4 overflow-x-auto pb-4">
-        {testimonials.map(([label, quote], i) => (
-          <motion.div key={label} whileHover={{ y: -5 }} className="premium-card min-w-[290px] snap-start rounded-[2rem] p-6">
-            <div className="mb-4 flex gap-1 text-[#a78bfa]">★★★★★</div>
-            <p className="text-base leading-relaxed text-white/85">“{quote}”</p>
-            <div className="mt-6 inline-flex rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-[#9fd0ff]">{label}</div>
-          </motion.div>
-        ))}
-      </div>
-    </section>
-  );
-}
+export function Landing() {
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, 60]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
-export function Landing({ plans, country, currency }: { plans: Plan[]; country: string; currency: string }) {
   return (
     <div className="premium-shell flex min-h-screen flex-col overflow-hidden">
       <CursorEffects />
-      <motion.header initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="sticky top-0 z-30 border-b border-white/5 bg-ink/70 backdrop-blur-2xl">
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-5 py-3">
-          <Logo />
-          <nav className="hidden items-center gap-6 text-sm text-white/70 lg:flex">
-            <Link href="/keyboard" className="hover:text-white">Keyboard</Link>
-            <Link href="/examples" className="hover:text-white">Examples</Link>
-            <Link href="/dashboard/upgrade" className="hover:text-white">Pricing</Link>
-            <Link href="/privacy" className="hover:text-white">Privacy</Link>
-            <Link href="/support" className="hover:text-white">Support</Link>
+
+      {/* ===== NAVBAR ===== */}
+      <motion.header
+        initial={{ y: -60, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="sticky top-0 z-50 border-b border-white/8 bg-[#0b0b12]/80 backdrop-blur-2xl"
+      >
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3.5">
+          <Link href="/">
+            <Logo />
+          </Link>
+
+          <nav className="hidden items-center gap-6 text-sm text-white/65 md:flex">
+            {[
+              { to: '/examples', label: 'Examples' },
+              { to: '/methods', label: 'How it works' },
+              { to: '/keyboard', label: 'Keyboard' },
+              { to: '/articles', label: 'Articles' },
+            ].map((l) => (
+              <Link
+                key={l.to}
+                href={l.to}
+                className="hover:text-white transition-colors duration-200 relative group"
+              >
+                {l.label}
+                <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-gradient-to-r from-[#7c5cff] to-[#4aa8ff] transition-all duration-300 group-hover:w-full" />
+              </Link>
+            ))}
           </nav>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <LanguagePicker />
-            <Link href="/dashboard" className="hidden items-center gap-2 rounded-full border border-white/12 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-white/85 hover:bg-white/10 sm:inline-flex"><Grid3X3 size={15} /> Open Banter</Link>
-            <Link href="/keyboard" className="btn-plus rounded-full">Try beta</Link>
+
+          <div className="flex items-center gap-2.5">
+            <Link href="/login" className="btn btn-ghost hidden rounded-full px-4 py-2 text-sm sm:inline-flex">
+              Log in
+            </Link>
+            <Link href="/signup" className="btn btn-premium rounded-full px-5 py-2.5 text-sm">
+              <Sparkles size={14} />
+              Try free
+            </Link>
           </div>
         </div>
       </motion.header>
 
-      <main className="flex-1">
-        <motion.section variants={container} initial="hidden" animate="show" className="relative mx-auto grid min-h-[780px] max-w-7xl items-center gap-14 px-5 py-16 lg:grid-cols-[0.98fr_1.02fr] lg:py-24">
-          <div className="absolute left-1/2 top-10 -z-10 h-[560px] w-[560px] -translate-x-1/2 rounded-full bg-[#7c5cff]/20 blur-[130px]" />
-          <div className="absolute right-0 top-28 -z-10 h-[380px] w-[380px] rounded-full bg-[#4aa8ff]/20 blur-[110px]" />
+      {/* ===== HERO ===== */}
+      <section ref={heroRef} className="relative flex min-h-[95vh] flex-col items-center justify-center overflow-hidden px-5 pt-16 pb-24 text-center">
+        {/* Background orbs */}
+        <div className="orb h-[500px] w-[500px] bg-[#7c5cff]/20 -top-20 -left-40" style={{ animationDelay: '0s' }} />
+        <div className="orb h-[400px] w-[400px] bg-[#4aa8ff]/15 top-1/3 -right-32" style={{ animationDelay: '4s' }} />
+        <div className="orb h-[350px] w-[350px] bg-[#e9c46a]/10 bottom-10 left-1/3" style={{ animationDelay: '8s' }} />
 
-          <div>
-            <motion.div variants={item} className="mb-6 inline-flex items-center gap-3 rounded-full border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 px-4 py-2">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(52,211,153,.9)]" />
-              <span className="font-mono text-xs uppercase tracking-[0.22em] text-[#c4b5fd]">Android beta • limited testers</span>
-            </motion.div>
-            <motion.h1 variants={item} className="headline-balance max-w-4xl text-6xl font-black leading-[0.9] tracking-[-0.065em] text-white sm:text-7xl lg:text-8xl">
-              For the message
-              <span className="block bg-gradient-to-r from-[#c4b5fd] via-[#a78bfa] to-[#4aa8ff] bg-clip-text text-transparent">you almost didn’t send.</span>
-            </motion.h1>
-            <motion.p variants={item} className="mt-8 max-w-xl text-lg leading-relaxed text-white/72 sm:text-xl">
-              Type rough. Tap 🪄. Banter rewrites awkward texts, apologies, DMs and work mail into something you’ll actually hit send on.
-            </motion.p>
-            <motion.div variants={item} className="mt-9 flex flex-wrap gap-3">
-              <Link href="/keyboard" className="btn-plus rounded-full px-6 py-3 text-base">Try keyboard beta <ArrowRight size={17} /></Link>
-              <Link href="/examples" className="btn-ghost rounded-full px-6 py-3 text-base">See examples</Link>
-            </motion.div>
-            <motion.div variants={item} className="mt-8 flex flex-wrap gap-3 text-xs text-muted">
-              <span className="chip"><ShieldCheck size={13} /> Sends only when you tap 🪄</span>
-              <span className="chip"><Zap size={13} /> Works inside WhatsApp</span>
-              <span className="chip"><Keyboard size={13} /> Beta spots limited</span>
-            </motion.div>
-          </div>
+        <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 mx-auto max-w-5xl">
+          {/* Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#7c5cff]/40 bg-[#7c5cff]/12 px-4 py-2 text-xs font-semibold text-[#c4b5fd] shadow-[0_0_30px_-10px_rgba(124,92,255,0.6)]"
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            Private Beta · 2026 · Free to start
+            <ArrowRight size={12} />
+          </motion.div>
 
-          <motion.div variants={item} className="relative"><PhoneDemo /></motion.div>
-        </motion.section>
+          {/* Headline */}
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="text-5xl font-black leading-[0.92] tracking-[-0.055em] text-white sm:text-6xl md:text-7xl lg:text-8xl"
+          >
+            Say the right thing
+            <br />
+            <span className="gradient-text">to the right person.</span>
+          </motion.h1>
 
-        <div className="border-y border-white/10 bg-white/[0.015] py-4">
-          <div className="flex animate-[marquee_24s_linear_infinite] gap-12 whitespace-nowrap text-sm text-muted">
-            {[...tags, ...tags].map((t, i) => <span key={`${t}-${i}`} className="inline-flex items-center gap-2"><Sparkles size={12} className="text-[#a78bfa]" />{t}</span>)}
-          </div>
-        </div>
+          {/* Sub */}
+          <motion.p
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.35 }}
+            className="mt-6 max-w-2xl mx-auto text-lg leading-relaxed text-muted sm:text-xl"
+          >
+            Banter rewrites your rough drafts into ready-to-send messages — for flirting, apologizing, pitching, or just checking in. In seconds.
+          </motion.p>
 
-        <section id="examples" className="mx-auto max-w-7xl px-5 py-20">
-          <div className="mb-10 max-w-2xl">
-            <p className="kicker">See the shift</p>
-            <h2 className="mt-3 text-5xl font-black tracking-[-0.05em] text-white">Rough becomes sendable.</h2>
-            <p className="mt-3 text-muted">People don’t need more typing. They need the right first draft at the right moment.</p>
-          </div>
-          <div className="grid gap-5 md:grid-cols-2">
-            {examples.map((ex) => (
-              <motion.div key={ex.who} whileHover={{ y: -4 }} className="premium-card rounded-[2rem] p-5">
-                <p className="kicker">{ex.who}</p>
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-red-300/20 bg-red-400/5 p-4"><p className="text-xs uppercase tracking-[0.18em] text-red-200">Before</p><p className="mt-2 text-sm text-white/85">{ex.rough}</p></div>
-                  <div className="rounded-2xl border border-[#4aa8ff]/25 bg-[#4aa8ff]/10 p-4"><p className="text-xs uppercase tracking-[0.18em] text-[#9fd0ff]">After 🪄</p><p className="mt-2 text-sm leading-relaxed text-white/85">{ex.better}</p></div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
+          {/* Tags marquee */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.45 }}
+            className="mt-6 overflow-hidden"
+          >
+            <div className="flex gap-2" style={{ width: 'max-content', animation: 'marquee 28s linear infinite' }}>
+              {[...tags, ...tags].map((tag, i) => (
+                <span key={i} className="chip shrink-0">✦ {tag}</span>
+              ))}
+            </div>
+          </motion.div>
 
-        <section className="mx-auto max-w-7xl px-5 py-16">
-          <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
-            <motion.div whileHover={{ y: -4 }} className="premium-card rounded-[2rem] p-8">
-              <MessageCircle className="mb-8 text-[#c4b5fd]" size={36} />
-              <h3 className="text-4xl font-black tracking-[-0.04em] text-white">Built for how you actually talk.</h3>
-              <p className="mt-4 max-w-xl leading-relaxed text-muted">Late replies, dry texts, apologies, Hinglish and work mail — different moments need different registers.</p>
-            </motion.div>
-            <div className="grid gap-5">
+          {/* CTA buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.55 }}
+            className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center"
+          >
+            <Link href="/signup" className="btn btn-premium rounded-full px-8 py-4 text-base shadow-[0_20px_60px_-15px_rgba(124,92,255,0.8)] animate-pulse-brand">
+              <Sparkles size={18} />
+              Start for free
+              <ArrowRight size={16} />
+            </Link>
+            <Link href="/examples" className="btn btn-ghost rounded-full px-6 py-4 text-base">
+              See examples
+            </Link>
+          </motion.div>
+
+          {/* Social proof */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7 }}
+            className="mt-8 flex items-center justify-center gap-6 text-sm text-muted"
+          >
+            <span className="flex items-center gap-1.5"><Check size={14} className="text-emerald-400" /> Free forever plan</span>
+            <span className="flex items-center gap-1.5"><Check size={14} className="text-emerald-400" /> No credit card</span>
+            <span className="flex items-center gap-1.5"><Check size={14} className="text-emerald-400" /> Works instantly</span>
+          </motion.div>
+        </motion.div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        >
+          <ScrollIndicator />
+        </motion.div>
+      </section>
+
+      {/* ===== PHONE DEMO ===== */}
+      <section className="relative mx-auto max-w-7xl px-5 py-24">
+        <div className="grid items-center gap-16 lg:grid-cols-2">
+          {/* Left text */}
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <p className="kicker">How it works</p>
+            <h2 className="mt-3 text-4xl font-black leading-[0.95] tracking-[-0.045em] text-white sm:text-5xl">
+              Rough thought.
+              <br />
+              <span className="gradient-text">Magic tap.</span>
+              <br />
+              Sendable reply.
+            </h2>
+            <p className="mt-5 text-lg leading-relaxed text-muted">
+              Type what you actually mean — even if it's messy. Banter reads the relationship, the vibe, and the context, then gives you something you'd actually want to send.
+            </p>
+            <div className="mt-8 space-y-4">
               {[
-                [<Briefcase key="b" />, 'Professional mail', 'Turn rushed notes into clear updates and polite clarifications — no emoji by default.'],
-                [<Lock key="l" />, 'Built for trust', 'Text is sent only when you tap 🪄. Private fields are protected. Devices can be revoked.'],
-              ].map(([icon, title, body]) => (
-                <motion.div key={String(title)} whileHover={{ y: -4 }} className="premium-card rounded-[2rem] p-7">
-                  <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#8b5cf6]/10 text-[#c4b5fd]">{icon}</div>
-                  <h3 className="text-2xl font-bold text-white">{title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-muted">{body}</p>
+                { icon: <Wand2 size={18} />, title: 'Paste your rough draft', desc: 'Just type what you mean, no polish needed.' },
+                { icon: <Layers size={18} />, title: 'Pick the relationship & tone', desc: 'Crush, coworker, parent, stranger — it adapts.' },
+                { icon: <Send size={18} />, title: 'Copy & send in seconds', desc: 'Ready-to-send, every time.' },
+              ].map((step, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="flex items-start gap-4 rounded-2xl border border-white/8 bg-white/[0.03] p-4 hover:border-[#7c5cff]/30 hover:bg-[#7c5cff]/5 transition-all duration-300"
+                >
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#7c5cff]/30 to-[#4aa8ff]/20 text-[#a78bfa]">
+                    {step.icon}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-white">{step.title}</p>
+                    <p className="text-sm text-muted">{step.desc}</p>
+                  </div>
                 </motion.div>
               ))}
             </div>
+          </motion.div>
+
+          {/* Right phone */}
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <PhoneDemo />
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ===== STATS ===== */}
+      <section className="relative py-20 border-y border-white/8">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#7c5cff]/5 to-transparent pointer-events-none" />
+        <motion.div
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="mx-auto grid max-w-4xl grid-cols-2 gap-6 px-5 lg:grid-cols-4"
+        >
+          {stats.map((s, i) => (
+            <motion.div
+              key={i}
+              variants={itemVariant}
+              className="group premium-card flex flex-col items-center gap-2 p-6 text-center cursor-default"
+            >
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#7c5cff]/20 text-[#a78bfa] group-hover:bg-[#7c5cff]/35 transition-colors duration-300">
+                {s.icon}
+              </div>
+              <div className="text-3xl font-black gradient-text">{s.value}</div>
+              <div className="text-sm text-muted">{s.label}</div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
+
+      {/* ===== FEATURES ===== */}
+      <section className="mx-auto max-w-7xl px-5 py-24">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-16 text-center"
+        >
+          <p className="kicker">Everything you need</p>
+          <h2 className="mt-3 text-4xl font-black tracking-[-0.045em] text-white sm:text-5xl">
+            Built for real <span className="gradient-text">conversations</span>
+          </h2>
+          <p className="mt-4 text-muted max-w-xl mx-auto">Not just AI completions. Banter understands context, relationships, and tone — so you always sound like the best version of yourself.</p>
+        </motion.div>
+
+        <motion.div
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          {features.map((f, i) => (
+            <motion.div
+              key={i}
+              variants={itemVariant}
+              whileHover={{ y: -6, transition: { type: 'spring', stiffness: 300 } }}
+              className="group premium-card card-hover p-6 cursor-default"
+            >
+              <div
+                className="mb-4 grid h-12 w-12 place-items-center rounded-2xl transition-transform duration-300 group-hover:scale-110"
+                style={{ background: `${f.color}22`, color: f.color }}
+              >
+                {f.icon}
+              </div>
+              <h3 className="mb-2 font-bold text-white">{f.title}</h3>
+              <p className="text-sm leading-relaxed text-muted">{f.desc}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
+
+      {/* ===== MODES SECTION ===== */}
+      <section className="relative overflow-hidden py-24 border-y border-white/8">
+        <div className="orb h-[400px] w-[400px] bg-[#4aa8ff]/12 -top-20 right-0 pointer-events-none" />
+        <div className="mx-auto max-w-7xl px-5">
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <p className="kicker">Two modes, one app</p>
+              <h2 className="mt-3 text-4xl font-black tracking-[-0.045em] text-white sm:text-5xl">
+                Personal or <span className="gradient-text">Professional</span>
+              </h2>
+              <p className="mt-4 text-lg text-muted leading-relaxed">
+                Switch between Personal mode for your social life — and Works mode for emails, marketing copy, and professional writing.
+              </p>
+            </motion.div>
+
+            <motion.div
+              variants={container}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+              className="grid gap-4"
+            >
+              {[
+                { icon: <Heart size={20} />, mode: 'Personal', color: '#a78bfa', desc: 'For partners, friends, family, crushes, apologies, invites, and everyday chats.', badge: 'Free' },
+                { icon: <Briefcase size={20} />, mode: 'Professional (Works)', color: '#4aa8ff', desc: 'For emails, follow-ups, notices, social posts, pitches, and marketing copy.', badge: 'Plus' },
+              ].map((m, i) => (
+                <motion.div
+                  key={i}
+                  variants={itemVariant}
+                  className="premium-card card-hover flex items-start gap-4 p-5 cursor-default"
+                >
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl" style={{ background: `${m.color}25`, color: m.color }}>
+                    {m.icon}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-bold text-white">{m.mode}</h3>
+                      <span className={i === 0 ? 'badge-plus' : 'badge-pro'}>{m.badge}</span>
+                    </div>
+                    <p className="text-sm text-muted">{m.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <ReelDemo />
-        <Testimonials />
-
-        <section className="mx-auto max-w-7xl px-5 py-16">
-          <div className="premium-card relative overflow-hidden rounded-[2.5rem] p-8 sm:p-12">
-            <div className="absolute right-0 top-0 h-72 w-72 rounded-full bg-[#7c5cff]/20 blur-3xl" />
-            <div className="relative grid gap-8 lg:grid-cols-[1fr_0.9fr] lg:items-center">
-              <div>
-                <p className="kicker">Private beta</p>
-                <h2 className="mt-3 text-5xl font-black tracking-[-0.05em] text-white">Testing with real Android users.</h2>
-                <p className="mt-4 max-w-xl text-muted">Beta access is limited while we collect bugs, language examples, and keyboard feedback.</p>
-              </div>
-              <div className="rounded-3xl border border-white/10 bg-black/25 p-5">
-                <ul className="space-y-3 text-sm text-white/80">
-                  <li className="flex gap-2"><Check className="mt-0.5 text-emerald-300" size={16} /> Download after login</li>
-                  <li className="flex gap-2"><Check className="mt-0.5 text-emerald-300" size={16} /> Android APK beta</li>
-                  <li className="flex gap-2"><Check className="mt-0.5 text-emerald-300" size={16} /> Feedback needed from testers</li>
-                </ul>
-                <Link href="/keyboard" className="btn-plus mt-6 w-full rounded-full">Get beta instructions</Link>
-              </div>
+      {/* ===== CTA SECTION ===== */}
+      <section className="relative overflow-hidden px-5 py-28">
+        <div className="orb h-[600px] w-[600px] bg-[#7c5cff]/20 -top-32 left-1/2 -translate-x-1/2 pointer-events-none" />
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+          className="relative mx-auto max-w-3xl text-center"
+        >
+          <div className="aurora-card p-12">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+              className="mx-auto mb-6 grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-[#7c5cff] to-[#4aa8ff] shadow-[0_0_60px_-10px_rgba(124,92,255,0.9)]"
+            >
+              <WandSparkles size={28} className="text-white" />
+            </motion.div>
+            <h2 className="text-4xl font-black tracking-[-0.045em] text-white sm:text-5xl">
+              Start communicating <span className="gradient-text">better</span>
+            </h2>
+            <p className="mt-4 text-lg text-muted max-w-lg mx-auto">
+              Free forever. No credit card. Works instantly.
+            </p>
+            <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+              <Link href="/signup" className="btn btn-premium rounded-full px-10 py-4 text-base shadow-[0_20px_60px_-15px_rgba(124,92,255,0.9)] animate-pulse-brand">
+                <Sparkles size={18} />
+                Get started free
+                <ArrowRight size={16} />
+              </Link>
+              <Link href="/dashboard/upgrade" className="btn btn-ghost rounded-full px-6 py-4 text-base">
+                View pricing
+              </Link>
+            </div>
+            <div className="mt-6 flex items-center justify-center gap-4 text-xs text-muted">
+              <span className="flex items-center gap-1"><Lock size={11} /> End-to-end secure</span>
+              <span className="flex items-center gap-1"><ShieldCheck size={11} /> Privacy first</span>
+              <span className="flex items-center gap-1"><Users size={11} /> 50K+ users</span>
             </div>
           </div>
-        </section>
+        </motion.div>
+      </section>
 
-        <section id="pricing" className="mx-auto max-w-7xl px-5 py-16">
-          <div className="mb-8 max-w-3xl">
-            <p className="kicker">Pricing</p>
-            <h2 className="mt-3 text-5xl font-black tracking-[-0.05em] text-white">Start free. Upgrade when it becomes a habit.</h2>
-            <p className="mt-3 text-muted">Prices shown for <span className="text-white/90">{country}</span> in {currency}. Simple plans while Banter is still early.</p>
-          </div>
-          <div className="grid gap-5 lg:grid-cols-3">
-            {plans.map((t) => (
-              <motion.div key={t.key} whileHover={{ y: -5 }} className={`rounded-[2rem] border p-6 ${t.key === 'plus' ? 'border-[#4aa8ff]/60 bg-gradient-to-b from-[#173456] to-[#111827] shadow-[0_30px_80px_-35px_rgba(74,168,255,0.9)]' : 'border-white/10 bg-white/[0.045]'}`}>
-                <div className="flex items-center justify-between"><h3 className="text-2xl font-bold text-white">{t.name}</h3>{t.key === 'plus' && <span className="badge-plus">Most popular</span>}{t.key === 'pro' && <span className="badge-plus">Power</span>}</div>
-                <p className="mt-7 text-4xl font-black tracking-tight text-white">{t.price}</p>
-                <ul className="mt-6 space-y-3 text-sm text-white/78">{t.feats.map((f) => <li key={f} className="flex gap-2"><Check size={15} className="mt-0.5 text-emerald-300" />{f}</li>)}</ul>
-                <Link href="/dashboard/upgrade" className={`${t.key === 'plus' ? 'btn-plus' : 'btn-ghost'} mt-8 w-full rounded-full`}>{t.key === 'free' ? 'Start free' : `Upgrade to ${t.name}`}</Link>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-
-        <section className="mx-auto max-w-7xl px-5 pb-24 pt-12">
-          <div className="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-gradient-to-br from-[#25145a] to-white/[0.04] p-10 text-center shadow-[0_40px_120px_-60px_rgba(124,92,255,0.9)]">
-            <WandSparkles className="mx-auto mb-5 text-[#c4b5fd]" size={34} />
-            <h2 className="text-5xl font-black tracking-[-0.05em] text-white">Stop letting the reply sit there.</h2>
-            <p className="mx-auto mt-4 max-w-xl text-muted">Open the beta page, install the keyboard, and test it on one message you almost didn’t send.</p>
-            <Link href="/keyboard" className="btn-plus mt-8 rounded-full px-7 py-3 text-base">Try keyboard beta <ArrowRight size={17} /></Link>
-          </div>
-        </section>
-      </main>
       <Footer />
     </div>
   );

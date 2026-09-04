@@ -1,55 +1,66 @@
-import Link from 'next/link';
+'use client';
+import { motion } from 'framer-motion';
 import { InfoPageShell } from '@/components/InfoPageShell';
-import { ShieldCheck, Keyboard, Trash2, Smartphone } from 'lucide-react';
+import { Shield, Lock, Eye, Database, Trash2 } from 'lucide-react';
+
+const sections = [
+  {
+    icon: <Eye size={20} />,
+    title: 'What we collect',
+    content: 'We collect your email address for authentication, message inputs when you use Banter (temporarily), and basic usage analytics. We do not collect financial data — payments are handled by Stripe.',
+  },
+  {
+    icon: <Database size={20} />,
+    title: 'How we store your data',
+    content: 'All data is encrypted at rest using AES-256. Sessions use secure, httpOnly cookies. We use Turso (libSQL) for data storage with strict access controls.',
+  },
+  {
+    icon: <Lock size={20} />,
+    title: 'Third-party sharing',
+    content: 'Message content is sent to our AI provider (Groq, OpenAI, or Anthropic) for generation only. We do not sell, rent, or share your personal data with any third party for marketing.',
+  },
+  {
+    icon: <Shield size={20} />,
+    title: 'Your rights',
+    content: 'You can request a copy of your data, correct inaccuracies, or delete your account at any time from Settings. We honor GDPR and CCPA rights for all users.',
+  },
+  {
+    icon: <Trash2 size={20} />,
+    title: 'Data deletion',
+    content: 'When you delete your account, all personal data including messages, history, saved items, and sessions are permanently deleted within 7 days. Backups are purged within 30 days.',
+  },
+];
 
 export default function PrivacyPage() {
   return (
     <InfoPageShell
-      eyebrow="Privacy"
-      title="Your words should stay yours."
-      description="Banter is built around a simple rule: help you write better without secretly collecting everything you type."
+      eyebrow="Legal · Privacy"
+      title="Your privacy matters."
+      description="Banter is built on the principle that your conversations are yours. Here's exactly what we do — and don't do — with your data."
     >
-      <section className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-3xl border border-white/10 bg-white/[0.045] p-6">
-          <Keyboard className="mb-4 text-[#9fd0ff]" />
-          <h2 className="text-2xl font-bold text-white">Keyboard privacy</h2>
-          <p className="mt-3 leading-relaxed text-muted">
-            Banter Keyboard sends text only when you tap 🪄. It does not upload every keystroke in the background.
-          </p>
-        </div>
-        <div className="rounded-3xl border border-white/10 bg-white/[0.045] p-6">
-          <ShieldCheck className="mb-4 text-emerald-300" />
-          <h2 className="text-2xl font-bold text-white">Private fields protected</h2>
-          <p className="mt-3 leading-relaxed text-muted">
-            Banter disables magic suggestions in password/private fields where Android marks the input as sensitive.
-          </p>
-        </div>
-      </section>
+      <div className="grid gap-4 sm:grid-cols-2">
+        {sections.map((s, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.07 }}
+            className="premium-card card-hover p-6"
+          >
+            <div className="mb-4 grid h-10 w-10 place-items-center rounded-xl bg-[#7c5cff]/20 text-[#a78bfa]">
+              {s.icon}
+            </div>
+            <h3 className="mb-2 font-bold text-white">{s.title}</h3>
+            <p className="text-sm leading-relaxed text-muted">{s.content}</p>
+          </motion.div>
+        ))}
+      </div>
 
-      <section className="rounded-3xl border border-white/10 bg-white/[0.045] p-6">
-        <h2 className="text-2xl font-bold text-white">What Banter uses</h2>
-        <ul className="mt-4 space-y-3 text-muted">
-          <li>• Your account email for login.</li>
-          <li>• Your current text only when you tap 🪄.</li>
-          <li>• Generated messages, saved securely for history if your plan allows it.</li>
-          <li>• Security events such as login attempts and keyboard token use, with hashed IPs.</li>
-        </ul>
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-3xl border border-white/10 bg-white/[0.045] p-6">
-          <Smartphone className="mb-4 text-brand-soft" />
-          <h2 className="text-2xl font-bold text-white">Device control</h2>
-          <p className="mt-3 text-muted">You can revoke Android keyboard access anytime from dashboard settings.</p>
-          <Link href="/dashboard/settings" className="btn-plus mt-5 rounded-full">Manage devices</Link>
-        </div>
-        <div className="rounded-3xl border border-red-400/20 bg-red-400/5 p-6">
-          <Trash2 className="mb-4 text-red-200" />
-          <h2 className="text-2xl font-bold text-white">Delete account</h2>
-          <p className="mt-3 text-muted">You can delete your Banter account, sessions, history, saved messages, and keyboard tokens.</p>
-          <Link href="/dashboard/settings" className="btn-ghost mt-5 rounded-full">Open settings</Link>
-        </div>
-      </section>
+      <div className="premium-card p-6 text-sm text-muted space-y-2">
+        <p className="font-semibold text-white">Contact & updates</p>
+        <p>Last updated: December 2025. For privacy inquiries, contact us via the Support page. We'll notify you of any material changes via email.</p>
+      </div>
     </InfoPageShell>
   );
 }
