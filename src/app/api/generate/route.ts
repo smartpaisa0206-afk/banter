@@ -3,6 +3,7 @@ import { getCurrentUser } from '@/lib/auth';
 import { generate, streamGenerate, relAccessible, toneAccessible, intentAccessible, intentById } from '@/lib/engine';
 import { canUseWorks } from '@/lib/plans';
 import { withinLimit, remainingFor, reserveGeneration, finalizeReservation, QuotaExceededError } from '@/lib/usage';
+import { recordToneUse } from '@/lib/toneStats';
 import { encryptText } from '@/lib/security';
 import { logSecurityEvent } from '@/lib/securityEvents';
 import { rateLimit } from '@/lib/rateLimit';
@@ -105,6 +106,7 @@ export async function POST(req: NextRequest) {
   if (!stream) {
     const output = await generate({ relationship, intent, tone, language, context, length, hurry });
     await finalizeReservation(reservationId, encryptText(JSON.stringify(output)));
+    await recordToneUse(user.id, tone);
     await logSecurityEvent({ req, userId: user.id, eventType: 'generate_success', source: 'web', success: true, metadata: { relationship, intent, tone, language, hurry: !!hurry } });
     const rem = await remainingFor(user.role, user.id);
     return NextResponse.json({ ...output, remaining: Number.isFinite(rem) ? rem : null });
@@ -133,6 +135,7 @@ export async function POST(req: NextRequest) {
         // Persist the result onto the reservation, then compute remaining.
         // The reservation row was already counted against the quota up front.
         await finalizeReservation(reservationId, encryptText(JSON.stringify(output)));
+        await recordToneUse(user.id, tone);
         await logSecurityEvent({ req, userId: user.id, eventType: 'generate_success', source: 'web', success: true, metadata: { relationship, intent, tone, language, stream: true, hurry: !!hurry } });
         const rem = await remainingFor(user.role, user.id);
         send('remaining', { remaining: Number.isFinite(rem) ? rem : null });

@@ -76,6 +76,7 @@ export function Composer() {
   const [relationship, setRelationship] = useState('partner');
   const [intent, setIntent] = useState('flirt');
   const [tone, setTone] = useState('warm');
+  const [topTones, setTopTones] = useState<{ tone: string; count: number }[]>([]);
   const [length, setLength] = useState<'short' | 'medium' | 'long'>('medium');
   const [hurry, setHurry] = useState(false);
   const [context, setContext] = useState('');
@@ -110,6 +111,12 @@ export function Composer() {
         if (d.user) {
           setRole(d.user.role);
           setRemaining(d.remaining);
+          if (Array.isArray(d.topTones)) setTopTones(d.topTones);
+          // Smart default: pre-select the user's most-used tone when their
+          // plan can access it; otherwise keep the standard default.
+          if (d.topTone && toneAccessible(d.topTone, d.user.role)) {
+            setTone(d.topTone);
+          }
         }
       })
       .catch(() => {});
@@ -433,6 +440,28 @@ export function Composer() {
         </div>
 
         <div>
+          {topTones.length > 0 && (
+            <div className="mb-2 flex flex-wrap items-center gap-2">
+              <span className="text-xs text-muted">Your top tones:</span>
+              {topTones.map(({ tone: tid, count }) => {
+                const tn = TONES.find((x) => x.id === tid);
+                if (!tn || !toneAccessible(tn.id, role || 'free')) return null;
+                const active = tone === tid;
+                return (
+                  <button
+                    key={tid}
+                    onClick={() => setTone(tid)}
+                    className={`rounded-full border px-3 py-1 text-xs transition-all ${active
+                      ? 'border-[#7c5cff]/60 bg-[#7c5cff]/20 text-white'
+                      : 'border-white/10 bg-white/[0.04] text-muted hover:border-[#7c5cff]/40 hover:text-white'
+                      }`}
+                  >
+                    {tn.label} <span className="opacity-60">· {count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
           <ChipSelect
             groups={[{ label: t('label_tone'), options: tones.map((tn) => ({ id: tn.id, label: tn.label })) }]}
             value={tone}

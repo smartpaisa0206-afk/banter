@@ -72,6 +72,19 @@ export async function migrate() {
   `);
   await db.run(sql`ALTER TABLE mobile_tokens ADD COLUMN last_used_at INTEGER;`).catch(() => {});
   await db.run(sql`ALTER TABLE mobile_tokens ADD COLUMN revoked_at INTEGER;`).catch(() => {});
+  // Email verification flag for VerifyNotice (additive; ignored if already present).
+  await db.run(sql`ALTER TABLE users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 0;`).catch(() => {});
+  // Tone-learning v1: per-user tone counts (additive; ignored if already present).
+  await db.run(sql`
+    CREATE TABLE IF NOT EXISTS user_tone_stats (
+      user_id TEXT NOT NULL,
+      tone TEXT NOT NULL,
+      count INTEGER NOT NULL DEFAULT 0,
+      updated_at INTEGER NOT NULL,
+      PRIMARY KEY (user_id, tone)
+    );
+  `);
+  await db.run(sql`CREATE INDEX IF NOT EXISTS tone_user_idx ON user_tone_stats (user_id);`);
   await db.run(sql`
     CREATE TABLE IF NOT EXISTS security_events (
       id TEXT PRIMARY KEY,

@@ -28,6 +28,6 @@ export async function POST(req: NextRequest) {
   }
 
   await db.update(otpCodes).set({ verified: true }).where(eq(otpCodes.email, user.email));
-  // emailVerified removed - schema does not have this column
+  await db.update(users).set({ emailVerified: true }).where(eq(users.id, user.id));
   return NextResponse.json({ ok: true });
 }
