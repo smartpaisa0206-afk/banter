@@ -89,7 +89,8 @@ export function PlanCards({ plans }: { plans: Plan[] }) {
 
       <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted">
         <span className="flex items-center gap-1.5"><Check size={12} className="text-emerald-400" /> No card for free plan</span>
-        <span className="flex items-center gap-1.5"><Check size={12} className="text-emerald-400" /> Cancel anytime later</span>
+        <span className="flex items-center gap-1.5"><Check size={12} className="text-emerald-400" /> Honest monthly pricing — no weekly traps</span>
+        <span className="flex items-center gap-1.5"><Check size={12} className="text-emerald-400" /> Cancel in one tap, no dark patterns</span>
         <span className="flex items-center gap-1.5"><Star size={12} className="text-[#e9c46a]" /> Beta pricing while testing</span>
       </div>
     </div>

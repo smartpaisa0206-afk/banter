@@ -268,7 +268,7 @@ export function Landing() {
             transition={{ duration: 0.6, delay: 0.35 }}
             className="mt-6 max-w-2xl mx-auto text-lg leading-relaxed text-muted sm:text-xl"
           >
-            Banter rewrites your rough drafts into ready-to-send messages — for flirting, apologizing, pitching, or just checking in. In seconds.
+            Banter rewrites your rough drafts into ready-to-send messages — for flirting, apologizing, pitching, or just checking in. Every relationship, not just dating. In seconds.
           </motion.p>
 
           {/* Tags marquee */}

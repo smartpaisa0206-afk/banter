@@ -352,10 +352,11 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="mt-4 flex items-center justify-center gap-4 text-xs text-muted"
+          className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-muted"
         >
           <span className="flex items-center gap-1"><Sparkles size={11} className="text-[#a78bfa]" /> Free forever plan</span>
           <span className="flex items-center gap-1"><Check size={11} className="text-emerald-400" /> No credit card</span>
+          <span className="flex items-center gap-1"><Lock size={11} className="text-[#4aa8ff]" /> Never trained on your messages</span>
         </motion.div>
       </motion.div>
     </div>
