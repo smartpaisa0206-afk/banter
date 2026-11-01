@@ -19,6 +19,19 @@ export async function GET(req: NextRequest) {
     return fail();
   }
 
+  // The deep-link target was embedded in the state token as base64url after
+  // the first dot. Re-validate it: only same-origin absolute paths allowed.
+  let dest = '/dashboard';
+  const dot = state.indexOf('.');
+  if (dot > 0) {
+    try {
+      const decoded = Buffer.from(state.slice(dot + 1), 'base64url').toString('utf8');
+      if (decoded.startsWith('/') && !decoded.startsWith('//')) dest = decoded;
+    } catch {
+      // ignore malformed state suffix — fall back to /dashboard
+    }
+  }
+
   const redirectUri = `${base}/api/auth/google/callback`;
   const profile = await exchangeGoogleCode(code, redirectUri);
   if (!profile?.email) return fail();
@@ -27,8 +40,15 @@ export async function GET(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for') || undefined;
   const token = await createSession(user.id, ip);
 
-  const res = NextResponse.redirect(`${base}/dashboard`);
+  const res = NextResponse.redirect(`${base}${dest}`);
   setSessionCookie(res, token);
-  res.cookies.set('banter_goog_state', '', { path: '/', maxAge: 0 });
+  // Clear the OAuth state cookie with the same flags it was set with.
+  res.cookies.set('banter_goog_state', '', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 0,
+  });
   return res;
 }

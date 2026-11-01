@@ -114,3 +114,45 @@ curl -s -X POST https://your-app.vercel.app/api/generate \
   `src/app/api/auth/login/route.ts`), so login works on the hosted HTTPS URL.
 - Free tier = 5 generations/day per user; the same rules apply on the host.
 - To change the LLM later, just edit the env vars and redeploy — no code change.
+
+## OpenRouter setup (recommended LLM provider)
+
+1. Create a key at https://openrouter.ai/keys (free tier available).
+2. Add these env vars (Vercel → Project → Settings → Environment Variables):
+   ```
+   LLM_PROVIDER=openrouter
+   OPENROUTER_API_KEY=sk-or-...
+   # Optional — this is already the default:
+   OPENROUTER_MODEL=openai/gpt-oss-20b:free
+   # Optional — override the API base URL (proxy/mirror):
+   # OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+   # Used for OpenRouter's HTTP-Referer header (falls back to your Vercel URL):
+   # APP_BASE_URL=https://your-app.vercel.app
+   ```
+3. Redeploy.
+
+**Switching models needs no code change** — set `OPENROUTER_MODEL` to any
+model id from https://openrouter.ai/models (e.g.
+`anthropic/claude-3.5-sonnet`, `meta-llama/llama-3.1-70b-instruct`) and
+redeploy. Both the web UI (streaming) and the mobile keyboard (non-streaming)
+use OpenRouter.
+
+**No key? No problem.** Without an LLM key the app serves smart local
+templates (`llmReady()` returns false and the engine falls back), so the
+free tier works out of the box. Set `LLM_PROVIDER=multi` to have the app
+try Groq → OpenRouter → Gemini in order.
+
+## Migrations at build time (best-effort)
+
+`postbuild` runs `tsx scripts/migrate.ts` during the Vercel build. That step
+is **best-effort by design**: if the Turso DB is unreachable at build time,
+the script logs a warning (`[migrate] skipped/failed — run npm run db:migrate
+manually`) and exits 0 so the build does not fail. If your tables are not
+created, run it manually against your DB:
+
+```
+DATABASE_URL=libsql://xxxx.turso.io DATABASE_AUTH_TOKEN=**** npm run db:migrate
+```
+
+For strict behavior (CI/dev — fail loudly on migration errors), use:
+`tsx scripts/migrate.ts --strict`.

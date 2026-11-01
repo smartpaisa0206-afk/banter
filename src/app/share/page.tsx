@@ -27,7 +27,7 @@ export default function ShareTarget() {
         <div className="rounded-xl border border-white/10 bg-black/30 p-4 text-left text-sm whitespace-pre-wrap">
           {text || '—'}
         </div>
-        <button onClick={() => router.push('/dashboard')} className="btn-premium w-full py-3">
+        <button onClick={() => router.push('/dashboard')} className="btn btn-premium w-full py-3">
           Open in Banter <ArrowRight size={16} />
         </button>
         <Link href="/dashboard" className="block text-xs text-muted hover:text-white">

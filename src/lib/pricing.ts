@@ -69,8 +69,9 @@ CUR.DEFAULT = { code: 'USD', symbol: '$', rate: 0.012 };
 function ctaFor(key: PlanKey, role?: string): string | null {
   if (role === 'admin') return null;
   if (role === 'free' && key === 'free') return 'Current';
+  // Stripe: STRIPE_BASIC_PRICE = Plus, STRIPE_PREMIUM_PRICE = Pro.
   if (role === 'basic' && key === 'plus') return 'Current';
-  if (role === 'premium' && key === 'plus') return 'Current';
+  if (role === 'premium' && key === 'pro') return 'Current';
   if (key === 'free') return null;
   return `Upgrade to ${BASE[key].name}`;
 }

@@ -1,13 +1,20 @@
 'use client';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trash2 } from 'lucide-react';
 
 export function SavedItem({ id, title, content }: { id: string; title: string | null; content: string }) {
   const router = useRouter();
+  const [error, setError] = useState('');
   async function del() {
     if (!confirm('Delete this saved message?')) return;
-    await fetch(`/api/saved/${id}`, { method: 'DELETE' });
-    router.refresh();
+    setError('');
+    const res = await fetch(`/api/saved/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      router.refresh();
+    } else {
+      setError('Could not delete this message. Please try again.');
+    }
   }
   return (
     <div className="card space-y-2 p-4">
@@ -18,6 +25,7 @@ export function SavedItem({ id, title, content }: { id: string; title: string | 
         </button>
       </div>
       {title && <p className="text-xs text-muted">{title}</p>}
+      {error && <p className="text-xs text-red-300">{error}</p>}
     </div>
   );
 }

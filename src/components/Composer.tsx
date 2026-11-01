@@ -14,23 +14,39 @@ import { Sparkles, Zap, Crown, AlertTriangle, Save, RefreshCw, Wifi, WifiOff, He
 
 function SaveButton({ text }: { text: string }) {
   const [saved, setSaved] = useState(false);
+  const [hint, setHint] = useState<'plus' | 'error' | null>(null);
   return (
-    <button
-      onClick={async () => {
-        const res = await fetch('/api/saved', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: text }),
-        });
-        if (res.ok) {
-          setSaved(true);
-          setTimeout(() => setSaved(false), 1500);
-        }
-      }}
-      className="btn-ghost px-3 py-1.5 text-xs"
-    >
-      <Save size={14} /> {saved ? 'Saved' : 'Save'}
-    </button>
+    <span className="inline-flex min-w-0 flex-col items-start gap-1">
+      <button
+        onClick={async () => {
+          const res = await fetch('/api/saved', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: text }),
+          });
+          if (res.ok) {
+            setSaved(true);
+            setTimeout(() => setSaved(false), 1500);
+          } else {
+            // Free users get 403 here — tell them why instead of failing silently.
+            setHint(res.status === 403 ? 'plus' : 'error');
+            setTimeout(() => setHint(null), 5000);
+          }
+        }}
+        className="btn-ghost px-3 py-1.5 text-xs"
+      >
+        <Save size={14} /> {saved ? 'Saved' : 'Save'}
+      </button>
+      {hint === 'plus' && (
+        <span className="text-xs text-muted">
+          Saving is a Plus feature —{' '}
+          <Link href="/dashboard/upgrade" className="text-[#9fd0ff] underline">
+            upgrade to keep your best messages
+          </Link>
+        </span>
+      )}
+      {hint === 'error' && <span className="text-xs text-red-300">Couldn&apos;t save. Please try again.</span>}
+    </span>
   );
 }
 
@@ -71,7 +87,16 @@ export function Composer() {
   const [suggesting, setSuggesting] = useState(false);
   const [error, setError] = useState('');
   const [limitHit, setLimitHit] = useState(false);
-  const [acked, setAcked] = useState(false);
+  // Lazy-init from localStorage (default true on the server) so returning
+  // users never see the "You're in control" modal flash on first paint.
+  const [acked, setAcked] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    try {
+      return localStorage.getItem('banter_ack') === '1';
+    } catch {
+      return false;
+    }
+  });
   const [ackCheck, setAckCheck] = useState(false);
 
   const abortRef = useRef<AbortController | null>(null);
@@ -98,16 +123,6 @@ export function Composer() {
         setContext(shared);
         localStorage.removeItem('banter_share');
       }
-    } catch {
-      /* ignore */
-    }
-  }, []);
-
-  // One-time "you're in control" disclaimer — shown before the first reply,
-  // not on the marketing homepage.
-  useEffect(() => {
-    try {
-      if (localStorage.getItem('banter_ack') === '1') setAcked(true);
     } catch {
       /* ignore */
     }
@@ -246,8 +261,14 @@ export function Composer() {
 
     if (res.status === 429) {
       const d = await res.json().catch(() => ({}));
-      setLimitHit(true);
-      setRemaining(d.remaining ?? 0);
+      // Daily-limit 429s carry limitHit: true; burst-throttle 429s don't.
+      // Never show the upgrade panel for a transient throttle.
+      if (d.limitHit) {
+        setLimitHit(true);
+        setRemaining(d.remaining ?? 0);
+      } else {
+        setError(d.error || 'Too many requests — slow down a little.');
+      }
       setStreaming(false);
       return;
     }
@@ -320,9 +341,9 @@ export function Composer() {
         initial={{ opacity: 0, y: -6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="flex items-start justify-between gap-3"
+        className="flex flex-wrap items-start justify-between gap-3"
       >
-        <div>
+        <div className="min-w-0">
           <p className="kicker mb-2">Banter composer</p>
           <h1 className="headline-balance text-4xl font-black tracking-[-0.04em]">What do you need to say?</h1>
           <p className="mt-2 max-w-xl text-sm text-muted">
@@ -336,20 +357,20 @@ export function Composer() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
-              className="chip"
+              className="chip shrink-0"
             >
-              {remaining === null ? '∞' : remaining} {t('remaining')}
+              {remaining} {t('remaining')}
             </motion.span>
           )}
         </AnimatePresence>
       </motion.div>
 
-      <div className="grid gap-3 sm:grid-cols-5">
+      <div className="flex gap-3 overflow-x-auto pb-1 sm:grid sm:grid-cols-5">
         {quickStarts.map(([label, value]) => (
           <button
             key={label}
             onClick={() => setContext(value)}
-            className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3 text-left text-sm transition hover:border-[#4aa8ff]/40 hover:bg-white/[0.07]"
+            className="w-[180px] shrink-0 rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3 text-left text-sm transition hover:border-[#4aa8ff]/40 hover:bg-white/[0.07] sm:w-auto"
           >
             <span className="block text-xs uppercase tracking-[0.18em] text-[#9fd0ff]">{label}</span>
             <span className="mt-1 block truncate text-white/80">{value}</span>

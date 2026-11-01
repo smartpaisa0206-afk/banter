@@ -26,7 +26,7 @@ const methods = [
     icon: <Wand2 size={22} />,
     color: '#a78bfa',
     title: 'AI generation engine',
-    desc: 'Powered by Groq / OpenAI / Anthropic with smart template fallback. Works even without an internet connection using local templates.',
+    desc: 'Powered by OpenRouter (or Groq / OpenAI / Anthropic) with smart template fallback. No key? It still works using local templates.',
   },
   {
     icon: <Zap size={22} />,

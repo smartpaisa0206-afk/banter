@@ -6,18 +6,25 @@ import type { Plan } from '@/lib/pricing';
 
 export function PlanCards({ plans }: { plans: Plan[] }) {
   const router = useRouter();
-  const [busy, setBusy] = useState(false);
+  const [busyPlan, setBusyPlan] = useState<string | null>(null);
   const [done, setDone] = useState(false);
-  const [annual, setAnnual] = useState(false);
+  const [notice, setNotice] = useState('');
 
-  async function upgrade() {
-    setBusy(true);
+  async function upgrade(planKey: string) {
+    setBusyPlan(planKey);
+    setNotice('');
     const res = await fetch('/api/billing/demo', { method: 'POST' });
-    setBusy(false);
+    setBusyPlan(null);
     if (res.ok) {
       setDone(true);
       router.refresh();
       setTimeout(() => setDone(false), 3000);
+    } else if (res.status === 403) {
+      // Production: demo billing is disabled; real payments aren't wired yet.
+      setNotice("Online payments aren't connected yet — coming soon.");
+    } else {
+      const d = await res.json().catch(() => ({}));
+      setNotice(d.error || 'Could not start the upgrade. Please try again.');
     }
   }
 
@@ -25,8 +32,8 @@ export function PlanCards({ plans }: { plans: Plan[] }) {
     <div className="w-full space-y-8">
       <div className="flex flex-col items-center gap-3">
         <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] p-1.5">
-          <button onClick={() => setAnnual(false)} className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition-all ${!annual ? 'bg-[#7c5cff] text-white shadow-glow' : 'text-white/55 hover:text-white'}`}>Monthly</button>
-          <button onClick={() => setAnnual(true)} className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all ${annual ? 'bg-[#7c5cff] text-white shadow-glow' : 'text-white/55 hover:text-white'}`}>Annual <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400">soon</span></button>
+          <button className="rounded-xl bg-[#7c5cff] px-5 py-2.5 text-sm font-semibold text-white shadow-glow">Monthly</button>
+          <button aria-disabled="true" title="Annual billing coming soon" className="flex cursor-not-allowed items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white/40">Annual <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400">soon</span></button>
         </div>
         <p className="text-xs text-muted">Simple beta pricing. Upgrade only when Banter becomes a habit.</p>
       </div>
@@ -57,8 +64,8 @@ export function PlanCards({ plans }: { plans: Plan[] }) {
                 {tier.cta === 'Current' ? (
                   <button disabled className="btn-ghost w-full rounded-xl opacity-70">Your current plan</button>
                 ) : tier.cta ? (
-                  <button disabled={busy} onClick={upgrade} className={`${featured ? 'btn-plus' : pro ? 'btn-premium' : 'btn-ghost'} w-full rounded-xl py-3`}>
-                    {busy ? 'Updating…' : <>{tier.cta} <ArrowRight size={14} /></>}
+                  <button disabled={busyPlan !== null} onClick={() => upgrade(tier.key)} className={`${featured ? 'btn-plus' : pro ? 'btn-premium' : 'btn-ghost'} w-full rounded-xl py-3`}>
+                    {busyPlan === tier.key ? 'Updating…' : <>{tier.cta} <ArrowRight size={14} /></>}
                   </button>
                 ) : (
                   <button disabled className="btn-ghost w-full rounded-xl opacity-50">Included</button>
@@ -78,10 +85,12 @@ export function PlanCards({ plans }: { plans: Plan[] }) {
       </div>
 
       {done && <p className="rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-center text-sm text-emerald-300">✓ Demo upgrade applied. Connect real billing later for production payments.</p>}
+      {notice && <p className="rounded-2xl border border-gold/30 bg-gold/10 px-4 py-3 text-center text-sm text-gold/90">{notice}</p>}
 
       <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted">
         <span className="flex items-center gap-1.5"><Check size={12} className="text-emerald-400" /> No card for free plan</span>
-        <span className="flex items-center gap-1.5"><Check size={12} className="text-emerald-400" /> Cancel anytime later</span>
+        <span className="flex items-center gap-1.5"><Check size={12} className="text-emerald-400" /> Honest monthly pricing — no weekly traps</span>
+        <span className="flex items-center gap-1.5"><Check size={12} className="text-emerald-400" /> Cancel in one tap, no dark patterns</span>
         <span className="flex items-center gap-1.5"><Star size={12} className="text-[#e9c46a]" /> Beta pricing while testing</span>
       </div>
     </div>

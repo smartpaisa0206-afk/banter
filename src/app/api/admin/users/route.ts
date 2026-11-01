@@ -30,6 +30,10 @@ export async function PATCH(req: NextRequest) {
     })
     .safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
+  // Never let an admin demote or ban their own account and lock themselves out.
+  if (parsed.data.id === user.id) {
+    return NextResponse.json({ error: 'You cannot change your own role or status.' }, { status: 400 });
+  }
   const data: { role?: string; status?: string } = {};
   if (parsed.data.role) data.role = parsed.data.role;
   if (parsed.data.status) data.status = parsed.data.status;

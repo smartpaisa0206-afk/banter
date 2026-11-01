@@ -104,13 +104,40 @@ async function safeFetch(
 
 function reasonText(source: Source, reason?: string): string | null {
   if (source === 'none')
-    return 'Template mode — no AI key set. Add a Groq/OpenAI key in .env to go live.';
+    return 'Template mode — no AI key set. Add an OpenRouter, Groq, or OpenAI key in .env to go live.';
   if (source === 'error') {
     if (reason === 'timeout') return 'The AI took too long — showing smart templates. Try again or switch on Hurry mode.';
     if (reason === 'network') return 'Could not reach the AI right now — showing smart templates instead.';
-    return `AI hiccup (${reason}) — showing smart templates so you are never stuck.`;
+    return reason
+      ? `AI hiccup (${reason}) — showing smart templates so you are never stuck.`
+      : 'AI hiccup — showing smart templates so you are never stuck.';
   }
   return null;
+}
+
+// ---------------------------------------------------------------------------
+// OpenRouter shared config. Base URL is overridable for proxies / mirrors.
+// ---------------------------------------------------------------------------
+const OPENROUTER_BASE_DEFAULT = 'https://openrouter.ai/api/v1';
+
+function openRouterBase(): string {
+  return process.env.OPENROUTER_BASE_URL || OPENROUTER_BASE_DEFAULT;
+}
+
+function openRouterReferer(): string {
+  return (
+    process.env.APP_BASE_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    'https://banter-mu.vercel.app'
+  );
+}
+
+function openRouterHeaders(): Record<string, string> {
+  return {
+    Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+    'HTTP-Referer': openRouterReferer(),
+    'X-Title': 'Banter',
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -191,14 +218,12 @@ async function callLLM(
   async function callOpenRouter(): Promise<{ result: LLMResult | null; source: Source; reason?: string }> {
     if (!process.env.OPENROUTER_API_KEY) return { result: null, source: 'none', reason: 'OpenRouter key missing' };
     const res = await safeFetch(
-      'https://openrouter.ai/api/v1/chat/completions',
+      `${openRouterBase()}/chat/completions`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'https://banter-mu.vercel.app',
-          'X-Title': 'Banter',
+          ...openRouterHeaders(),
         },
         body: JSON.stringify({
           model: process.env.OPENROUTER_MODEL || 'openai/gpt-oss-20b:free',
@@ -459,7 +484,7 @@ async function streamLLM(
       const res = await common(
         'https://api.groq.com/openai/v1/chat/completions',
         {
-          model: process.env.GROQ_MODEL || 'llama-3.1-8b-instant',
+          model: process.env.GROQ_MODEL || 'openai/gpt-oss-20b',
           temperature: 0.9,
           max_tokens: 600,
           stream: true,
@@ -473,6 +498,49 @@ async function streamLLM(
       );
       if (!res.ok) return { text: '', source: 'error', reason: `Groq ${res.status}` };
       const full = await readSSE(res, onDelta, (j) => j?.choices?.[0]?.delta?.content);
+      clearTimeout(timer);
+      return { text: full, source: 'llm' };
+    }
+    if (provider === 'openrouter' && process.env.OPENROUTER_API_KEY) {
+      const res = await common(
+        `${openRouterBase()}/chat/completions`,
+        {
+          model: process.env.OPENROUTER_MODEL || 'openai/gpt-oss-20b:free',
+          temperature: 0.9,
+          max_tokens: 600,
+          stream: true,
+          response_format: { type: 'json_object' },
+          messages: [
+            { role: 'system', content: system },
+            { role: 'user', content: user },
+          ],
+        },
+        openRouterHeaders(),
+      );
+      if (!res.ok) return { text: '', source: 'error', reason: `OpenRouter ${res.status}` };
+      const full = await readSSE(res, onDelta, (j) => j?.choices?.[0]?.delta?.content);
+      clearTimeout(timer);
+      return { text: full, source: 'llm' };
+    }
+    if (provider === 'gemini' && process.env.GEMINI_API_KEY) {
+      const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+      const res = await common(
+        `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:streamGenerateContent?alt=sse&key=${process.env.GEMINI_API_KEY}`,
+        {
+          generationConfig: {
+            temperature: 0.9,
+            maxOutputTokens: 600,
+            responseMimeType: 'application/json',
+          },
+          systemInstruction: { parts: [{ text: system }] },
+          contents: [{ role: 'user', parts: [{ text: `${user}\n\nReply ONLY with JSON: ${jsonShapeSpec(format)}.` }] }],
+        },
+        {},
+      );
+      if (!res.ok) return { text: '', source: 'error', reason: `Gemini ${res.status}` };
+      const full = await readSSE(res, onDelta, (j) =>
+        j?.candidates?.[0]?.content?.parts?.map((p: any) => p?.text || '').join('') || null,
+      );
       clearTimeout(timer);
       return { text: full, source: 'llm' };
     }

@@ -36,14 +36,14 @@ export function registerFailedAttempt(key: string): void {
   a.till = now + WINDOW;
   attempts.set(key, a);
 }
-export function isLockedOut(key: string): boolean {
+export function isLockedOut(key: string, max: number = MAX): boolean {
   const a = attempts.get(key);
   if (!a) return false;
   if (Date.now() > a.till) {
     attempts.delete(key);
     return false;
   }
-  return a.count >= MAX;
+  return a.count >= max;
 }
 export function clearAttempts(key: string): void {
   attempts.delete(key);

@@ -12,13 +12,21 @@ export default function FeedbackPage() {
   const [email, setEmail] = useState('');
   const [done, setDone] = useState(false);
   const [sending, setSending] = useState(false);
+  const [error, setError] = useState('');
 
   async function submit() {
     if (!message.trim()) return;
     setSending(true);
-    const res = await fetch('/api/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message, rating, email }) });
+    setError('');
+    // rating 0 means "not rated" — omit it so the API's 1–5 validation passes.
+    const res = await fetch('/api/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message, rating: rating || undefined, email }) });
     setSending(false);
-    if (res.ok) setDone(true);
+    if (res.ok) {
+      setDone(true);
+    } else {
+      const d = await res.json().catch(() => ({}));
+      setError(d.error || 'Could not send feedback. Please try again.');
+    }
   }
 
   if (done) {
@@ -70,6 +78,7 @@ export default function FeedbackPage() {
         </div>
 
         <button onClick={submit} disabled={sending || !message.trim()} className="btn-plus w-full py-3">{sending ? 'Sending…' : 'Send feedback'}</button>
+        {error && <p className="rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-200">{error}</p>}
       </motion.div>
     </div>
   );

@@ -194,7 +194,7 @@ export function ProfileSettings() {
       </div>
 
       <section className="card p-6">
-        <div className="mb-5 flex items-center justify-between gap-3">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="grid h-12 w-12 place-items-center rounded-2xl bg-brand/15 text-brand-soft">
               <Smartphone size={25} />
@@ -204,7 +204,7 @@ export function ProfileSettings() {
               <p className="text-sm text-muted">Revoke any Android keyboard token you no longer trust.</p>
             </div>
           </div>
-          <Link href="/methods" className="btn-ghost hidden rounded-full sm:inline-flex">How keyboard works</Link>
+          <Link href="/methods" className="btn-ghost inline-flex rounded-full">How keyboard works</Link>
         </div>
 
         <div className="space-y-3">

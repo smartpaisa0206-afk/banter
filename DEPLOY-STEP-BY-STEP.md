@@ -206,9 +206,12 @@ Environment Variables**). Add each row below. For **Environments** select
 | `APP_ENCRYPTION_KEY` | 64 random chars | see 5.4 |
 | `NEXT_PUBLIC_BRAND_NAME` | `Banter` | type it |
 | `NEXT_PUBLIC_BRAND_TAGLINE` | `Say the right thing to the right person.` | type it |
-| `LLM_PROVIDER` | `groq` | type it (skip if no AI) |
-| `GROQ_API_KEY` | `gsk_...` | your new key from 0.3 |
-| `GROQ_MODEL` | `llama-3.1-70b-versatile` | type it |
+| `LLM_PROVIDER` | `openrouter` | type it (skip if no AI — app falls back to built-in templates) |
+| `OPENROUTER_API_KEY` | `sk-or-v1...` | get one free at openrouter.ai/keys |
+| `OPENROUTER_MODEL` | `openai/gpt-oss-20b:free` | type it (change anytime, no code change needed) |
+
+> Prefer Groq instead? Set `LLM_PROVIDER=groq`, `GROQ_API_KEY=gsk_...`,
+> `GROQ_MODEL=llama-3.1-8b-instant`. See DEPLOY.md "OpenRouter setup" for details.
 
 ### 5.4 Generate the two secret keys
 In your terminal, run:
@@ -219,8 +222,9 @@ It prints 64 characters. Copy that into **`SESSION_SECRET`**. Run it **again**,
 copy the new output into **`APP_ENCRYPTION_KEY`**. (Use two different values.)
 
 > Why before deploy? The build runs a database migration at the end
-> (`postbuild`). If `DATABASE_URL`/`DATABASE_AUTH_TOKEN` aren't set yet, the
-> build fails. So set all env vars first, then deploy.
+> (`postbuild`, best-effort — it warns instead of failing if the DB is
+> unreachable). Setting `DATABASE_URL`/`DATABASE_AUTH_TOKEN` first means your
+> tables are ready on the first deploy. So set all env vars first, then deploy.
 
 ### 5.5 (Optional) Pin Node version
 Project → **Settings → General → Node.js Version** → set **20.x** → Save.

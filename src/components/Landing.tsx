@@ -20,8 +20,8 @@ const examples = [
 
 const features = [
   { icon: <MessageCircle size={22} />, title: 'Relationship-aware', desc: 'Knows the difference between texting your crush vs emailing your boss.', color: '#7c5cff' },
-  { icon: <WandSparkles size={22} />, title: 'AI-powered rewrites', desc: 'Powered by Groq / OpenAI / Anthropic with smart template fallback.', color: '#4aa8ff' },
-  { icon: <Globe size={22} />, title: 'Multi-language', desc: 'English, Hinglish, and growing. Write in the language you actually use.', color: '#e9c46a' },
+  { icon: <WandSparkles size={22} />, title: 'AI-powered rewrites', desc: 'Powered by OpenRouter (or Groq / OpenAI / Anthropic) with smart template fallback.', color: '#4aa8ff' },
+  { icon: <Globe size={22} />, title: 'Multi-language', desc: '17 languages including English, Hindi, Hinglish, Spanish, French & more. Write in the language you actually use.', color: '#e9c46a' },
   { icon: <Keyboard size={22} />, title: 'Native keyboard', desc: 'Android keyboard that rewrites without leaving your app.', color: '#a78bfa' },
   { icon: <ShieldCheck size={22} />, title: 'Private by default', desc: 'Encrypted at rest, rate-limited, secure sessions. Your words stay yours.', color: '#34d399' },
   { icon: <Zap size={22} />, title: 'Instant results', desc: 'Ready-to-send in under 3 seconds. No overthinking required.', color: '#f87171' },
@@ -32,7 +32,7 @@ const tags = ['Apologies', 'Late replies', 'Work mail', 'Hinglish', 'Crush texts
 const stats = [
   { value: '50K+', label: 'Messages rewritten', icon: <MessageSquare size={18} /> },
   { value: '4.9★', label: 'User satisfaction', icon: <Star size={18} /> },
-  { value: '12+', label: 'Languages supported', icon: <Globe size={18} /> },
+  { value: '17', label: 'Languages supported', icon: <Globe size={18} /> },
   { value: '98%', label: 'Said it saved time', icon: <Zap size={18} /> },
 ];
 
@@ -268,7 +268,7 @@ export function Landing() {
             transition={{ duration: 0.6, delay: 0.35 }}
             className="mt-6 max-w-2xl mx-auto text-lg leading-relaxed text-muted sm:text-xl"
           >
-            Banter rewrites your rough drafts into ready-to-send messages — for flirting, apologizing, pitching, or just checking in. In seconds.
+            Banter rewrites your rough drafts into ready-to-send messages — for flirting, apologizing, pitching, or just checking in. Every relationship, not just dating. In seconds.
           </motion.p>
 
           {/* Tags marquee */}

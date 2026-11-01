@@ -8,6 +8,9 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function POST() {
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ error: 'Demo billing is disabled in production.' }, { status: 403 });
+  }
   if (process.env.STRIPE_SECRET_KEY) {
     return NextResponse.json({ error: 'Stripe is configured; use Stripe for billing.' }, { status: 400 });
   }

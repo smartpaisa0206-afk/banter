@@ -117,10 +117,21 @@ export async function migrate() {
 
 import { fileURLToPath } from 'url';
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const strict = process.argv.includes('--strict');
   migrate()
     .then(() => process.exit(0))
     .catch((e) => {
-      console.error(e);
-      process.exit(1);
+      // Best-effort: postbuild runs this during Vercel builds, where the DB
+      // may not be reachable yet — that must NOT fail the whole build.
+      // Pass --strict (e.g. `tsx scripts/migrate.ts --strict`) in CI/dev when
+      // you want migration failures to exit non-zero.
+      console.warn(
+        '[migrate] skipped/failed — run `npm run db:migrate` manually once the DB is reachable.',
+      );
+      if (strict) {
+        console.error(e);
+        process.exit(1);
+      }
+      process.exit(0);
     });
 }

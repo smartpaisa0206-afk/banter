@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import crypto from 'node:crypto';
 import { userFromMobileToken } from '@/lib/auth';
-import { db } from '@/lib/db';
-import { generations } from '@/lib/db/schema';
 import { generate, relAccessible, toneAccessible, intentAccessible, intentById } from '@/lib/engine';
 import { canUseWorks } from '@/lib/plans';
-import { withinLimit, remainingFor } from '@/lib/usage';
+import { withinLimit, remainingFor, reserveGeneration, finalizeReservation, QuotaExceededError } from '@/lib/usage';
 import { encryptText } from '@/lib/security';
 import { logSecurityEvent } from '@/lib/securityEvents';
 import { rateLimit } from '@/lib/rateLimit';
@@ -66,23 +63,35 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const output = await generate({ relationship, intent, tone, language, context, length, hurry });
-  await db
-    .insert(generations)
-    .values({
-      id: crypto.randomUUID(),
+  // Reserve the quota BEFORE the ~20s LLM call; the reserve insert is never
+  // swallowed, so a DB failure becomes a 500 instead of a free generation.
+  let reservationId: string;
+  try {
+    reservationId = await reserveGeneration({
       userId: user.id,
+      role: user.role,
       relationship,
       intent,
       tone,
       language,
-      contextEnc: context ? encryptText(context) : null,
       length: length || 'medium',
       hurry: !!hurry,
-      resultEnc: encryptText(JSON.stringify(output)),
-      createdAt: Date.now(),
-    })
-    .catch(() => {});
+      contextEnc: context ? encryptText(context) : null,
+    });
+  } catch (e) {
+    if (e instanceof QuotaExceededError) {
+      const rem = await remainingFor(user.role, user.id);
+      return NextResponse.json(
+        { error: 'Daily limit reached.', remaining: Number.isFinite(rem) ? rem : null, limitHit: true },
+        { status: 429 },
+      );
+    }
+    console.error('[mobile/generate] quota reserve failed:', e instanceof Error ? e.message : e);
+    return NextResponse.json({ error: 'Could not start generation. Please try again.' }, { status: 500 });
+  }
+
+  const output = await generate({ relationship, intent, tone, language, context, length, hurry });
+  await finalizeReservation(reservationId, encryptText(JSON.stringify(output)));
   await logSecurityEvent({ req, userId: user.id, eventType: 'mobile_generate_success', source: 'android_keyboard', success: true, metadata: { relationship, intent, tone, language, hurry: !!hurry } });
   const rem = await remainingFor(user.role, user.id);
   return NextResponse.json({ ...output, remaining: Number.isFinite(rem) ? rem : null });

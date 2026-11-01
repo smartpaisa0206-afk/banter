@@ -16,7 +16,7 @@ const features = [
   'Only sends text when you tap 🪄',
   'Keyboard device tokens can be revoked anytime',
   'Private/password fields disable magic suggestions',
-  'Same-language replies for English, Hinglish and regional scripts',
+  'Same-language replies across all 17 supported languages',
 ];
 
 export default function KeyboardPage() {

@@ -29,9 +29,12 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
 
   const { email, password, device } = parsed.data;
-  const u = await db.query.users.findFirst({ where: eq(users.email, email.toLowerCase()) });
+  const normalizedEmail = email.trim().toLowerCase();
+  const u = await db.query.users.findFirst({ where: eq(users.email, normalizedEmail) });
   if (!u || !verifyPassword(password, u.passwordHash, u.salt) || u.status === 'banned') {
-    await logSecurityEvent({ req, userId: u?.id || null, eventType: 'mobile_login_failed', source: 'android_keyboard', success: false, severity: u?.status === 'banned' ? 'critical' : 'warn', metadata: { email, device, reason: u?.status === 'banned' ? 'banned' : 'invalid_credentials' } });
+    // NOTE: the raw email is intentionally NOT stored in metadata_json —
+    // only the device + reason are logged on failed logins.
+    await logSecurityEvent({ req, userId: u?.id || null, eventType: 'mobile_login_failed', source: 'android_keyboard', success: false, severity: u?.status === 'banned' ? 'critical' : 'warn', metadata: { device, reason: u?.status === 'banned' ? 'banned' : 'invalid_credentials' } });
     return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 });
   }
   const token = await createMobileToken(u.id, device);

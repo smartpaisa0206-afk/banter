@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import crypto from 'node:crypto';
 import { getCurrentUser } from '@/lib/auth';
-import { db } from '@/lib/db';
-import { generations } from '@/lib/db/schema';
 import { generate, streamGenerate, relAccessible, toneAccessible, intentAccessible, intentById } from '@/lib/engine';
 import { canUseWorks } from '@/lib/plans';
-import { withinLimit, remainingFor } from '@/lib/usage';
+import { withinLimit, remainingFor, reserveGeneration, finalizeReservation, QuotaExceededError } from '@/lib/usage';
 import { encryptText } from '@/lib/security';
 import { logSecurityEvent } from '@/lib/securityEvents';
 import { rateLimit } from '@/lib/rateLimit';
@@ -24,6 +21,55 @@ const schema = z.object({
   hurry: z.boolean().optional(),
   stream: z.boolean().optional(),
 });
+
+// Reserve one quota unit before the LLM runs. Returns the reservation id,
+// or an error response if the limit is hit or the reserve insert fails.
+async function reserveOrRespond(req: NextRequest, user: { id: string; role: string }, opts: {
+  relationship: string; intent: string; tone: string; language: string;
+  length?: string; hurry?: boolean; context?: string;
+}): Promise<{ reservationId: string } | { response: NextResponse }> {
+  if (!(await withinLimit(user.role, user.id))) {
+    const rem = await remainingFor(user.role, user.id);
+    await logSecurityEvent({ req, userId: user.id, eventType: 'generation_limit_hit', source: 'web', success: false, severity: 'warn', metadata: { relationship: opts.relationship, intent: opts.intent, tone: opts.tone } });
+    return {
+      response: NextResponse.json(
+        { error: 'Daily limit reached.', remaining: Number.isFinite(rem) ? rem : null, limitHit: true },
+        { status: 429 },
+      ),
+    };
+  }
+  try {
+    const reservationId = await reserveGeneration({
+      userId: user.id,
+      role: user.role,
+      relationship: opts.relationship,
+      intent: opts.intent,
+      tone: opts.tone,
+      language: opts.language,
+      length: opts.length || 'medium',
+      hurry: !!opts.hurry,
+      contextEnc: opts.context ? encryptText(opts.context) : null,
+    });
+    return { reservationId };
+  } catch (e) {
+    if (e instanceof QuotaExceededError) {
+      const rem = await remainingFor(user.role, user.id);
+      return {
+        response: NextResponse.json(
+          { error: 'Daily limit reached.', remaining: Number.isFinite(rem) ? rem : null, limitHit: true },
+          { status: 429 },
+        ),
+      };
+    }
+    console.error('[generate] quota reserve failed:', e instanceof Error ? e.message : e);
+    return {
+      response: NextResponse.json(
+        { error: 'Could not start generation. Please try again.' },
+        { status: 500 },
+      ),
+    };
+  }
+}
 
 export async function POST(req: NextRequest) {
   const user = await getCurrentUser();
@@ -51,34 +97,14 @@ export async function POST(req: NextRequest) {
   if (intentCfg.category === 'works' && !canUseWorks(user.role))
     return NextResponse.json({ error: 'Upgrade to use Works (emails, social, marketing).' }, { status: 403 });
 
-  if (!(await withinLimit(user.role, user.id))) {
-    const rem = await remainingFor(user.role, user.id);
-    await logSecurityEvent({ req, userId: user.id, eventType: 'generation_limit_hit', source: 'web', success: false, severity: 'warn', metadata: { relationship, intent, tone } });
-    return NextResponse.json(
-      { error: 'Daily limit reached.', remaining: Number.isFinite(rem) ? rem : null, limitHit: true },
-      { status: 429 },
-    );
-  }
+  const reserved = await reserveOrRespond(req, user, { relationship, intent, tone, language, length, hurry, context });
+  if ('response' in reserved) return reserved.response;
+  const { reservationId } = reserved;
 
   // Non-streaming path: mobile keyboard / simple clients.
   if (!stream) {
     const output = await generate({ relationship, intent, tone, language, context, length, hurry });
-    await db
-      .insert(generations)
-      .values({
-        id: crypto.randomUUID(),
-        userId: user.id,
-        relationship,
-        intent,
-        tone,
-        language,
-        contextEnc: context ? encryptText(context) : null,
-        length: length || 'medium',
-        hurry: !!hurry,
-        resultEnc: encryptText(JSON.stringify(output)),
-        createdAt: Date.now(),
-      })
-      .catch(() => {});
+    await finalizeReservation(reservationId, encryptText(JSON.stringify(output)));
     await logSecurityEvent({ req, userId: user.id, eventType: 'generate_success', source: 'web', success: true, metadata: { relationship, intent, tone, language, hurry: !!hurry } });
     const rem = await remainingFor(user.role, user.id);
     return NextResponse.json({ ...output, remaining: Number.isFinite(rem) ? rem : null });
@@ -104,23 +130,9 @@ export async function POST(req: NextRequest) {
           req.signal,
         );
 
-        // Persist + compute remaining in the background of the stream.
-        await db
-          .insert(generations)
-          .values({
-            id: crypto.randomUUID(),
-            userId: user.id,
-            relationship,
-            intent,
-            tone,
-            language,
-            contextEnc: context ? encryptText(context) : null,
-            length: length || 'medium',
-            hurry: !!hurry,
-            resultEnc: encryptText(JSON.stringify(output)),
-            createdAt: Date.now(),
-          })
-          .catch(() => {});
+        // Persist the result onto the reservation, then compute remaining.
+        // The reservation row was already counted against the quota up front.
+        await finalizeReservation(reservationId, encryptText(JSON.stringify(output)));
         await logSecurityEvent({ req, userId: user.id, eventType: 'generate_success', source: 'web', success: true, metadata: { relationship, intent, tone, language, stream: true, hurry: !!hurry } });
         const rem = await remainingFor(user.role, user.id);
         send('remaining', { remaining: Number.isFinite(rem) ? rem : null });

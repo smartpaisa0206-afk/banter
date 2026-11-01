@@ -1,10 +1,12 @@
 'use client';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { InfoPageShell } from '@/components/InfoPageShell';
 import { ArrowRight, Clock, BookOpen } from 'lucide-react';
 
 const articles = [
   {
+    slug: 'why-sorry-is-the-hardest-word-to-get-right',
     category: 'Communication',
     title: 'Why "sorry" is the hardest word to get right',
     desc: 'Most apologies fail because they focus on the sender, not the receiver. Here\'s how to write one that actually lands.',
@@ -13,6 +15,7 @@ const articles = [
     color: '#7c5cff',
   },
   {
+    slug: 'the-5-second-rule-for-work-emails',
     category: 'Workplace',
     title: 'The 5-second rule for work emails',
     desc: 'If your recipient needs more than 5 seconds to understand your ask, your email needs rewriting.',
@@ -21,6 +24,7 @@ const articles = [
     color: '#4aa8ff',
   },
   {
+    slug: 'texting-someone-you-like-without-being-weird',
     category: 'Relationships',
     title: 'Texting someone you like without being weird',
     desc: 'The anxiety of "does this sound desperate?" — and how to escape it.',
@@ -29,6 +33,7 @@ const articles = [
     color: '#a78bfa',
   },
   {
+    slug: 'why-hinglish-is-the-future-of-messaging',
     category: 'Language',
     title: 'Why Hinglish is the future of messaging',
     desc: 'Code-switching isn\'t laziness — it\'s a sophisticated form of expression. Banter gets it.',
@@ -37,6 +42,7 @@ const articles = [
     color: '#e9c46a',
   },
   {
+    slug: 'the-reply-you-never-send-costs-more-than-you-think',
     category: 'Productivity',
     title: 'The reply you never send costs more than you think',
     desc: 'Leaving messages on read — intentionally or not — damages relationships slowly. Here\'s a fix.',
@@ -45,6 +51,7 @@ const articles = [
     color: '#34d399',
   },
   {
+    slug: 'how-ai-learns-your-tone-without-reading-your-diary',
     category: 'AI & Writing',
     title: 'How AI learns your tone without reading your diary',
     desc: 'The difference between AI that mimics you and AI that amplifies you.',
@@ -63,14 +70,14 @@ export default function ArticlesPage() {
     >
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {articles.map((a, i) => (
+          <Link key={i} href={`/articles/${a.slug}`} className="block">
           <motion.div
-            key={i}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.07 }}
             whileHover={{ y: -6 }}
-            className="premium-card card-hover group flex flex-col cursor-pointer p-5"
+            className="premium-card card-hover group flex h-full flex-col cursor-pointer p-5"
           >
             <div className="mb-4 flex items-center justify-between">
               <span className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide" style={{ background: `${a.color}22`, color: a.color }}>
@@ -89,6 +96,7 @@ export default function ArticlesPage() {
               </span>
             </div>
           </motion.div>
+          </Link>
         ))}
       </div>
 

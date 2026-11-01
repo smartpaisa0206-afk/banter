@@ -8,7 +8,7 @@ const faqs = [
   { q: 'Is Banter really free?', a: 'Yes! Banter has a free tier with 5 rewrites per day. No credit card required, no time limit. Upgrade to Plus or Pro for unlimited rewrites and advanced features.' },
   { q: 'How does Banter decide how to rewrite my message?', a: 'Banter uses the relationship type, tone, mode (personal or professional), and message length you select, combined with AI to generate contextually appropriate rewrites.' },
   { q: 'Does Banter read or store my messages?', a: "Messages are sent to our AI provider (Groq/OpenAI/Anthropic) for generation. We don't sell or share your data. See our Privacy page for full details." },
-  { q: 'What languages are supported?', a: 'Currently English, Hinglish, and Hindi. We\'re adding more languages based on user demand. Spanish, French, and more are coming soon.' },
+  { q: 'What languages are supported?', a: 'Banter supports 17 languages, including English, Hindi, Hinglish, Spanish, French, German, Tamil, Telugu, Bengali, and Marathi — and we\'re adding more based on user demand.' },
   { q: 'How do I get the Android keyboard?', a: 'The native Android keyboard is a Phase 2 feature currently in private beta. Download the beta on the Keyboard page to be notified when it launches.' },
   { q: 'Can I cancel my subscription?', a: 'Yes, cancel anytime from your account settings. You\'ll keep access until the end of your billing period. No questions asked.' },
 ];
@@ -47,14 +47,32 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 export default function SupportPage() {
   const [sent, setSent] = useState(false);
   const [msg, setMsg] = useState('');
+  const [email, setEmail] = useState('');
+  const [subject, setSubject] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1000));
-    setLoading(false);
-    setSent(true);
+    setError('');
+    try {
+      const message = subject.trim() ? `[${subject.trim()}] ${msg.trim()}` : msg.trim();
+      const res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, email: email.trim() }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || 'Something went wrong. Please try again.');
+      }
+      setSent(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -82,10 +100,13 @@ export default function SupportPage() {
         ) : (
           <form onSubmit={submit} className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
-              <div><label className="label">Your email</label><input className="input" type="email" placeholder="you@example.com" required /></div>
-              <div><label className="label">Subject</label><input className="input" placeholder="What's this about?" required /></div>
+              <div><label className="label">Your email</label><input className="input" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required /></div>
+              <div><label className="label">Subject</label><input className="input" placeholder="What's this about?" value={subject} onChange={(e) => setSubject(e.target.value)} required /></div>
             </div>
             <div><label className="label">Message</label><textarea className="input resize-none" rows={4} placeholder="Describe your issue or question…" value={msg} onChange={(e) => setMsg(e.target.value)} required /></div>
+            {error && (
+              <p className="rounded-xl border border-red-500/25 bg-red-500/8 px-4 py-3 text-sm text-red-200">{error}</p>
+            )}
             <motion.button whileTap={{ scale: 0.97 }} type="submit" disabled={loading} className="btn btn-premium rounded-xl px-6 py-3 text-sm">
               {loading ? '…' : <><Send size={15} /> Send message</>}
             </motion.button>

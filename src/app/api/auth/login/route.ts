@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
-import { verifyPassword, createSession } from '@/lib/auth';
+import { verifyPassword, hashPassword, createSession } from '@/lib/auth';
 import { isLockedOut, registerFailedAttempt, clearAttempts } from '@/lib/security';
+import { clientIp } from '@/lib/rateLimit';
 import { SESSION_COOKIE, SESSION_MAX_AGE } from '@/lib/config';
 import { logSecurityEvent } from '@/lib/securityEvents';
 import { z } from 'zod';
@@ -16,8 +17,13 @@ const schema = z.object({
   password: z.string().min(1),
 });
 
+// Fixed dummy hash/salt so that a login for a nonexistent user takes the same
+// scrypt work as a real password check — response time must not reveal which
+// emails have accounts.
+const DUMMY = hashPassword('banter-dummy-password-that-nobody-knows-' + 'x'.repeat(16));
+
 export async function POST(req: NextRequest) {
-  const ip = req.headers.get('x-forwarded-for') || 'local';
+  const ip = clientIp(req) || 'local';
   if (isLockedOut(ip)) {
     await logSecurityEvent({ req, eventType: 'login_locked', source: 'web', success: false, severity: 'warn' });
     return NextResponse.json({ error: 'Too many attempts. Try again later.' }, { status: 429 });
@@ -31,14 +37,20 @@ export async function POST(req: NextRequest) {
   const email = parsed.data.email.toLowerCase().trim();
 
   const u = await db.select().from(users).where(eq(users.email, email)).limit(1);
-  if (!u.length || !verifyPassword(parsed.data.password, u[0].passwordHash, u[0].salt)) {
+  const passwordOk = u.length
+    ? verifyPassword(parsed.data.password, u[0].passwordHash, u[0].salt)
+    : verifyPassword(parsed.data.password, DUMMY.hash, DUMMY.salt);
+  if (!passwordOk) {
     registerFailedAttempt(ip);
     await logSecurityEvent({ req, eventType: 'login_failed', source: 'web', success: false, severity: 'warn', metadata: { email } });
     return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 });
   }
-  if (u[0].status === 'banned') {
+  if (!u.length || u[0].status === 'banned') {
+    // Keep the ban effective (userFromToken already returns null for banned
+    // users) but don't reveal account status — same generic 401 as a wrong
+    // password so banned emails aren't enumerable.
     await logSecurityEvent({ req, userId: u[0].id, eventType: 'login_failed', source: 'web', success: false, severity: 'critical', metadata: { reason: 'banned' } });
-    return NextResponse.json({ error: 'This account has been disabled.' }, { status: 403 });
+    return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 });
   }
 
   clearAttempts(ip);
