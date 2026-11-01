@@ -1,0 +1,72 @@
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b0b12"/>
+      <stop offset="100%" stop-color="#15101f"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e9c46a"/>
+      <stop offset="100%" stop-color="#7c5cff"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="22%" r="60%">
+      <stop offset="0%" stop-color="#7c5cff" stop-opacity="0.40"/>
+      <stop offset="100%" stop-color="#7c5cff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1080" height="1920" fill="url(#bg)"/>
+  <rect width="1080" height="1920" fill="url(#glow)"/>
+
+  <!-- logo -->
+  <g transform="translate(80,90)">
+    <rect width="56" height="56" rx="16" fill="url(#gold)"/>
+    <path d="M14 16 h28 a3 3 0 0 1 3 3 v6 a3 3 0 0 1 -3 3 h-7 l-4 3.4 v-3.4 h-1 a3 3 0 0 1 -3 -3 v-6 a3 3 0 0 1 3 -3 z" fill="#0b0b12"/>
+    <circle cx="22" cy="25" r="1.6" fill="#e9c46a"/>
+    <circle cx="27.5" cy="25" r="1.6" fill="#fff"/>
+    <circle cx="33" cy="25" r="1.6" fill="#fff"/>
+    <text x="72" y="39" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700" fill="#fff">Banter</text>
+  </g>
+
+  <text x="540" y="380" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="104" font-weight="800" fill="#ffffff">Your words.</text>
+  <text x="540" y="500" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="104" font-weight="800" fill="url(#gold)">Upgraded.</text>
+
+  <text x="540" y="582" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="600" fill="#cdbff5">Earn 3 free days of Premium.</text>
+  <text x="540" y="626" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="600" fill="#cdbff5">No card. Invite a friend, keep it free.</text>
+
+  <line x1="340" y1="680" x2="740" y2="680" stroke="#3a3a52" stroke-width="2"/>
+
+  <!-- steps -->
+  <g font-family="Inter, Arial, sans-serif">
+    <!-- step 1 -->
+    <circle cx="210" cy="792" r="36" fill="url(#gold)"/>
+    <text x="210" y="806" text-anchor="middle" font-size="40" font-weight="800" fill="#0b0b12">1</text>
+    <text x="280" y="784" font-size="38" font-weight="700" fill="#ffffff">Sign up</text>
+    <text x="280" y="826" font-size="26" fill="#a78bfa">3 free days unlock instantly</text>
+
+    <!-- step 2 -->
+    <circle cx="210" cy="972" r="36" fill="url(#gold)"/>
+    <text x="210" y="986" text-anchor="middle" font-size="40" font-weight="800" fill="#0b0b12">2</text>
+    <text x="280" y="964" font-size="38" font-weight="700" fill="#ffffff">Invite a friend</text>
+    <text x="280" y="1006" font-size="26" fill="#a78bfa">+3 free days for you both</text>
+
+    <!-- step 3 -->
+    <circle cx="210" cy="1152" r="36" fill="url(#gold)"/>
+    <text x="210" y="1166" text-anchor="middle" font-size="40" font-weight="800" fill="#0b0b12">3</text>
+    <text x="280" y="1144" font-size="38" font-weight="700" fill="#ffffff">Use Banter everywhere</text>
+    <text x="280" y="1186" font-size="26" fill="#a78bfa">chat, email, posts, keyboard</text>
+  </g>
+
+  <!-- referral box -->
+  <rect x="140" y="1320" width="800" height="92" rx="20" fill="#15101f" stroke="#e9c46a" stroke-opacity="0.5" stroke-width="2"/>
+  <text x="540" y="1378" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700" fill="#ffffff">banter.app/signup?ref=YOU</text>
+
+  <!-- CTA -->
+  <rect x="340" y="1470" width="400" height="86" rx="43" fill="url(#gold)"/>
+  <text x="520" y="1525" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800" fill="#0b0b12">Start free</text>
+  <g transform="translate(648,1490)" stroke="#0b0b12" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M0 15 H36"/>
+    <path d="M26 4 L44 15 L26 26"/>
+  </g>
+
+  <text x="540" y="1660" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="600" fill="#8b8ba7">Limited beta — link in bio.</text>
+</svg>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="brand">#7c5cff</color>
+    <color name="gold">#e9c46a</color>
+    <color name="ink">#0b0b12</color>
+    <string name="app_name">Banter Keyboard</string>
+    <string name="ime_name">Banter Keyboard</string>
+    <style name="Theme.BanterKeyboard" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand</item>
+        <item name="android:windowBackground">@color/ink</item>
+        <item name="android:colorBackground">@color/ink</item>
+    </style>
+</resources>

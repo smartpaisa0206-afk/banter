@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ink"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="18dp">
+
+            <ImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/ic_launcher"
+                android:contentDescription="Banter Keyboard" />
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="14dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Banter Keyboard"
+                    android:textColor="#ffffff"
+                    android:textSize="27sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Type rough. Tap 🪄. Send better."
+                    android:textColor="#c9c9d6"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tv_version"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Beta build"
+                    android:textColor="#8b8ba7"
+                    android:textSize="12sp"
+                    android:layout_marginTop="2dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_connection_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Status: Not connected"
+            android:textColor="#e9c46a"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:lineSpacingExtra="3dp"
+            android:background="@drawable/privacy_note_bg"
+            android:padding="14dp"
+            android:layout_marginBottom="12dp" />
+
+        <TextView
+            android:id="@+id/tv_mode_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Default style: Personal"
+            android:textColor="#ffffff"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:background="@drawable/settings_card_bg"
+            android:padding="14dp"
+            android:layout_marginBottom="12dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Privacy: text is sent only when you tap 🪄. Password is used once and not stored. Private fields are protected."
+            android:textColor="#d8ecff"
+            android:textSize="14sp"
+            android:lineSpacingExtra="3dp"
+            android:background="@drawable/privacy_note_bg"
+            android:padding="14dp"
+            android:layout_marginBottom="18dp" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/settings_card_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1. Connect account"
+                android:textColor="#ffffff"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Use your Banter website account. Server URL is prefilled for beta."
+                android:textColor="#8b8ba7"
+                android:textSize="13sp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="14dp" />
+
+            <EditText
+                android:id="@+id/et_base_url"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:hint="Server URL"
+                android:inputType="textUri"
+                android:singleLine="true"
+                android:textColor="#ffffff"
+                android:textColorHint="#7f8193"
+                android:textSize="15sp"
+                android:background="@drawable/input_bg" />
+
+            <EditText
+                android:id="@+id/et_email"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:hint="Banter email"
+                android:inputType="textEmailAddress"
+                android:singleLine="true"
+                android:textColor="#ffffff"
+                android:textColorHint="#7f8193"
+                android:textSize="15sp"
+                android:background="@drawable/input_bg"
+                android:layout_marginTop="10dp" />
+
+            <EditText
+                android:id="@+id/et_password"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:hint="Password used once, not stored"
+                android:inputType="textPassword"
+                android:singleLine="true"
+                android:textColor="#ffffff"
+                android:textColorHint="#7f8193"
+                android:textSize="15sp"
+                android:background="@drawable/input_bg"
+                android:layout_marginTop="10dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/settings_card_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2. Default style"
+                android:textColor="#ffffff"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Personal is casual. Professional is clean and no-emoji by default."
+                android:textColor="#8b8ba7"
+                android:textSize="13sp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="14dp" />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/btn_personal"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:layout_weight="1"
+                    android:text="Personal"
+                    android:textAllCaps="false"
+                    android:textColor="#ffffff"
+                    android:textStyle="bold"
+                    android:background="@drawable/button_primary_bg" />
+
+                <Button
+                    android:id="@+id/btn_professional"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:layout_weight="1"
+                    android:text="Professional"
+                    android:textAllCaps="false"
+                    android:textColor="#ffffff"
+                    android:textStyle="bold"
+                    android:background="@drawable/button_secondary_bg"
+                    android:layout_marginStart="10dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_toggle_advanced"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Show advanced defaults"
+            android:textAllCaps="false"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            android:background="@drawable/button_secondary_bg"
+            android:layout_marginBottom="12dp" />
+
+        <LinearLayout
+            android:id="@+id/advanced_section"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/settings_card_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Advanced defaults"
+                android:textColor="#ffffff"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Optional. Normal testers should leave these unchanged."
+                android:textColor="#8b8ba7"
+                android:textSize="13sp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="14dp" />
+
+            <EditText
+                android:id="@+id/et_relationship"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:hint="relationship"
+                android:singleLine="true"
+                android:textColor="#ffffff"
+                android:textColorHint="#7f8193"
+                android:textSize="15sp"
+                android:background="@drawable/input_bg" />
+
+            <EditText
+                android:id="@+id/et_intent"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:hint="intent"
+                android:singleLine="true"
+                android:textColor="#ffffff"
+                android:textColorHint="#7f8193"
+                android:textSize="15sp"
+                android:background="@drawable/input_bg"
+                android:layout_marginTop="10dp" />
+
+            <EditText
+                android:id="@+id/et_tone"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:hint="tone"
+                android:singleLine="true"
+                android:textColor="#ffffff"
+                android:textColorHint="#7f8193"
+                android:textSize="15sp"
+                android:background="@drawable/input_bg"
+                android:layout_marginTop="10dp" />
+
+            <EditText
+                android:id="@+id/et_language"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:hint="language code"
+                android:singleLine="true"
+                android:textColor="#ffffff"
+                android:textColorHint="#7f8193"
+                android:textSize="15sp"
+                android:background="@drawable/input_bg"
+                android:layout_marginTop="10dp" />
+
+            <CheckBox
+                android:id="@+id/cb_hurry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hurry mode: one short reply"
+                android:textColor="#ffffff"
+                android:layout_marginTop="10dp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Save and Connect"
+            android:textAllCaps="false"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:background="@drawable/button_primary_bg" />
+
+        <TextView
+            android:id="@+id/tv_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#9fd0ff"
+            android:textSize="14sp"
+            android:lineSpacingExtra="3dp"
+            android:layout_marginTop="14dp" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/settings_card_bg"
+            android:padding="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="3. Enable keyboard"
+                android:textColor="#ffffff"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Android Settings → Keyboard → Manage keyboards → Banter Keyboard. Then switch to it in any text field."
+                android:textColor="#8b8ba7"
+                android:textSize="13sp"
+                android:lineSpacingExtra="3dp"
+                android:layout_marginTop="6dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp">
+
+            <Button
+                android:id="@+id/btn_open_keyboard_page"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Beta page"
+                android:textAllCaps="false"
+                android:textColor="#ffffff"
+                android:background="@drawable/button_secondary_bg" />
+
+            <Button
+                android:id="@+id/btn_feedback"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Feedback"
+                android:textAllCaps="false"
+                android:textColor="#ffffff"
+                android:background="@drawable/button_secondary_bg"
+                android:layout_marginStart="10dp" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

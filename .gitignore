@@ -1,0 +1,12 @@
+node_modules
+.next
+drizzle
+*.db
+*.db-journal
+.env.local
+.env
+env.download
+
+# build archives (re-creatable via zip)
+banter-src.zip
+banter-src.tar.gz
