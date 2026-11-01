@@ -102,11 +102,11 @@ export function AppHeader() {
               />
             )}
             {remaining !== null && (
-              <span className="chip inline-flex shrink-0">{remaining} left</span>
+              <span className="chip hidden shrink-0 min-[400px]:inline-flex">{remaining} left</span>
             )}
             <Link
               href="/dashboard/upgrade"
-              className="hidden items-center gap-1.5 rounded-full border border-[#e9c46a]/40 bg-[#e9c46a]/10 px-3.5 py-1.5 text-xs font-bold text-[#e9c46a] transition-all hover:bg-[#e9c46a]/20 sm:flex"
+              className="flex items-center gap-1.5 rounded-full border border-[#e9c46a]/40 bg-[#e9c46a]/10 px-3.5 py-1.5 text-xs font-bold text-[#e9c46a] transition-all hover:bg-[#e9c46a]/20"
             >
               <Sparkles size={12} />
               {plus ? 'Plus' : 'Upgrade'}
