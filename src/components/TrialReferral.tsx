@@ -46,7 +46,7 @@ export function TrialReferral() {
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, type: 'spring', stiffness: 240, damping: 26 }}
           className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-xl"
         >
-          <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-[#7c5cff]/15 blur-2xl" />
+          <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-[#4c6fff]/15 blur-2xl" />
           <div className="flex items-center gap-2 mb-2">
             <div className="grid h-8 w-8 place-items-center rounded-xl bg-[#e9c46a]/15 text-[#e9c46a]"><Gift size={16} /></div>
             <h3 className="font-bold text-white">Invite & keep Premium free</h3>
@@ -64,7 +64,7 @@ export function TrialReferral() {
           </div>
           <div className="mt-3 flex items-center justify-between text-xs text-muted">
             <span className="flex items-center gap-1.5"><Users size={12} />Friends joined: <span className="ml-1 font-semibold text-white">{data.referredCount}</span></span>
-            <span className="flex items-center gap-1.5 text-[#a78bfa]"><Sparkles size={12} />Beta slots limited</span>
+            <span className="flex items-center gap-1.5 text-[#8b9bf0]"><Sparkles size={12} />Beta slots limited</span>
           </div>
         </motion.div>
       )}

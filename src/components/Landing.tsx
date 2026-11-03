@@ -19,10 +19,10 @@ const examples = [
 ];
 
 const features = [
-  { icon: <MessageCircle size={22} />, title: 'Relationship-aware', desc: 'Knows the difference between texting your crush vs emailing your boss.', color: '#7c5cff' },
+  { icon: <MessageCircle size={22} />, title: 'Relationship-aware', desc: 'Knows the difference between texting your crush vs emailing your boss.', color: '#4c6fff' },
   { icon: <WandSparkles size={22} />, title: 'AI-powered rewrites', desc: 'Powered by OpenRouter (or Groq / OpenAI / Anthropic) with smart template fallback.', color: '#4aa8ff' },
   { icon: <Globe size={22} />, title: 'Multi-language', desc: '17 languages including English, Hindi, Hinglish, Spanish, French & more. Write in the language you actually use.', color: '#e9c46a' },
-  { icon: <Keyboard size={22} />, title: 'Native keyboard', desc: 'Android keyboard that rewrites without leaving your app.', color: '#a78bfa' },
+  { icon: <Keyboard size={22} />, title: 'Native keyboard', desc: 'Android keyboard that rewrites without leaving your app.', color: '#8b9bf0' },
   { icon: <ShieldCheck size={22} />, title: 'Private by default', desc: 'Encrypted at rest, rate-limited, secure sessions. Your words stay yours.', color: '#34d399' },
   { icon: <Zap size={22} />, title: 'Instant results', desc: 'Ready-to-send in under 3 seconds. No overthinking required.', color: '#f87171' },
 ];
@@ -60,7 +60,7 @@ function PhoneDemo() {
       <motion.div
         animate={{ y: [0, -8, 0] }}
         transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute -left-10 bottom-12 hidden rotate-[-8deg] rounded-2xl border border-[#8b5cf6]/40 bg-[#8b5cf6]/15 px-4 py-3 text-center text-[9px] font-bold uppercase tracking-[0.18em] text-[#c4b5fd] backdrop-blur-xl md:block shadow-[0_8px_32px_-8px_rgba(124,92,255,0.4)]"
+        className="absolute -left-10 bottom-12 hidden rotate-[-8deg] rounded-2xl border border-[#4c6fff]/40 bg-[#4c6fff]/15 px-4 py-3 text-center text-[9px] font-bold uppercase tracking-[0.18em] text-[#aab8f5] backdrop-blur-xl md:block shadow-[0_8px_32px_-8px_rgba(44,52,128,0.4)]"
       >
         private<br />beta<br />2026
       </motion.div>
@@ -75,13 +75,13 @@ function PhoneDemo() {
       </motion.div>
 
       {/* Phone shell */}
-      <div className="rounded-[2.5rem] border border-white/12 bg-[#0a0a14] p-4 shadow-[0_50px_130px_-40px_rgba(124,92,255,1)]">
+      <div className="rounded-[2.5rem] border border-white/12 bg-[#0a0a14] p-4 shadow-[0_50px_130px_-40px_rgba(44,52,128,1)]">
         {/* Notch */}
         <div className="mx-auto mb-4 h-1.5 w-14 rounded-full bg-white/15" />
 
         {/* Chat header */}
         <div className="mb-4 flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.04] p-3">
-          <div className="relative h-9 w-9 shrink-0 rounded-full bg-gradient-to-br from-[#7c5cff] to-[#4aa8ff] shadow-glow">
+          <div className="relative h-9 w-9 shrink-0 rounded-full bg-gradient-to-br from-[#4c6fff] to-[#4aa8ff] shadow-glow">
             <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-[#0a0a14] bg-emerald-400" />
           </div>
           <div className="flex-1 min-w-0">
@@ -102,17 +102,17 @@ function PhoneDemo() {
             className="ml-auto max-w-[88%] rounded-2xl rounded-br-md border border-white/10 bg-white/[0.06] p-3 text-sm text-white/75"
           >
             <p className="mb-1.5 text-[9px] uppercase tracking-[0.18em] text-muted">Rough draft</p>
-            <span className="line-through decoration-[#a78bfa] decoration-2">{ex.rough}</span>
+            <span className="line-through decoration-[#8b9bf0] decoration-2">{ex.rough}</span>
           </motion.div>
         </AnimatePresence>
 
         {/* Magic wand button */}
-        <div className="my-3.5 flex items-center justify-between rounded-2xl border border-[#8b5cf6]/35 bg-[#8b5cf6]/12 px-3.5 py-2.5">
-          <span className="text-xs font-semibold text-[#c4b5fd]">Tap to rewrite ✦</span>
+        <div className="my-3.5 flex items-center justify-between rounded-2xl border border-[#4c6fff]/35 bg-[#4c6fff]/12 px-3.5 py-2.5">
+          <span className="text-xs font-semibold text-[#aab8f5]">Tap to rewrite ✦</span>
           <motion.span
             animate={{ rotate: [0, 15, -10, 0], scale: [1, 1.15, 1] }}
             transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 1 }}
-            className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[#a78bfa] to-[#4aa8ff] text-base shadow-[0_0_30px_-8px_rgba(124,92,255,1)]"
+            className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[#8b9bf0] to-[#4aa8ff] text-base shadow-[0_0_30px_-8px_rgba(44,52,128,1)]"
           >
             🪄
           </motion.span>
@@ -138,7 +138,7 @@ function PhoneDemo() {
           {'qwertyuiopasdfghjklzxcvbnm'.slice(0, 20).split('').map((k, i) => (
             <motion.span
               key={`${k}-${i}`}
-              whileHover={{ scale: 1.2, background: 'rgba(124,92,255,0.2)' }}
+              whileHover={{ scale: 1.2, background: 'rgba(44,52,128,0.2)' }}
               className="h-5 rounded-md bg-white/[0.06] cursor-pointer transition-colors"
             />
           ))}
@@ -155,7 +155,7 @@ function PhoneDemo() {
             <button
               key={i}
               onClick={() => setIdx(i)}
-              className={`h-1 rounded-full transition-all duration-300 ${i === idx ? 'w-6 bg-[#a78bfa]' : 'w-3 bg-white/20 hover:bg-white/40'}`}
+              className={`h-1 rounded-full transition-all duration-300 ${i === idx ? 'w-6 bg-[#8b9bf0]' : 'w-3 bg-white/20 hover:bg-white/40'}`}
             />
           ))}
         </div>
@@ -192,7 +192,7 @@ export function Landing() {
         initial={{ y: -60, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="sticky top-0 z-50 border-b border-white/8 bg-[#0b0b12]/80 backdrop-blur-2xl"
+        className="sticky top-0 z-50 border-b border-white/8 bg-[#000000]/80 backdrop-blur-2xl"
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3.5">
           <Link href="/">
@@ -212,7 +212,7 @@ export function Landing() {
                 className="hover:text-white transition-colors duration-200 relative group"
               >
                 {l.label}
-                <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-gradient-to-r from-[#7c5cff] to-[#4aa8ff] transition-all duration-300 group-hover:w-full" />
+                <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-gradient-to-r from-[#4c6fff] to-[#4aa8ff] transition-all duration-300 group-hover:w-full" />
               </Link>
             ))}
           </nav>
@@ -232,9 +232,9 @@ export function Landing() {
       {/* ===== HERO ===== */}
       <section ref={heroRef} className="relative flex min-h-[95vh] flex-col items-center justify-center overflow-hidden px-5 pt-16 pb-24 text-center">
         {/* Background orbs */}
-        <div className="orb h-[500px] w-[500px] bg-[#7c5cff]/20 -top-20 -left-40" style={{ animationDelay: '0s' }} />
-        <div className="orb h-[400px] w-[400px] bg-[#4aa8ff]/15 top-1/3 -right-32" style={{ animationDelay: '4s' }} />
-        <div className="orb h-[350px] w-[350px] bg-[#e9c46a]/10 bottom-10 left-1/3" style={{ animationDelay: '8s' }} />
+        <div className="orb animate-float-slow h-[500px] w-[500px] bg-[#4c6fff]/20 -top-20 -left-40" style={{ animationDelay: '0s' }} />
+        <div className="orb animate-float-slow h-[400px] w-[400px] bg-[#4aa8ff]/15 top-1/3 -right-32" style={{ animationDelay: '4s' }} />
+        <div className="orb animate-float-slow h-[350px] w-[350px] bg-[#e9c46a]/10 bottom-10 left-1/3" style={{ animationDelay: '8s' }} />
 
         <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 mx-auto max-w-5xl">
           {/* Badge */}
@@ -242,7 +242,7 @@ export function Landing() {
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#7c5cff]/40 bg-[#7c5cff]/12 px-4 py-2 text-xs font-semibold text-[#c4b5fd] shadow-[0_0_30px_-10px_rgba(124,92,255,0.6)]"
+            className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#4c6fff]/40 bg-[#4c6fff]/12 px-4 py-2 text-xs font-semibold text-[#aab8f5] shadow-[0_0_30px_-10px_rgba(44,52,128,0.6)]"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
             Private Beta · 2026 · Free to start
@@ -292,13 +292,25 @@ export function Landing() {
             transition={{ duration: 0.5, delay: 0.55 }}
             className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center"
           >
-            <Link href="/signup" className="btn btn-premium rounded-full px-8 py-4 text-base shadow-[0_20px_60px_-15px_rgba(124,92,255,0.8)] animate-pulse-brand">
+            <Link href="/signup" className="btn btn-premium rounded-full px-8 py-4 text-base shadow-[0_20px_60px_-15px_rgba(44,52,128,0.8)] animate-pulse-brand">
               <Sparkles size={18} />
               Start for free
               <ArrowRight size={16} />
             </Link>
             <Link href="/examples" className="btn btn-ghost rounded-full px-6 py-4 text-base">
               See examples
+            </Link>
+          </motion.div>
+
+          {/* No-login trial link */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.75 }}
+            className="mt-4"
+          >
+            <Link href="/try" className="text-sm font-semibold text-[#8b9bf0] underline decoration-[#4c6fff]/50 underline-offset-4 hover:text-white hover:decoration-white/60 transition-colors">
+              Try it right now — no login needed →
             </Link>
           </motion.div>
 
@@ -359,9 +371,9 @@ export function Landing() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="flex items-start gap-4 rounded-2xl border border-white/8 bg-white/[0.03] p-4 hover:border-[#7c5cff]/30 hover:bg-[#7c5cff]/5 transition-all duration-300"
+                  className="flex items-start gap-4 rounded-2xl border border-white/8 bg-white/[0.03] p-4 hover:border-[#4c6fff]/30 hover:bg-[#4c6fff]/5 transition-all duration-300"
                 >
-                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#7c5cff]/30 to-[#4aa8ff]/20 text-[#a78bfa]">
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#4c6fff]/30 to-[#4aa8ff]/20 text-[#8b9bf0]">
                     {step.icon}
                   </div>
                   <div>
@@ -385,9 +397,26 @@ export function Landing() {
         </div>
       </section>
 
+      {/* ===== TONE MARQUEE ===== */}
+      <div className="relative overflow-hidden border-y border-white/8 bg-black/40 py-5">
+        <div className="marquee-track gap-3 px-3">
+          {[...Array(2)].map((_, dup) => (
+            <div key={dup} className="flex shrink-0 gap-3">
+              {['Warm', 'Confident', 'Playful', 'Empathetic', 'Flirty', 'Apologetic', 'Formal', 'Casual', 'Savage', 'Gen-Z', 'Hinglish', '17 languages', 'No login needed'].map((t) => (
+                <span key={`${dup}-${t}`} className="shrink-0 rounded-full border border-[#4c6fff]/30 bg-[#2c3480]/25 px-5 py-2 text-sm font-semibold text-[#aab8f5] backdrop-blur-sm">
+                  {t}
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-black to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-black to-transparent" />
+      </div>
+
       {/* ===== STATS ===== */}
       <section className="relative py-20 border-y border-white/8">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#7c5cff]/5 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#4c6fff]/5 to-transparent pointer-events-none" />
         <motion.div
           variants={container}
           initial="hidden"
@@ -399,9 +428,9 @@ export function Landing() {
             <motion.div
               key={i}
               variants={itemVariant}
-              className="group premium-card flex flex-col items-center gap-2 p-6 text-center cursor-default"
+              className="group premium-card card-lift flex flex-col items-center gap-2 p-6 text-center cursor-default"
             >
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#7c5cff]/20 text-[#a78bfa] group-hover:bg-[#7c5cff]/35 transition-colors duration-300">
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#4c6fff]/20 text-[#8b9bf0] group-hover:bg-[#4c6fff]/35 transition-colors duration-300">
                 {s.icon}
               </div>
               <div className="text-3xl font-black gradient-text">{s.value}</div>
@@ -480,7 +509,7 @@ export function Landing() {
               className="grid gap-4"
             >
               {[
-                { icon: <Heart size={20} />, mode: 'Personal', color: '#a78bfa', desc: 'For partners, friends, family, crushes, apologies, invites, and everyday chats.', badge: 'Free' },
+                { icon: <Heart size={20} />, mode: 'Personal', color: '#8b9bf0', desc: 'For partners, friends, family, crushes, apologies, invites, and everyday chats.', badge: 'Free' },
                 { icon: <Briefcase size={20} />, mode: 'Professional (Works)', color: '#4aa8ff', desc: 'For emails, follow-ups, notices, social posts, pitches, and marketing copy.', badge: 'Plus' },
               ].map((m, i) => (
                 <motion.div
@@ -507,7 +536,7 @@ export function Landing() {
 
       {/* ===== CTA SECTION ===== */}
       <section className="relative overflow-hidden px-5 py-28">
-        <div className="orb h-[600px] w-[600px] bg-[#7c5cff]/20 -top-32 left-1/2 -translate-x-1/2 pointer-events-none" />
+        <div className="orb h-[600px] w-[600px] bg-[#4c6fff]/20 -top-32 left-1/2 -translate-x-1/2 pointer-events-none" />
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -519,7 +548,7 @@ export function Landing() {
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-              className="mx-auto mb-6 grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-[#7c5cff] to-[#4aa8ff] shadow-[0_0_60px_-10px_rgba(124,92,255,0.9)]"
+              className="mx-auto mb-6 grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-[#4c6fff] to-[#4aa8ff] shadow-[0_0_60px_-10px_rgba(44,52,128,0.9)]"
             >
               <WandSparkles size={28} className="text-white" />
             </motion.div>
@@ -530,7 +559,7 @@ export function Landing() {
               Free forever. No credit card. Works instantly.
             </p>
             <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <Link href="/signup" className="btn btn-premium rounded-full px-10 py-4 text-base shadow-[0_20px_60px_-15px_rgba(124,92,255,0.9)] animate-pulse-brand">
+              <Link href="/signup" className="btn btn-premium rounded-full px-10 py-4 text-base shadow-[0_20px_60px_-15px_rgba(44,52,128,0.9)] animate-pulse-brand">
                 <Sparkles size={18} />
                 Get started free
                 <ArrowRight size={16} />

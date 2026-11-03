@@ -32,7 +32,7 @@ export function PlanCards({ plans }: { plans: Plan[] }) {
     <div className="w-full space-y-8">
       <div className="flex flex-col items-center gap-3">
         <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] p-1.5">
-          <button className="rounded-xl bg-[#7c5cff] px-5 py-2.5 text-sm font-semibold text-white shadow-glow">Monthly</button>
+          <button className="rounded-xl bg-[#4c6fff] px-5 py-2.5 text-sm font-semibold text-white shadow-glow">Monthly</button>
           <button aria-disabled="true" title="Annual billing coming soon" className="flex cursor-not-allowed items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white/40">Annual <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400">soon</span></button>
         </div>
         <p className="text-xs text-muted">Simple beta pricing. Upgrade only when Banter becomes a habit.</p>
@@ -43,12 +43,12 @@ export function PlanCards({ plans }: { plans: Plan[] }) {
           const featured = tier.key === 'plus';
           const pro = tier.key === 'pro';
           return (
-            <div key={tier.key} className={`relative flex min-h-[410px] flex-col overflow-hidden rounded-[2rem] border p-6 transition-all duration-300 hover:-translate-y-2 ${featured ? 'border-[#4aa8ff]/55 bg-gradient-to-b from-[#4aa8ff]/12 to-white/[0.025] shadow-[0_30px_80px_-25px_rgba(74,168,255,0.65)]' : pro ? 'border-[#7c5cff]/45 bg-gradient-to-b from-[#7c5cff]/10 to-white/[0.025] shadow-[0_24px_70px_-28px_rgba(124,92,255,0.55)]' : 'border-white/10 bg-white/[0.035]'}`}>
-              {(featured || pro) && <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent ${featured ? 'via-[#4aa8ff]' : 'via-[#7c5cff]'} to-transparent`} />}
+            <div key={tier.key} className={`relative flex min-h-[410px] flex-col overflow-hidden rounded-[2rem] border p-6 transition-all duration-300 hover:-translate-y-2 ${featured ? 'border-[#4aa8ff]/55 bg-gradient-to-b from-[#4aa8ff]/12 to-white/[0.025] shadow-[0_30px_80px_-25px_rgba(74,168,255,0.65)]' : pro ? 'border-[#4c6fff]/45 bg-gradient-to-b from-[#4c6fff]/10 to-white/[0.025] shadow-[0_24px_70px_-28px_rgba(44,52,128,0.55)]' : 'border-white/10 bg-white/[0.035]'}`}>
+              {(featured || pro) && <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent ${featured ? 'via-[#4aa8ff]' : 'via-[#4c6fff]'} to-transparent`} />}
 
               <div className="mb-5 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  {featured ? <Zap size={17} className="text-[#4aa8ff]" /> : pro ? <Crown size={17} className="text-[#a78bfa]" /> : <Sparkles size={17} className="text-white/55" />}
+                  {featured ? <Zap size={17} className="text-[#4aa8ff]" /> : pro ? <Crown size={17} className="text-[#8b9bf0]" /> : <Sparkles size={17} className="text-white/55" />}
                   <h3 className="text-2xl font-black tracking-tight text-white">{tier.name}</h3>
                 </div>
                 {featured && <span className="badge-plus">Most popular</span>}
@@ -74,7 +74,7 @@ export function PlanCards({ plans }: { plans: Plan[] }) {
 
               <ul className="mt-7 flex-1 space-y-3 text-sm text-white/82">
                 {tier.feats.map((f, j) => (
-                  <li key={j} className="flex gap-3"><Check size={16} className={`mt-0.5 shrink-0 ${featured ? 'text-[#4aa8ff]' : pro ? 'text-[#a78bfa]' : 'text-emerald-400'}`} /><span>{f}</span></li>
+                  <li key={j} className="flex gap-3"><Check size={16} className={`mt-0.5 shrink-0 ${featured ? 'text-[#4aa8ff]' : pro ? 'text-[#8b9bf0]' : 'text-emerald-400'}`} /><span>{f}</span></li>
                 ))}
               </ul>
 

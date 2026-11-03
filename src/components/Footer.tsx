@@ -19,7 +19,7 @@ export function Footer() {
   return (
     <footer className="relative mt-auto border-t border-white/8 py-12">
       {/* Glow top border */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#7c5cff]/40 to-transparent" />
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#4c6fff]/40 to-transparent" />
       
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-5">
         {/* Logo */}
@@ -73,7 +73,7 @@ export function Footer() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="flex items-center gap-1.5 text-xs text-white/40"
         >
-          Designed & built with <Heart size={11} className="text-[#7c5cff] fill-[#7c5cff]" /> by HONEY · HNY Labs · 2026
+          Designed & built with <Heart size={11} className="text-[#4c6fff] fill-[#4c6fff]" /> by HONEY · HNY Labs · 2026
         </motion.p>
       </div>
     </footer>

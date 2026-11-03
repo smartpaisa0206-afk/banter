@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, index } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, index, primaryKey } from 'drizzle-orm/sqlite-core';
 
 export const users = sqliteTable('users', {
   id: text('id').primaryKey(),
@@ -7,6 +7,7 @@ export const users = sqliteTable('users', {
   salt: text('salt').notNull(),
   role: text('role').notNull().default('free'), // free | basic | premium | admin
   status: text('status').notNull().default('active'), // active | banned
+  emailVerified: integer('email_verified', { mode: 'boolean' }).notNull().default(false),
   trialEndsAt: integer('trial_ends_at'), // keyboard trial (phase 2)
   createdAt: integer('created_at').notNull(),
 });
@@ -57,6 +58,25 @@ export const settings = sqliteTable('settings', {
   key: text('key').primaryKey(),
   value: text('value').notNull(),
 });
+
+// Tone-learning v1: per-user tone selection counts. Incremented on every
+// successful generation; powers the "Your top tones" strip and the smart
+// default tone in the composer. Purely additive — safe to be empty.
+export const userToneStats = sqliteTable(
+  'user_tone_stats',
+  {
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    tone: text('tone').notNull(),
+    count: integer('count').notNull().default(0),
+    updatedAt: integer('updated_at').notNull(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.userId, t.tone] }),
+    userIdx: index('tone_user_idx').on(t.userId),
+  }),
+);
 
 // Device tokens for the native Android keyboard (Phase 2). The keyboard cannot
 // use httpOnly cookies, so it authenticates with a bearer token instead.

@@ -8,6 +8,7 @@ import { historyAccess } from '@/lib/plans';
 import { HISTORY_LIMIT } from '@/lib/config';
 import { decryptText } from '@/lib/security';
 import { CopyButton } from '@/components/CopyButton';
+import { DeleteGenerationButton } from '@/components/DeleteGenerationButton';
 import { History as HistoryIcon, Sparkles } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -62,7 +63,10 @@ export default async function History() {
               <div key={it.id} className="card space-y-3 p-5">
                 <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted">
                   <span className="chip">{it.relationship} · {it.intent} · {it.tone} · {it.language}</span>
-                  <span>{new Date(it.createdAt).toLocaleString()}</span>
+                  <span className="flex items-center gap-1.5">
+                    <span>{new Date(it.createdAt).toLocaleString()}</span>
+                    <DeleteGenerationButton id={it.id} />
+                  </span>
                 </div>
                 {p?.format === 'email' && p.subject ? (
                   <div className="space-y-2">

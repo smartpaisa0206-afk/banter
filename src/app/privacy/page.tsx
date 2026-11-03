@@ -48,7 +48,7 @@ export default function PrivacyPage() {
             transition={{ delay: i * 0.07 }}
             className="premium-card card-hover p-6"
           >
-            <div className="mb-4 grid h-10 w-10 place-items-center rounded-xl bg-[#7c5cff]/20 text-[#a78bfa]">
+            <div className="mb-4 grid h-10 w-10 place-items-center rounded-xl bg-[#4c6fff]/20 text-[#8b9bf0]">
               {s.icon}
             </div>
             <h3 className="mb-2 font-bold text-white">{s.title}</h3>

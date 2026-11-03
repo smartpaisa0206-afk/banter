@@ -114,7 +114,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden p-5">
       {/* BG orbs */}
-      <div className="orb pointer-events-none -left-40 -top-40 h-[500px] w-[500px] bg-[#7c5cff]/15" />
+      <div className="orb pointer-events-none -left-40 -top-40 h-[500px] w-[500px] bg-[#4c6fff]/15" />
       <div className="orb pointer-events-none -right-32 bottom-0 h-[400px] w-[400px] bg-[#4aa8ff]/12" style={{ animationDelay: '5s' }} />
 
       <motion.div
@@ -196,7 +196,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
                     type="button"
                     onClick={() => { setTab(t); setErr(''); setOtpSent(false); setDevCode(undefined); }}
                     className={`flex-1 rounded-lg py-2 text-sm font-medium transition-all ${
-                      tab === t ? 'bg-[#7c5cff] text-white shadow-glow' : 'text-white/55 hover:text-white'
+                      tab === t ? 'bg-[#4c6fff] text-white shadow-glow' : 'text-white/55 hover:text-white'
                     }`}
                   >
                     {t === 'password' ? '🔑 Password' : '✉️ Magic code'}
@@ -273,7 +273,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
                         maxLength={6}
                         required
                       />
-                      <button type="button" onClick={sendOtp} className="mt-2 text-xs text-[#a78bfa] underline transition-colors hover:text-white">
+                      <button type="button" onClick={sendOtp} className="mt-2 text-xs text-[#8b9bf0] underline transition-colors hover:text-white">
                         Resend code
                       </button>
                     </motion.div>
@@ -335,11 +335,11 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
               <p className="mt-5 text-center text-xs text-muted">
                 {mode === 'login' ? (
                   <>Don&apos;t have an account?{' '}
-                    <Link href="/signup" className="text-[#a78bfa] underline transition-colors hover:text-white">Sign up free</Link>
+                    <Link href="/signup" className="text-[#8b9bf0] underline transition-colors hover:text-white">Sign up free</Link>
                   </>
                 ) : (
                   <>Already have an account?{' '}
-                    <Link href="/login" className="text-[#a78bfa] underline transition-colors hover:text-white">Log in</Link>
+                    <Link href="/login" className="text-[#8b9bf0] underline transition-colors hover:text-white">Log in</Link>
                   </>
                 )}
               </p>
@@ -354,7 +354,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
           transition={{ delay: 0.4 }}
           className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-muted"
         >
-          <span className="flex items-center gap-1"><Sparkles size={11} className="text-[#a78bfa]" /> Free forever plan</span>
+          <span className="flex items-center gap-1"><Sparkles size={11} className="text-[#8b9bf0]" /> Free forever plan</span>
           <span className="flex items-center gap-1"><Check size={11} className="text-emerald-400" /> No credit card</span>
           <span className="flex items-center gap-1"><Lock size={11} className="text-[#4aa8ff]" /> Never trained on your messages</span>
         </motion.div>

@@ -23,7 +23,7 @@ export default function IntroductionPage() {
 
       <div className="grid gap-4 sm:grid-cols-3">
         {[
-          { icon: <Heart size={20} />, color: '#a78bfa', title: 'Personal', desc: 'Crushes, partners, friends, family — relationships that matter.' },
+          { icon: <Heart size={20} />, color: '#8b9bf0', title: 'Personal', desc: 'Crushes, partners, friends, family — relationships that matter.' },
           { icon: <MessageCircle size={20} />, color: '#4aa8ff', title: 'Professional', desc: 'Emails, follow-ups, pitches, and everything work-related.' },
           { icon: <Zap size={20} />, color: '#e9c46a', title: 'Instant', desc: 'Ready-to-send in seconds. No overthinking required.' },
         ].map((c, i) => (
