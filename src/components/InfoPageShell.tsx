@@ -33,7 +33,7 @@ export function InfoPageShell({
         initial={{ y: -60, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="sticky top-0 z-50 border-b border-white/8 bg-[#0b0b12]/90 backdrop-blur-2xl"
+        className="sticky top-0 z-50 border-b border-white/8 bg-[#000000]/90 backdrop-blur-2xl"
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5">
           <Link href="/">
@@ -47,7 +47,7 @@ export function InfoPageShell({
                 className="relative hover:text-white transition-colors group"
               >
                 {l.label}
-                <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[#7c5cff] transition-all duration-300 group-hover:w-full" />
+                <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[#4c6fff] transition-all duration-300 group-hover:w-full" />
               </Link>
             ))}
           </nav>

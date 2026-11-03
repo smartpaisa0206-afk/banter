@@ -452,8 +452,8 @@ export function Composer() {
                     key={tid}
                     onClick={() => setTone(tid)}
                     className={`rounded-full border px-3 py-1 text-xs transition-all ${active
-                      ? 'border-[#7c5cff]/60 bg-[#7c5cff]/20 text-white'
-                      : 'border-white/10 bg-white/[0.04] text-muted hover:border-[#7c5cff]/40 hover:text-white'
+                      ? 'border-[#4c6fff]/60 bg-[#4c6fff]/20 text-white'
+                      : 'border-white/10 bg-white/[0.04] text-muted hover:border-[#4c6fff]/40 hover:text-white'
                       }`}
                   >
                     {tn.label} <span className="opacity-60">· {count}</span>

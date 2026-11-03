@@ -6,7 +6,7 @@ import { Wand2, Users, MessageCircle, Layers, Zap, Check } from 'lucide-react';
 const methods = [
   {
     icon: <Users size={22} />,
-    color: '#7c5cff',
+    color: '#4c6fff',
     title: 'Relationship awareness',
     desc: 'Banter knows the difference between texting your partner vs emailing your boss. Select who you\'re writing to, and the language, warmth, and formality adjust automatically.',
   },
@@ -24,7 +24,7 @@ const methods = [
   },
   {
     icon: <Wand2 size={22} />,
-    color: '#a78bfa',
+    color: '#8b9bf0',
     title: 'AI generation engine',
     desc: 'Powered by OpenRouter (or Groq / OpenAI / Anthropic) with smart template fallback. No key? It still works using local templates.',
   },

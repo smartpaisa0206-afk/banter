@@ -65,7 +65,7 @@ export function AppHeader() {
         initial={{ y: -60, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="sticky top-0 z-50 border-b border-white/8 bg-[#0b0b12]/90 backdrop-blur-2xl"
+        className="sticky top-0 z-50 border-b border-white/8 bg-[#000000]/90 backdrop-blur-2xl"
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-3">
           {/* Logo */}
@@ -81,7 +81,7 @@ export function AppHeader() {
                 href={l.to}
                 className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-medium transition-all duration-200 ${
                   isActive(l.to)
-                    ? 'bg-[#7c5cff]/20 text-white shadow-[0_0_15px_-5px_rgba(124,92,255,0.6)]'
+                    ? 'bg-[#4c6fff]/20 text-white shadow-[0_0_15px_-5px_rgba(44,52,128,0.6)]'
                     : 'text-white/65 hover:bg-white/8 hover:text-white'
                 }`}
               >
@@ -118,7 +118,7 @@ export function AppHeader() {
                 onClick={() => setProfileOpen((v) => !v)}
                 className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/80 transition-all hover:border-white/20 hover:bg-white/10"
               >
-                <div className="grid h-6 w-6 place-items-center rounded-full bg-gradient-to-br from-[#7c5cff] to-[#4aa8ff]">
+                <div className="grid h-6 w-6 place-items-center rounded-full bg-gradient-to-br from-[#4c6fff] to-[#4aa8ff]">
                   <User size={12} className="text-white" />
                 </div>
                 <span className="max-w-[120px] truncate text-xs">{displayName}</span>
@@ -160,7 +160,7 @@ export function AppHeader() {
                           onClick={() => setProfileOpen(false)}
                           className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-white/75 transition-colors hover:bg-white/8 hover:text-white"
                         >
-                          <span className="text-[#a78bfa]">{item.icon}</span>
+                          <span className="text-[#8b9bf0]">{item.icon}</span>
                           {item.label}
                         </Link>
                       ))}
@@ -201,12 +201,12 @@ export function AppHeader() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="sticky top-[57px] z-40 overflow-hidden border-b border-white/8 bg-[#0b0b12]/95 backdrop-blur-2xl"
+            className="sticky top-[57px] z-40 overflow-hidden border-b border-white/8 bg-[#000000]/95 backdrop-blur-2xl"
           >
             <div className="mx-auto max-w-7xl space-y-4 px-4 py-4">
               {/* User info */}
               <div className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.03] p-3">
-                <div className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-[#7c5cff] to-[#4aa8ff]">
+                <div className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-[#4c6fff] to-[#4aa8ff]">
                   <User size={16} className="text-white" />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -231,11 +231,11 @@ export function AppHeader() {
                     onClick={() => setMenuOpen(false)}
                     className={`flex items-center gap-2 rounded-xl p-3 text-sm font-medium transition-colors ${
                       isActive(l.to)
-                        ? 'bg-[#7c5cff]/20 text-white'
+                        ? 'bg-[#4c6fff]/20 text-white'
                         : 'border border-white/8 bg-white/[0.03] text-white/70 hover:bg-white/8 hover:text-white'
                     }`}
                   >
-                    <span className="text-[#a78bfa]">{l.icon}</span>
+                    <span className="text-[#8b9bf0]">{l.icon}</span>
                     {l.label}
                   </Link>
                 ))}

@@ -49,7 +49,7 @@ function ExCard({ rough, polished }: { rough: string; polished: string }) {
     >
       <div>
         <p className="label mb-1.5">Rough draft</p>
-        <p className="text-sm text-white/55 line-through decoration-[#7c5cff]/50">{rough}</p>
+        <p className="text-sm text-white/55 line-through decoration-[#4c6fff]/50">{rough}</p>
       </div>
       <div className="divider" />
       <div>

@@ -5,7 +5,7 @@ import { ArrowRight, Home, Sparkles } from 'lucide-react';
 export default function NotFound() {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden p-8 text-center">
-      <div className="orb pointer-events-none -top-20 left-1/2 h-[400px] w-[400px] -translate-x-1/2 bg-[#7c5cff]/15" />
+      <div className="orb pointer-events-none -top-20 left-1/2 h-[400px] w-[400px] -translate-x-1/2 bg-[#4c6fff]/15" />
 
       <div className="relative z-10">
         <Link href="/" className="mb-8 inline-block">
@@ -31,7 +31,7 @@ export default function NotFound() {
         </div>
 
         <p className="mt-8 flex items-center justify-center gap-1.5 text-xs text-muted">
-          <Sparkles size={12} className="text-[#a78bfa]" />
+          <Sparkles size={12} className="text-[#8b9bf0]" />
           Say the right thing to the right person.
         </p>
       </div>

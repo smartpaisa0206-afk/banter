@@ -12,7 +12,7 @@ const articles = [
     desc: 'Most apologies fail because they focus on the sender, not the receiver. Here\'s how to write one that actually lands.',
     read: '4 min read',
     emoji: '🙏',
-    color: '#7c5cff',
+    color: '#4c6fff',
   },
   {
     slug: 'the-5-second-rule-for-work-emails',
@@ -30,7 +30,7 @@ const articles = [
     desc: 'The anxiety of "does this sound desperate?" — and how to escape it.',
     read: '5 min read',
     emoji: '💜',
-    color: '#a78bfa',
+    color: '#8b9bf0',
   },
   {
     slug: 'why-hinglish-is-the-future-of-messaging',
@@ -85,13 +85,13 @@ export default function ArticlesPage() {
               </span>
               <span className="text-2xl">{a.emoji}</span>
             </div>
-            <h3 className="mb-2 font-black text-white leading-snug group-hover:text-[#a78bfa] transition-colors">{a.title}</h3>
+            <h3 className="mb-2 font-black text-white leading-snug group-hover:text-[#8b9bf0] transition-colors">{a.title}</h3>
             <p className="flex-1 text-sm leading-relaxed text-muted">{a.desc}</p>
             <div className="mt-4 flex items-center justify-between border-t border-white/8 pt-3">
               <span className="flex items-center gap-1.5 text-xs text-muted">
                 <Clock size={12} /> {a.read}
               </span>
-              <span className="flex items-center gap-1 text-xs font-semibold text-[#7c5cff] group-hover:gap-2 transition-all">
+              <span className="flex items-center gap-1 text-xs font-semibold text-[#4c6fff] group-hover:gap-2 transition-all">
                 Read <ArrowRight size={12} />
               </span>
             </div>
@@ -106,7 +106,7 @@ export default function ArticlesPage() {
         viewport={{ once: true }}
         className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.03] p-5"
       >
-        <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#7c5cff]/20 text-[#a78bfa]">
+        <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#4c6fff]/20 text-[#8b9bf0]">
           <BookOpen size={20} />
         </div>
         <div>
