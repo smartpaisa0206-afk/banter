@@ -10,4 +10,10 @@ env.download
 # build archives (re-creatable via zip)
 banter-src.zip
 banter-src.tar.gz
-android/
+/android/
+
+# android build outputs (source stays tracked under keyboard-android/)
+keyboard-android/**/*.iml
+keyboard-android/**/build/
+keyboard-android/**/local.properties
+keyboard-android/.gradle/
